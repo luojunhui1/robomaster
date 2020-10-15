@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="robomaster"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\local\;CMake Files\..\..\..\..\usr\local\share\;CMake Files\..\..\..\..\usr\local\share\OpenCV\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/ljh/文档/RobomasterGit/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/ljh/文档/RobomasterGit/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/ljh/文档/RobomasterGit/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="run">
+				<Option output="/home/ljh/文档/RobomasterGit/cmake-build-debug/run" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ljh/文档/RobomasterGit/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/ljh/文档/RobomasterGit/Thread/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Serials/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Armor/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Other/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Pose/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Drivers/include"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/local/include/opencv"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 run"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="run/fast">
+				<Option output="/home/ljh/文档/RobomasterGit/cmake-build-debug/run" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ljh/文档/RobomasterGit/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/ljh/文档/RobomasterGit/Thread/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Serials/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Armor/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Other/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Pose/include"/>
+					<Add directory="/home/ljh/文档/RobomasterGit/Drivers/include"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/local/include/opencv"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 run/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/RobomasterGit/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Armor/src/ArmorDetector.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Drivers/src/RMVideoCapture.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Other/src/preoptions.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Other/src/systime.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Pose/src/Kalman.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Pose/src/SolveAngle.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Serials/src/SericalPort.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/Thread/src/mythread.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/main.cpp">
+			<Option target="run"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/../../../../usr/local/share/OpenCV/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\share\OpenCV\"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/../../../../usr/local/share/OpenCV/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\share\OpenCV\"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/../../../../usr/local/share/OpenCV/OpenCVModules-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\share\OpenCV\"/>
+		</Unit>
+		<Unit filename="/home/ljh/文档/RobomasterGit/../../../../usr/local/share/OpenCV/OpenCVModules.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\share\OpenCV\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

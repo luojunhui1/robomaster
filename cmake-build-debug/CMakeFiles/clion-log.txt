@@ -1,0 +1,10 @@
+/home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/ljh/文档/RobomasterGit
+-- Project:robomaster
+-- Project Directory: /home/ljh/文档/RobomasterGit
+-- OpenCVlibrarystatus:
+-- version: 3.4.0
+--  libraries: 
+-- includepath:/home/ljh/文档/RobomasterGit /usr/local/include;/usr/local/include/opencv
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ljh/文档/RobomasterGit/cmake-build-debug
