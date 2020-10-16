@@ -28,7 +28,7 @@ namespace rm
 	class FrameBuffer/*figure queue*/
 	{
 	public:
-		FrameBuffer(int32_t size);
+	    explicit FrameBuffer(int32_t size_);
 
 		~FrameBuffer() = default;
 
@@ -37,77 +37,77 @@ namespace rm
 		bool getLatest(Frame& frame);
 
 	private:
-		std::vector<Frame> _frames;
-		std::vector<std::timed_mutex> _mutexs;
+		std::vector<Frame> frames;
+		std::vector<std::timed_mutex> mutexs;
 
-		uint32_t _tailIdx;
-		uint32_t _headIdx;
+		uint32_t tailIdx;
+		uint32_t headIdx;
 		uint32_t size;
-		double _lastGetTimeStamp;
+		double lastGetTimeStamp;
 	};
-    class States//describe the run states
+    class Status//describe the run status
     {
     public:
-        States();
-        int8_t cur_armor_state;// current armor is big or small
-        int8_t last_armor_state;
+        Status();
+        int8_t curArmorState;// current armor is big or small
+        int8_t lastArmorState;
 
-        int8_t cur_find_state; //current image find armor or not
-        int8_t last_find_state;
+        int8_t curFindState; //current image find armor or not
+        int8_t lastFindState;
 
-        int8_t cur_control_state; //current control mode
-        int8_t last_control_state;
+        int8_t curControlState; //current control mode
+        int8_t lastControlState;
 
-        uint8_t cur_attack_mode; //tracking or searching
-        uint8_t last_attack_mode;
-		void updateStates(int8_t& armor_state,int8_t& find_state,int8_t& control_state,int8_t& attack_mode);
+        uint8_t curAttackMode; //tracking or searching
+        uint8_t lastAttackMode;
+		void UpdateStates(int8_t armor_state, int8_t find_state, int8_t control_state, int8_t attack_mode);
     };
 	class ImgProdCons
 	{
 	public:
 		ImgProdCons();
-		~ImgProdCons() {};
+		~ImgProdCons() = default;;
 		/*
 		initialize
 		*/
-		void init();
+		void Init();
 		/*
 		* @Brief: Receive self state from the serail port, update task mode if commanded
 		*/
-		void feedback();
+		void Feedback();
 
 		/*
 		* @Brief: keep reading image from the camera into the buffer
 		*/
-		void produce();
+		void Produce();
 
 		/*
 		* @Brief: run tasks
 		*/
-		void consume();
+		void Consume();
 	private:
 		/*
 		* To prevent camera from dying!
 		*/
-		static bool _quit_flag;
-		static void signal_handler(int);
-		void init_signals(void);
+		static bool quitFlag;
+		static void SignalHandler(int);
+		void InitSignals();
 
 		/* Camera */
-		std::unique_ptr<RMVideoCapture> _videoCapturePtr;
+		std::unique_ptr<RMVideoCapture> videoCapturePtr;
 
-		FrameBuffer _buffer;
+		FrameBuffer frameBuffer;
 
 		/* Serial */
-		std::unique_ptr<SerialPort> _serialPtr;
+		std::unique_ptr<SerialPort> serialPtr;
 
 		/* Angle solver */
-		std::unique_ptr<SolveAngle> _solverPtr;
+		std::unique_ptr<SolveAngle> solverPtr;
 
 		/* Armor detector */
-		std::unique_ptr<ArmorDetector> _armorDetectorPtr;
+		std::unique_ptr<ArmorDetector> armorDetectorPtr;
 
-        std::unique_ptr<States> _states;
+        std::unique_ptr<Status> status;
 	};
 }
 

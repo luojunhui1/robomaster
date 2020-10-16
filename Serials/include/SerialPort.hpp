@@ -18,12 +18,12 @@ using namespace std;
 
 typedef struct serial_transmit_data_out//输入到下位机的数据
 {
-	uint8_t curr_yaw = 0;
-	uint8_t curr_pitch = 0;
-	uint8_t curr_distance = 100;
-	bool findstate = 0;
+	uint8_t curYaw = 0;
+	uint8_t curPitch = 0;
+	uint8_t curDistance = 100;
+	bool findState = 0;
 	uint8_t size = 5;
-	unsigned char res[20];
+	unsigned char res[20]{};
 	unsigned char head = 0xaa;
 	unsigned char end = 0xbb;
 }SerialOut;
@@ -33,9 +33,9 @@ typedef struct serial_transmit_data_in//上位机接收的数据
 	float curr_pitch = 0;    // 当前云台pitch角
 	uint8_t state = AUTO_SHOOT_STATE;       // 当前状态，自瞄-大符-小符
 	uint8_t anti_top = 0;    // 是否为反陀螺模式
-	uint8_t enemy_color; // 敌方颜色
-	uint8_t delta_x;         // 能量机关x轴补偿量
-	uint8_t delta_y;         // 能量机关y轴补偿量
+	uint8_t enemy_color{}; // 敌方颜色
+	uint8_t delta_x{};         // 能量机关x轴补偿量
+	uint8_t delta_y{};         // 能量机关y轴补偿量
 	unsigned char head = 0xaa;
 	unsigned char end = 0xbb;
 }SerialIn;
@@ -51,20 +51,20 @@ public:
      */
     SerialPort(const char* filename, int buadrate);
 	/*尝试重连*/
-	void restart_serial(void);
-    void send_data();
-	bool read_data();
-	void update_serial_out(float distance_,float las_distance,float yaw_,float pitch_,bool findstate);
+	void RestartSerial(void);
+    void SendData();
+	bool ReadData();
+	void UpdateSerialOut(float distance_, float yaw_, float pitch_, int findstate);
 	void pack();
-    int fd;
-    int last_fd;
-    bool success_;
+    int fd{};
+    int lastFd{};
+    bool success_{};
 
 private:
-	SerialIn serial_input;
-	SerialOut serial_output;
-    const char* file_name_;
-    int buadrate_;
-    float last_bullet_speed;
+	SerialIn serialInput;
+	SerialOut serialOutput;
+    const char* fileName{};
+    int buadrate{};
+    float lastBulletSpeed{};
 };
 

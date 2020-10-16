@@ -5,95 +5,90 @@ SerialPort::SerialPort(){}
 
 SerialPort::SerialPort(const char* filename, int buadrate)
 {
-    file_name_ = filename;
-    buadrate_ = buadrate;
+    fileName = filename;
+    buadrate = buadrate;
     success_ = false;
 //    serial_mode = NO_INIT;
-    fd = open(file_name_, O_RDWR);// Read/Write access to serial port                                           // No terminal will control the process
-    last_fd = fd;
+    fd = open(fileName, O_RDWR);// Read/Write access to serial port                                           // No terminal will control the process
+    lastFd = fd;
     if(fd == -1)
     {
-        printf("open_port wait to open %s .\n", file_name_);
-//        NOTICE("wait serial " << file_name_,1);
+        printf("open_port wait to open %s .\n", fileName);
+//        NOTICE("wait serial " << fileName,1);
         return;
     }
     else if(fd != -1 )
     {
         fcntl(fd, F_SETFL,0);
-//        NOTICE("port is open " << file_name_,1);
-        printf("port is open %s.\n", file_name_);
+//        NOTICE("port is open " << fileName,1);
+        printf("port is open %s.\n", fileName);
     }
-    struct termios port_settings;               // structure to store the port settings in
-    if(buadrate_==0)
+    struct termios portSettings{};               // structure to store the port settings in
+    if(buadrate == 0)
     {
-        cfsetispeed(&port_settings, B115200);       // set baud rates
+        cfsetispeed(&portSettings, B115200);       // set baud rates
 
-        cfsetospeed(&port_settings, B115200);
+        cfsetospeed(&portSettings, B115200);
     }
-    else if(buadrate_ == 1)
+    else if(buadrate == 1)
     {
-        cfsetispeed(&port_settings, B921600);       // set baud rates
-        cfsetospeed(&port_settings, B921600);
+        cfsetispeed(&portSettings, B921600);       // set baud rates
+        cfsetospeed(&portSettings, B921600);
     }
-    port_settings.c_cflag = (port_settings.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
+    portSettings.c_cflag = (portSettings.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
     // disable IGNBRK for mismatched speed tests; otherwise receive break
     // as \000 chars
-    port_settings.c_iflag &= ~IGNBRK;         // disable break processing
-    port_settings.c_lflag = 0;                // no signaling chars, no echo,
+    portSettings.c_iflag &= ~IGNBRK;         // disable break processing
+    portSettings.c_lflag = 0;                // no signaling chars, no echo,
     // no canonical processing
-    port_settings.c_oflag = 0;                // no remapping, no delays
-    port_settings.c_cc[VMIN]  = 0;            // read doesn't block
-    port_settings.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+    portSettings.c_oflag = 0;                // no remapping, no delays
+    portSettings.c_cc[VMIN]  = 0;            // read doesn't block
+    portSettings.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
 
-    port_settings.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+    portSettings.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
 
-    port_settings.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
+    portSettings.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
     // enable reading
-    port_settings.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-    port_settings.c_cflag |= 0;
-    port_settings.c_cflag &= ~CSTOPB;
-    port_settings.c_cflag &= ~CRTSCTS;
-    port_settings.c_lflag = ICANON;
-    port_settings.c_cc[VMIN] = 10;           // read doesn't block
-    port_settings.c_cc[VTIME] = 5;          // 0.5 seconds read timeout
+    portSettings.c_cflag &= ~(PARENB | PARODD);      // shut off parity
+    portSettings.c_cflag |= 0;
+    portSettings.c_cflag &= ~CSTOPB;
+    portSettings.c_cflag &= ~CRTSCTS;
+    portSettings.c_lflag = ICANON;
+    portSettings.c_cc[VMIN] = 10;           // read doesn't block
+    portSettings.c_cc[VTIME] = 5;          // 0.5 seconds read timeout
 
-    tcsetattr(fd, TCSANOW, &port_settings);             // apply the settings to the port
+    tcsetattr(fd, TCSANOW, &portSettings);             // apply the settings to the port
 }
-void SerialPort::update_serial_out(float distance_, float last_distance_, float yaw_, float pitch_, bool findstate_)
+void SerialPort::UpdateSerialOut(float distance_,float yaw_, float pitch_, int findstate_)
 {
-	if (findstate_ = FIND_ARMOR_YES)
-		serial_output.curr_distance = distance_;
-	else
-		serial_output.curr_distance = last_distance_;
-	serial_output.findstate = findstate_;
-	serial_output.curr_yaw = yaw_;
-	serial_output.curr_pitch = pitch_;
+    serialOutput.curDistance = distance_;
+    serialOutput.findState = findstate_;
+    serialOutput.curYaw = yaw_;
+    serialOutput.curPitch = pitch_;
 	pack();
-	return;
 }
-void SerialPort::send_data()
+void SerialPort::SendData()
 {
-    if(serial_output.size != write(fd, serial_output.res,serial_output.size))
+    if(serialOutput.size != write(fd, serialOutput.res, serialOutput.size))
     {
         cout << "!!! send data failure !!!" << fd << endl;
-		restart_serial();
+        RestartSerial();
 		cout << "restart serial!" << endl;
     }
 }
 
 void SerialPort::pack()
 {
-		serial_output.res[0] = (u_char)serial_output.head;
-		serial_output.res[serial_output.size - 1] = (u_char)serial_output.end;
-		serial_output.res[1] = (u_char)(serial_output.curr_yaw) ;
-		//serial_output.res[2] = (uint16_t)((serial_output.curr_yaw) >>8) & 0xff;
-		serial_output.res[2] = (u_char)serial_output.curr_pitch;
-		//serial_output.res[4] = (uint16_t)((serial_output.curr_pitch) >> 8) & 0xff;
-		serial_output.res[3] = (u_char)serial_output.curr_distance;
-		//serial_output.res[6] = (uint16_t)(serial_output.curr_distance >> 8) & 0xff;
-		return;
+    serialOutput.res[0] = (u_char)serialOutput.head;
+    serialOutput.res[serialOutput.size - 1] = (u_char)serialOutput.end;
+    serialOutput.res[1] = (u_char)(serialOutput.curYaw) ;
+    //serialOutput.res[2] = (uint16_t)((serialOutput.curYaw) >>8) & 0xff;
+    serialOutput.res[2] = (u_char)serialOutput.curPitch;
+    //serialOutput.res[4] = (uint16_t)((serialOutput.curPitch) >> 8) & 0xff;
+    serialOutput.res[3] = (u_char)serialOutput.curDistance;
+    //serialOutput.res[6] = (uint16_t)(serialOutput.curDistance >> 8) & 0xff;
 }
-bool SerialPort::read_data()
+bool SerialPort::ReadData()
 {
 	tcflush(fd, TCIFLUSH);   /* Discards old data in the rx buffer            */
 	unsigned char read_buffer[9];   /* Buffer to store the data received              */
@@ -109,21 +104,21 @@ bool SerialPort::read_data()
 	{
 		//        cout << "can not read!" << endl;
 		//        NOTICE("can not read!",3);
-		restart_serial();
+        RestartSerial();
 		success_ = false;
 		return 0;
 	}
 	//    printf("buffer1 = %d\t\buffer1 = %d\t buffer1 = %d\tbuffer1 = %d\t\n", read_buffer[1], read_buffer[2], read_buffer[3], read_buffer[4]);
-	if (read_buffer[0] == serial_input.head && read_buffer[8] == serial_input.end)
+	if (read_buffer[0] == serialInput.head && read_buffer[8] == serialInput.end)
 	{
-		serial_input.curr_yaw = uint8_t(read_buffer[1]);
-		serial_input.curr_pitch = uint8_t(read_buffer[2]);
-		serial_input.state = uint8_t(read_buffer[3]);
+        serialInput.curr_yaw = uint8_t(read_buffer[1]);
+        serialInput.curr_pitch = uint8_t(read_buffer[2]);
+        serialInput.state = uint8_t(read_buffer[3]);
 		//        printf("buffer1 = %d\r\n", read_buffer[1]);
-		serial_input.anti_top = uint8_t(read_buffer[4]);
-		serial_input.enemy_color = uint8_t(read_buffer[5]);
-		serial_input.delta_x = uint8_t(read_buffer[6]);
-		serial_input.delta_y = uint8_t(read_buffer[7]);
+		serialInput.anti_top = uint8_t(read_buffer[4]);
+        serialInput.enemy_color = uint8_t(read_buffer[5]);
+        serialInput.delta_x = uint8_t(read_buffer[6]);
+        serialInput.delta_y = uint8_t(read_buffer[7]);
 		//        cout << "x: " << buff_offset_x << " y:" << buff_offset_y << endl;
 				//        gimbal_data = float(short((read_buffer[4]<<8) | read_buffer[3]))/100.0f;
 		//        cout << gimbal_data<< endl;
@@ -135,39 +130,39 @@ bool SerialPort::read_data()
 	return 0;
 }
 
-void SerialPort::restart_serial(void)
+void SerialPort::RestartSerial(void)
 {
-	//    cout << "test restart !!" << fd << " " << last_fd << endl;
+	//    cout << "test restart !!" << fd << " " << lastFd << endl;
 	close(fd);
-	fd = open(file_name_, O_RDWR | O_NOCTTY | O_SYNC);// Read/Write access to serial port
+	fd = open(fileName, O_RDWR | O_NOCTTY | O_SYNC);// Read/Write access to serial port
 //    cout << serial_mode << endl;
-	if (fd == -1 && last_fd != -1)
+	if (fd == -1 && lastFd != -1)
 	{
-		printf("open_port wait to open %s .\n", file_name_);
+		printf("open_port wait to open %s .\n", fileName);
 		//        NOTICE("wait serial",1);
-		last_fd = fd;
+		lastFd = fd;
 		return;
 	}
-	else if (fd != -1 && last_fd == -1)
+	else if (fd != -1 && lastFd == -1)
 	{
 		fcntl(fd, F_SETFL, 0);
 		//        NOTICE("port is open",1);
-		printf("port is open %s.\n", file_name_);
-		last_fd = fd;
+		printf("port is open %s.\n", fileName);
+        lastFd = fd;
 	}
 	else
 	{
-		last_fd = fd;
+        lastFd = fd;
 		return;
 	}
 	struct termios port_settings;               // structure to store the port settings in
-	if (buadrate_ == 0)
+	if (buadrate == 0)
 	{
 		cfsetispeed(&port_settings, B115200);       // set baud rates
 
 		cfsetospeed(&port_settings, B115200);
 	}
-	else if (buadrate_ == 1)
+	else if (buadrate == 1)
 	{
 		cfsetispeed(&port_settings, B921600);       // set baud rates
 		cfsetospeed(&port_settings, B921600);

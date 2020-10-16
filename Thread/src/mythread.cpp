@@ -15,149 +15,151 @@ using namespace cv;
 
 namespace rm
 {
-bool ImgProdCons::_quit_flag = false;
-FrameBuffer::FrameBuffer(int32_t size) :	
-	_frames(size),//initialize a vector with size numgbers elements 
-	_mutexs(size),
-	_tailIdx(0),
-	_headIdx(0),
-	_lastGetTimeStamp(0.0),
-	this->size(size)
+bool ImgProdCons::quitFlag = false;
+
+FrameBuffer::FrameBuffer(int32_t size_) :
+        frames(size_),//initialize a vector with size numgbers elements
+	mutexs(size_),
+        tailIdx(0),
+        headIdx(0),
+        lastGetTimeStamp(0.0),
+        size(size_)
 {
 }
 
 bool FrameBuffer::push(const Frame &frame)//push a frame into the queue
 {
-	const int32_t newHeadIdx = (_headIdx + 1) % size;
+	const int32_t newHeadIdx = (headIdx + 1) % size;
 
 	//try for 2ms to lock
-	unique_lock<timed_mutex> lock(_mutexs[newHeadIdx], chrono::milliseconds(2));
+	unique_lock<timed_mutex> lock(mutexs[newHeadIdx], chrono::milliseconds(2));
 	if (!lock.owns_lock())
 	{
 		return false;
 	}
 
-	_frames[newHeadIdx] = frame;
-	if (newHeadIdx == _tailIdx)
+    frames[newHeadIdx] = frame;
+	if (newHeadIdx == tailIdx)
 	{
-		_tailIdx = (_tailIdx + 1) % size;
+        tailIdx = (tailIdx + 1) % size;
 	}
-	_headIdx = newHeadIdx;
+    headIdx = newHeadIdx;
 	return true;
 }
 
 bool FrameBuffer::getLatest(Frame &frame)
 {
-	volatile const size_t headIdx = _headIdx;
+	volatile const size_t headIdx = headIdx;
 
 	//try for 2ms to lock
-	unique_lock<timed_mutex> lock(_mutexs[headIdx], chrono::milliseconds(2));
+	unique_lock<timed_mutex> lock(mutexs[headIdx], chrono::milliseconds(2));
 	if (!lock.owns_lock() ||
-		_frames[headIdx].img.empty() ||
-		_frames[headIdx].timeStamp == _lastGetTimeStamp)//it means the same frame
+        frames[headIdx].img.empty() ||
+        frames[headIdx].timeStamp == lastGetTimeStamp)//it means the same frame
 	{
 		return false;
 	}
 
-	frame = _frames[headIdx];
-	_lastGetTimeStamp = _frames[headIdx].timeStamp;
+	frame = frames[headIdx];
+    lastGetTimeStamp = frames[headIdx].timeStamp;
 
 	return true;
 }
-States::States()
+
+    Status::Status()
 {
-	cur_armor_state = BIG_ARMOR;
-	last_armor_state = BIG_ARMOR;
+    curArmorState = BIG_ARMOR;
+    lastArmorState = BIG_ARMOR;
 
-	cur_control_state = AUTO_SHOOT_STATE;
-	last_control_state = AUTO_SHOOT_STATE;
+    curControlState = AUTO_SHOOT_STATE;
+    lastControlState = AUTO_SHOOT_STATE;
 
-	cur_find_state = FIND_ARMOR_NO;
-	last_find_state = FIND_ARMOR_NO;
+    curFindState = FIND_ARMOR_NO;
+    lastFindState = FIND_ARMOR_NO;
 
-	cur_attack_mode = SEARCH_MODE;
-	last_attack_mode = SEARCH_MODE;
+    curAttackMode = SEARCH_MODE;
+    lastAttackMode = SEARCH_MODE;
 }
-void States::updateStates(int8_t& armor_state, int8_t& find_state, int8_t& control_state, int8_t& attack_mode)
+void Status::UpdateStates(int8_t armor_state, int8_t find_state, int8_t control_state, int8_t attack_mode)
 {
-	//last states update
-	last_armor_state = cur_armor_state;
-	last_find_state = cur_find_state;
-	last_control_state = cur_control_state;
-	last_attack_mode = cur_attack_mode;
-	//current states update
-	cur_armor_state = armor_state;
-	cur_find_state = find_state;
-	cur_control_state = control_state;
-	cur_attack_mode = attack_mode;
+	//last status update
+	lastArmorState = curArmorState;
+    lastFindState = curFindState;
+    lastControlState = curControlState;
+    lastAttackMode = curAttackMode;
+	//current status update
+	curArmorState = armor_state;
+    curFindState = find_state;
+    curControlState = control_state;
+    curAttackMode = attack_mode;
 }
-void ImgProdCons::signal_handler(int)
+void ImgProdCons::SignalHandler(int)
 {
 	perror("sigaction error:");
-	ImgProdCons::_quit_flag = true;
+	ImgProdCons::quitFlag = true;
 }
-void ImgProdCons::init_signals(void)
+void ImgProdCons::InitSignals(void)
 {
-	ImgProdCons::_quit_flag = false;
+	ImgProdCons::quitFlag = false;
 	struct sigaction sigact;
-	sigact.sa_handler = signal_handler;
+	sigact.sa_handler = SignalHandler;
 	sigemptyset(&sigact.sa_mask);
 	sigact.sa_flags = 0;
-	sigaction(SIGINT, &sigact, (struct sigaction *)NULL);// if interrupt occurs,set _quit_flag as true;
+	sigaction(SIGINT, &sigact, (struct sigaction *)NULL);// if interrupt occurs,set quitFlag as true;
 }
-ImgProdCons::ImgProdCons() : 
-	_videoCapturePtr(make_unique<RMVideoCapture>()),
-	_buffer(6), /*frame size is 6*/
-	_serialPtr(make_unique<SerialPort>()),
-	_solverPtr(make_unique<SolveAngle>()),
-	_armorDetectorPtr(make_unique<ArmorDetector>())
+ImgProdCons::ImgProdCons() :
+        videoCapturePtr(make_unique<RMVideoCapture>()),
+        frameBuffer(6), /*frame size is 6*/
+	serialPtr(make_unique<SerialPort>()),
+        solverPtr(make_unique<SolveAngle>()),
+        armorDetectorPtr(make_unique<ArmorDetector>())
 {
 }
 
-void ImgProdCons::init()
+void ImgProdCons::Init()
 {
 	//initialize signal
-	init_signals();
+    InitSignals();
 
 	//initialize camera
-	_videoCapturePtr->open(0, 2); //camera id 0 buffersize 2
-	_videoCapturePtr->setVideoFormat(640, 480, 2);//1 is mjpg,2 is jepg,3 is yuyv
-	_videoCapturePtr->setExposureTime(100);
-	_videoCapturePtr->setFPS(200);
-	_videoCapturePtr->startStream();
-	_videoCapturePtr->info();
+	videoCapturePtr->RMopen(0, 2); //camera id 0 buffersize 2
+	videoCapturePtr->setVideoFormat(640, 480, 2);//1 is mjpg,2 is jepg,3 is yuyv
+	videoCapturePtr->setExposureTime(100);
+	videoCapturePtr->setFPS(200);
+	videoCapturePtr->startStream();
+	videoCapturePtr->info();
 }
-void ImgProdCons::produce()
+void ImgProdCons::Produce()
 {
 	auto startTime = chrono::high_resolution_clock::now();
 	static uint32_t seq = 1;
 	for (;;)
 	{
-		if (ImgProdCons::_quit_flag)
+		if (ImgProdCons::quitFlag)
 			return;
-		if (!_videoCapturePtr->grab())
+		if (!videoCapturePtr->grab())
 			continue;
 		Mat newImg;
 		double timeStamp = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime)).count();
 		/*write somthing, try to send serial some infomation,to make sure serial is working well,
 		becase when interrupte happens we need to restart it from the beginning*/
-		if (!_videoCapturePtr->retrieve(newImg))
+		if (!videoCapturePtr->retrieve(newImg))
 		{
 			continue;
 		}
-		_buffer.push(Frame{newImg, seq, timeStamp});
+		frameBuffer.push(Frame{newImg, seq, timeStamp});
 		seq++;
 	}
 }
-void ImgProdCons::consume()
+void ImgProdCons::Consume()
 {
 	Frame frame;
 	Mat image0;
 	cv::VideoCapture cap;
-	_armorDetectorPtr->init();
-	if (!run_with_camera)
+    armorDetectorPtr->Init();
+	if (!runWithCamera)
 	{
-		if(blue_target)
+		if(blueTarget)
 			cap.open("E://RMHOME//RM_last//Robomaster_last//video//blue.mov");
 		else
 			cap.open("E://RMHOME//RM_last//Robomaster_last//video//red.MOV");
@@ -165,9 +167,9 @@ void ImgProdCons::consume()
 
 	do
 	{
-		if (run_with_camera)
+		if (runWithCamera)
 		{
-			if (!_buffer.getLatest(frame))
+			if (!frameBuffer.getLatest(frame))
 				continue;
 			image0 = frame.img;
 		}
@@ -177,39 +179,41 @@ void ImgProdCons::consume()
 			if (image0.empty())
 				continue;
 		}
-		if (_states->cur_control_state == BIG_ENERGY_STATE)
+		if (status->curControlState == BIG_ENERGY_STATE)
 		{
 
 		}
-		else if (_states->cur_control_state == SMALL_ENERGY_STATE)
+		else if (status->curControlState == SMALL_ENERGY_STATE)
 		{
 
 		}
-		else if (_states->cur_control_state == AUTO_SHOOT_STATE)
+		else if (status->curControlState == AUTO_SHOOT_STATE)
 		{
-			switch (_states->cur_attack_mode)
+			switch (status->curAttackMode)
 			{
 			case SEARCH_MODE:
 			{
 
-				if (_armorDetectorPtr->ArmorDetectTask(image0))
+				if (armorDetectorPtr->ArmorDetectTask(image0))
 				{
-					Rect armor_rect = _armorDetectorPtr->getArmorRect();
-					bool is_small_ = _armorDetectorPtr->isSmall();
+					Rect armor_rect = armorDetectorPtr->GetArmorRect();
+					bool is_small_ = armorDetectorPtr->IsSmall();
 					int8_t armor_type_ = (is_small_) ? (SMALL_ARMOR) : (BIG_ARMOR);
-					_solverPtr->getAngle(armor_rect, 15, _armorDetectorPtr->angle_x_, _armorDetectorPtr->angle_y_, _armorDetectorPtr->distance_, is_small_);
-					_serialPtr->update_serial_out(_armorDetectorPtr->distance_, _armorDetectorPtr->last_distance, _armorDetectorPtr->angle_x_, _armorDetectorPtr->angle_y_, FIND_ARMOR_YES);
-					_serialPtr->send_data();
-					_states->updateStates(armor_type_, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
-					_armorDetectorPtr->tracker = TrackerKCF::create();
-					_armorDetectorPtr->tracker->init(image0, armor_rect);
-					_armorDetectorPtr->last_distance = _armorDetectorPtr->distance_;
+                    solverPtr->GetAngle(armor_rect, 15, is_small_);
+                    serialPtr->UpdateSerialOut(solverPtr->distance,solverPtr->yaw,
+                                               solverPtr->pitch, FIND_ARMOR_YES);
+                    serialPtr->SendData();
+                    status->UpdateStates(armor_type_, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
+                    armorDetectorPtr->tracker = TrackerKCF::create();
+					armorDetectorPtr->tracker->init(image0, armor_rect);
+                    solverPtr->lastDistance = solverPtr->distance;
 				}
 				else
 				{
-					_serialPtr->update_serial_out(_armorDetectorPtr->distance_, _armorDetectorPtr->last_distance, _armorDetectorPtr->angle_x_, _armorDetectorPtr->angle_y_, FIND_ARMOR_NO);
-					_serialPtr->send_data();
-					_states->updateStates(SMALL_ARMOR, FIND_ARMOR_NO, AUTO_SHOOT_STATE, SEARCH_MODE);
+                    serialPtr->UpdateSerialOut(solverPtr->lastDistance,solverPtr->yaw,
+                                               solverPtr->pitch, FIND_ARMOR_NO);
+                    serialPtr->SendData();
+                    status->UpdateStates(SMALL_ARMOR, FIND_ARMOR_NO, AUTO_SHOOT_STATE, SEARCH_MODE);
 				}
 
 				//如果成功找到，将roi区域视为tracking区域,下一次进入tracking模式
@@ -219,30 +223,32 @@ void ImgProdCons::consume()
 			{
 
 				//这里一开始就是trakcking，若追踪到目标，继续，未追踪到，进入searching,进入tracking函数时要判断分类器是否可用
-				if (_armorDetectorPtr->trackingTarget(image0, _armorDetectorPtr->getArmorRect()))
+				if (armorDetectorPtr->trackingTarget(image0, armorDetectorPtr->GetArmorRect()))
 				{
-					Rect armor_rect = _armorDetectorPtr->getArmorRect();
-					bool is_small_ = _armorDetectorPtr->isSmall();
+					Rect armor_rect = armorDetectorPtr->GetArmorRect();
+					bool is_small_ = armorDetectorPtr->IsSmall();
 					int8_t armor_type_ = (is_small_) ? (SMALL_ARMOR) : (BIG_ARMOR);
-					_solverPtr->getAngle(armor_rect, 15, _armorDetectorPtr->angle_x_, _armorDetectorPtr->angle_y_, _armorDetectorPtr->distance_, is_small_);
-					_serialPtr->update_serial_out(_armorDetectorPtr->distance_, _armorDetectorPtr->last_distance, _armorDetectorPtr->angle_x_, _armorDetectorPtr->angle_y_, FIND_ARMOR_YES);
-					_serialPtr->send_data();
-					_states->updateStates(armor_type_, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
+                    solverPtr->GetAngle(armor_rect, 15, is_small_);
+                    serialPtr->UpdateSerialOut(solverPtr->distance, solverPtr->lastDistance, solverPtr->yaw,
+                                               solverPtr->pitch, FIND_ARMOR_YES);
+                    serialPtr->SendData();
+                    status->UpdateStates(armor_type_, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
 				}
 				else
 				{
-					_serialPtr->update_serial_out(_armorDetectorPtr->distance_, _armorDetectorPtr->last_distance, _armorDetectorPtr->angle_x_, _armorDetectorPtr->angle_y_, FIND_ARMOR_NO);
-					_serialPtr->send_data();
-					_states->updateStates(SMALL_ARMOR, FIND_ARMOR_NO, AUTO_SHOOT_STATE, SEARCH_MODE);
+                    serialPtr->UpdateSerialOut(solverPtr->distance, solverPtr->lastDistance, solverPtr->yaw,
+                                               solverPtr->pitch, FIND_ARMOR_NO);
+                    serialPtr->SendData();
+                    status->UpdateStates(SMALL_ARMOR, FIND_ARMOR_NO, AUTO_SHOOT_STATE, SEARCH_MODE);
 				}
 
 				break;
 			}
 			}
 		}
-	} while (ImgProdCons::_quit_flag);
+	} while (ImgProdCons::quitFlag);
 }
-void ImgProdCons::feedback()
+void ImgProdCons::Feedback()
 {
 }
 } // namespace rm

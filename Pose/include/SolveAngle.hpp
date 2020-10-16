@@ -18,20 +18,10 @@ class SolveAngle
 {
 public:
 	SolveAngle();
-	float height_world = 60.0;
-	float overlap_dist = 100000.0;
-	float barrel_ptz_offset_x = -0;
-	float barrel_ptz_offset_y = -0;
-
-	float ptz_camera_x = 0;
-	float ptz_camera_y = 52.5;
-	float ptz_camera_z = -135;
-	float scale = 0.99f;
-	float f_ = 1500;
 
 	vector<Point2f> rectPoint2D;
 	void Generate2DPoints(Rect& rect);
-	void getAngle(Rect rect, float ballet_speed, float& yaw, float& pitch, float& dist, bool small);
+	void GetAngle(Rect rect, float balletSpeed,bool small);
 	void Generate3DPoints(bool mode);
 private:
 	Mat cameraMatrix;
@@ -41,10 +31,12 @@ private:
 	vector<Point3f> targetPoints3D;
 	float targetWidth3D;
 	float targetHeight3D;
-private:
-	float fx_;
-	float fy_;
-	float cx_;
-	float cy_;
-	
+public:
+    float distance;
+    float yaw;
+    float pitch;
+
+    float lastDistance;
+    float lastYaw;
+    float lastPitch;
 };

@@ -1,15 +1,15 @@
 #pragma once
-extern bool show_armor_box;
-extern bool show_armor_boxes;
-extern bool show_light_blobs;
-extern bool show_origin;
-extern bool run_with_camera;
-extern bool save_video;
-extern bool save_labelled_boxes;
-extern bool show_bianryimg;
-extern bool show_energy;
-extern bool blue_target;
-extern bool red_target;
-extern bool hsv_mode;
+extern bool showArmorBox;
+extern bool showArmorBoxes;
+extern bool showLightBlobs;
+extern bool showOrigin;
+extern bool runWithCamera;
+extern bool saveVideo;
+extern bool saveLabelledBoxes;
+extern bool showBianryImg;
+extern bool showEnergy;
+extern bool blueTarget;
+extern bool redTarget;
+extern bool hsvMode;
 
-void preOptions(int argc, char** argv);
+void PreOptions(int argc, char** argv);

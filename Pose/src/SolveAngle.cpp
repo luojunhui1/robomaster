@@ -37,7 +37,7 @@ void SolveAngle::Generate2DPoints(Rect& rect)
     rectPoint2D.push_back(pt);
 }
 
-void SolveAngle::getAngle(Rect rect, float ballet_speed, float& yaw, float& pitch, float& dist,bool small)
+void SolveAngle::GetAngle(Rect rect, float balletSpeed, bool small)
 {
 	Kalman1  kalman;
     cv::Mat Rvec;
@@ -79,7 +79,7 @@ void SolveAngle::getAngle(Rect rect, float ballet_speed, float& yaw, float& pitc
 //
 //    Eigen::Vector3f P_oc;
     P_oc = -R_n*Tvec;
-    dist =  sqrt(P_oc.at<float>(0,0)*P_oc.at<float>(0,0) + P_oc.at<float>(0,1)*P_oc.at<float>(0,1)\
+    distance =  sqrt(P_oc.at<float>(0,0)*P_oc.at<float>(0,0) + P_oc.at<float>(0,1)*P_oc.at<float>(0,1)\
             + P_oc.at<float>(0,2)*P_oc.at<float>(0,2));
 }
 

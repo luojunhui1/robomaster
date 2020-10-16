@@ -4,38 +4,38 @@
 
 using namespace std;
 
-bool show_armor_box = false;//����ѡ��װ�װ�
-bool show_armor_boxes = false;//��������װ�װ�
-bool show_light_blobs = false;//��������
-bool show_origin = false;//չʾԭͼ
-bool save_video = false;//������Ƶ
-bool save_labelled_boxes = false;//�����ǵ�����
-bool show_bianryimg = false;//չʾ��ֵ��ͼ��
-bool show_energy = false;//չʾ������������
-bool blue_target = false;
-bool red_target = false;
-bool hsv_mode = false;
-bool run_with_camera = false;
+bool showArmorBox = false;
+bool showArmorBoxes = false;
+bool showLightBlobs = false;
+bool showOrigin = false;
+bool saveVideo = false;
+bool saveLabelledBoxes = false;
+bool showBianryImg = false;
+bool showEnergy = false;
+bool blueTarget = false;
+bool redTarget = false;
+bool hsvMode = false;
+bool runWithCamera = false;
 
 std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 	{"-blue",{
 		"enemy is blue.",[]()
 		{
-			blue_target = true;
+            blueTarget = true;
 			LOGM("Chose blue armor enemy.");
 		}
 	}},
 		{"-red",{
 		"enemy is blue.",[]()
 		{
-			red_target = true;
+            redTarget = true;
 			LOGM("Chose red armor enemy.");
 		}
 	}},
     {"-hsv",{
       "use HSV color mode",[]()
        {
-           hsv_mode = true;
+           hsvMode = true;
            LOGM("chose HSV mode ");
        }
     }},
@@ -49,67 +49,67 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 	}},
 	{"-box", {
 		"show the aim box.", []() {
-			show_armor_box = true;
+                showArmorBox = true;
 			LOGM("Enable show armor box");
 		}
 	}},
 	{"-boxes",{
 		"show the candidate aim boxes.", []() {
-			show_armor_boxes = true;
+                showArmorBoxes = true;
 			LOGM("Enable show armor boxes");
 		}
 	}},
 	{"-blobs",{
 		"show the candidate light blobs.", []() {
-			show_light_blobs = true;
+                showLightBlobs = true;
 			LOGM("Enable show light blobs");
 		}
 	}},
 	{"-origin", {
 		"show the origin image.", []() {
-			show_origin = true;
+                showOrigin = true;
 			LOGM("Enable show origin");
 		}
 	}},
 	{"-camera", {
 		"start the program with camera directly without asking.", []() {
-			run_with_camera = true;
+                runWithCamera = true;
 			LOGM("Run with camera!");
 		}
 	}},
 	{"-save", {
 		"save the video.", []() {
-			save_video = true;
+                saveVideo = true;
 			LOGM("Enable save video!");
 		}
 	}},
 	{"-save2",{
 		"save the candidate boxes with their id labels.", []() {
-			save_labelled_boxes = true;
+                saveLabelledBoxes = true;
 			LOGM("labelled armor boxes will be saved!");
 		}
 	}},
 	{"-energy", {
 		"",[]() {
-			show_energy = true;
+                showEnergy = true;
 			LOGM("Enable show energy part!");
 		}
 	}},
 	{"-debug", {
 		"show armors,energy and video.", []() {
-			show_armor_box = true;
+                showArmorBox = true;
 			LOGM("Enable show armor box");
-			show_armor_boxes = true;
+                showArmorBoxes = true;
 			LOGM("Enable show armor boxes");
-			show_bianryimg = true;
+                showBianryImg = true;
 			LOGM("Enable show binary image");
-			show_energy = true;
+                showEnergy = true;
 			LOGM("Enable show energy part");
 		}
 	}}
 };
 
-void preOptions(int argc, char** argv) {
+void PreOptions(int argc, char** argv) {
 	if (argc >= 2) {
 		for (int i = 1; i < argc; i++) {
 			auto key = options.find(std::string(argv[i])); // argv[i]是运行程序时的选项
@@ -120,7 +120,7 @@ void preOptions(int argc, char** argv) {
 				LOGW("Unknown option: %s. Use --help to see options.", argv[i]);
 			}
 		}
-		if (!red_target && !blue_target)
+		if (!redTarget && !blueTarget)
 		{
 			LOGW("Forget to choose target color!");
 		}

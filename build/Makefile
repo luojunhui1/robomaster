@@ -105,7 +105,7 @@ preinstall/fast:
 	$(MAKE) -f CMakeFiles/Makefile2 preinstall
 .PHONY : preinstall/fast
 
-# clear depends
+# Clear depends
 depend:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
@@ -352,7 +352,7 @@ main.i: main.cpp.i
 
 .PHONY : main.i
 
-# target to preprocess a source file
+# target to Preprocess a source file
 main.cpp.i:
 	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/main.cpp.i
 .PHONY : main.cpp.i
