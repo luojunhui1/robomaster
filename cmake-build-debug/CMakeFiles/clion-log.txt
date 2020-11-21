@@ -1,0 +1,10 @@
+/home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/ljh/文档/RMCurUse
+-- Project:RMCurUse
+-- Project Directory: /home/ljh/文档/RMCurUse
+-- OpenCVlibrarystatus:
+-- version: 4.4.0
+--  libraries: 
+-- includepath:/home/ljh/文档/RMCurUse /usr/local/include/opencv4
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ljh/文档/RMCurUse/cmake-build-debug
