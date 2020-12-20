@@ -14,7 +14,8 @@ include_directories(${PROJECT_SOURCE_DIR}/Serials/include)
 include_directories(${PROJECT_SOURCE_DIR}/Armor/include)
 include_directories(${PROJECT_SOURCE_DIR}/Other/include)
 include_directories(${PROJECT_SOURCE_DIR}/Pose/include)
-include_directories(${PROJECT_SOURCE_DIR}/Drivers/include)
+include_directories(${PROJECT_SOURCE_DIR}/Drivers/DAHUA/include)
+include_directories(${PROJECT_SOURCE_DIR}/Drivers/RM/include)
 include_directories(${PROJECT_SOURCE_DIR}/Filter/include)
 include_directories(/usr/include/eigen3)
 
@@ -25,9 +26,9 @@ MESSAGE(STATUS "version: ${OpenCV_VERSION}")
 MESSAGE(STATUS " libraries: ${OpenCVLIBS}")
 MESSAGE(STATUS "includepath:${PROJECT_SOURCE_DIR} ${OpenCV_INCLUDE_DIRS}")
 
-LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/Drivers/lib)
-
-FILE(GLOB_RECURSE sourcefiles "Other/src/*.cpp" "Energy/src/*.cpp" "Armor/src/*.cpp" "Serials/src/*.cpp" "Thread/src/*.cpp" "Pose/src/*.cpp" "Drivers/src/*.cpp" "Filter/src/*.cpp")
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/Drivers/DAHUA/lib)
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/Drivers/DAHUA/lib/GenICam/bin)
+FILE(GLOB_RECURSE sourcefiles "Other/src/*.cpp" "Energy/src/*.cpp" "Armor/src/*.cpp" "Serials/src/*.cpp" "Thread/src/*.cpp" "Pose/src/*.cpp" "Drivers/RM/src/*.cpp" "Filter/src/*.cpp")
 ADD_EXECUTABLE(${BIN_NAME} main.cpp ${sourcefiles})
 
 #aux_source_directory(. ALL_SRCS)
@@ -35,5 +36,5 @@ ADD_EXECUTABLE(${BIN_NAME} main.cpp ${sourcefiles})
 
 TARGET_LINK_LIBRARIES(${BIN_NAME} ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${BIN_NAME} ${OpenCV_LIBS})
-TARGET_LINK_LIBRARIES(${BIN_NAME} MVSDK RecordVideo avcodec avfilter avformat avutil postproc swresample swscale x264 ImageConvert rt pthread)
+TARGET_LINK_LIBRARIES(${BIN_NAME} MVSDK RecordVideo avcodec avfilter avformat avutil postproc swresample swscale x264 ImageConvert rt pthread )
 

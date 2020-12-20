@@ -4,19 +4,6 @@
 
 using namespace std;
 
-bool showArmorBox = false;
-bool showArmorBoxes = false;
-bool showLightBlobs = false;
-bool showOrigin = false;
-bool saveVideo = false;
-bool saveLabelledBoxes = false;
-bool showBianryImg = false;
-bool showEnergy = false;
-bool blueTarget = false;
-bool redTarget = false;
-bool hsvMode = false;
-bool runWithCamera = false;
-
 std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 	{"-blue",{
 		"enemy is blue.",[]()
@@ -47,6 +34,12 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 			}
 		}
 	}},
+    {"-l", {
+         "show the lamps", []() {
+                showLamps = true;
+            LOGM("Enable show lamps");
+            }
+    }},
 	{"-box", {
 		"show the aim box.", []() {
                 showArmorBox = true;
@@ -105,6 +98,8 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 			LOGM("Enable show binary image");
                 showEnergy = true;
 			LOGM("Enable show energy part");
+                showLamps = true;
+            LOGM("Enable show lamps part");
 		}
 	}}
 };

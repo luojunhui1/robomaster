@@ -48,3 +48,17 @@
 #define  RED_ENEMY 10
 #endif
 #endif //ROBOMASTER_MYDEFINE_H
+
+extern bool showArmorBox;
+extern bool showArmorBoxes;
+extern bool showLightBlobs;
+extern bool showOrigin;
+extern bool runWithCamera;
+extern bool showLamps;
+extern bool saveVideo;
+extern bool saveLabelledBoxes;
+extern bool showBianryImg;
+extern bool showEnergy;
+extern bool blueTarget;
+extern bool redTarget;
+extern bool hsvMode;

@@ -1,18 +1,20 @@
 #include "ArmorDetector.hpp"
 #include <sstream>
 #include <algorithm>
+
 namespace rm
 {
-/**
-	 * @brief: Armor definition
-	 * @param {LedStick} [L1][led stick]
-	 * @param {LedStick} [L2][led stick]
-	 * @return: none
-	 * @details:
-*/
+
+    /**
+    * @brief Armor constructor
+    * @param [L1] one lamp of the armor
+    * @param [L2] another lamp of the armor
+    * @return none
+    * @details none
+    */
     Armor::Armor(const LEDStick &L1, const LEDStick &L2)
     {
-        errorAngle = fabs(L1.light_angle - L2.light_angle);
+        errorAngle = fabs(L1.lightAngle - L2.lightAngle);
         armorWidth = fabs(static_cast<int>(L1.rect.center.x - L2.rect.center.x));
         armorHeight = fabs(static_cast<int>((L1.rect.size.height + L1.rect.size.height) / 2));
         center.x = static_cast<int>((L1.rect.center.x + L2.rect.center.x) / 2);
@@ -20,20 +22,80 @@ namespace rm
         rect = Rect(center - Point2i(armorWidth / 2, armorHeight / 2), Size(armorWidth, armorHeight));
         armorType = (armorWidth / armorHeight > 4) ? (BIG_ARMOR) : (SMALL_ARMOR);
         priority = fabs(center.x - 320)+fabs(center.y - 240);
+
+        //need to make sure how to set values to the points
+        pts.resize(4);
+        Point2f pts_[4];
+        if(L1.rect.center.x < L2.rect.center.x)
+        {
+            L1.rect.points(pts_);
+            if(L1.lightAngle < 0)
+            {
+                pts[0] = Point2f((pts_[0] + pts_[3])/2);
+                pts[3] = Point2f(pts_[1]/2 + pts_[2]/2);
+            }
+            else
+            {
+                pts[3] = Point2f((pts_[0] + pts_[3])/2);
+                pts[0] = Point2f((pts_[1] + pts_[2])/2);
+            }
+
+            L2.rect.points(pts_);
+            if(L2.lightAngle < 0)
+            {
+                pts[1] = Point2f((pts_[0] + pts_[3])/2);
+                pts[2] = Point2f(pts_[1]/2 + pts_[2]/2);
+            }
+            else
+            {
+                pts[2] = Point2f((pts_[0] + pts_[3])/2);
+                pts[1] = Point2f(pts_[1]/2 + pts_[2]/2);
+            }
+
+        }else
+        {
+            L2.rect.points(pts_);
+            if(L2.lightAngle < 0)
+            {
+                pts[0] = Point2f((pts_[0] + pts_[3])/2);
+                pts[3] = Point2f(pts_[1]/2 + pts_[2]/2);
+            }
+            else
+            {
+                pts[3] = Point2f((pts_[0] + pts_[3])/2);
+                pts[0] = Point2f(pts_[1]/2 + pts_[2]/2);
+            }
+
+            L1.rect.points(pts_);
+            if(L1.lightAngle < 0)
+            {
+                pts[1] = Point2f((pts_[0] + pts_[3])/2);
+                pts[2] = Point2f(pts_[1]/2 + pts_[2]/2);
+            }
+            else
+            {
+                pts[2] = Point2f((pts_[0] + pts_[3])/2);
+                pts[1] = Point2f(pts_[1]/2 + pts_[2]/2);
+            }
+        }
     }
 
-/**
-	 * @brief: ArmorDetector definition
-*/
+    /**
+    * @brief ArmorDetector constructor
+    * @param none
+    * @return none
+    */
     ArmorDetector::ArmorDetector()
     {
         findState = false;
         isSmall = false;
     }
 
-/**
-	Armor initialization
-*/
+    /**
+     * @brief function used to initialize the armor instance
+     * @param none
+     * @return none
+    */
     void Armor::init()
     {
         errorAngle = 0;
@@ -43,86 +105,92 @@ namespace rm
         priority = 10000;
     }
 
-/**
-	ArmorDector initialization
-*/
+    /**
+     * @brief function used to initialize the Armor detector instance
+     * @param none
+     * @return none
+    */
     void ArmorDetector::Init()
     {
-        finalArmors.clear();
+        possibleArmors.clear();
         history.clear();
         history_.clear();
-        lastArmor.init();
+        targetArmor.init();
         roiRect = Rect(0, 0, 0, 0);
         findState = false;
         detectCnt = 0;
         lostCnt = 120;
-        averageIntensity = 0;
-
     }
 
-/**
-	 * @brief: Top level detection task
-	 * @param {Mat} [img][the image from camera or video]
-	 * @return: whether founf armor or not
-	 * @details:
-*/
+    /**
+    * @brief: top level detection task
+    * @param [img] the image from camera or video that to be processed
+    * @return: if ever found armors in this image, return true, otherwise return false
+    * @details: none
+    */
     bool ArmorDetector::ArmorDetectTask(Mat &img)
     {
         GetRoi(img); //get roi
         return DetectArmor(img);
     }
 
-/**
-	* @brief: detect possible armors
-	* @param {Mat} [img][]
-	* @param {Rect} [roiRect][]
-	* @return:
-	* @details:
-*/
+    /**
+    * @brief: detect possible armors
+    * @param [img]  the image from camera or video that to be processed
+    * @return: if ever found armors in this image, return true, otherwise return false
+    * @details: none
+    */
     bool ArmorDetector::DetectArmor(Mat &img)
     {
         findState = false;
         vector<LEDStick> lights;
+
         imgRoi = img(roiRect);
-        //GetAverageIntensity(imgRoi);
+
         Preprocess(imgRoi);
+
         lights = LightDetection(thresholdMap);
-        //cout<<"light"<<lights.size()<<endl;
-        if (showLightBlobs)
+
+        if (showLamps)
         {
-            for(int i=0;i<lights.size();i++) {
+            for(auto & light : lights) {
                 Point2f rect_point[4]; //
-                lights[i].rect.points(rect_point);
+                light.rect.points(rect_point);
                 for (int j = 0; j < 4; j++) {
                     line(imgRoi, rect_point[j], rect_point[(j + 1) % 4], Scalar(255, 0, 255), 1);
                 }
             }
         }
-        imshow("roi", imgRoi);
+
         MaxMatch(lights);
+
         if (findState)
         {
-            //cout << history.size() << endl;
             detectCnt++;
             lostCnt = 0;
-            //sort(finalArmors.begin(), finalArmors.end(), CompArmorPriority);
-            lastArmor = finalArmors[0];
-            //		if (detectCnt > 5)
-            //		{
-            //			//history = AA.rect;
-            //			lostCnt = 0;
-            //		}
-            MakeRectSafe(lastArmor.rect, img.size());
-            lastArmor.rect  = lastArmor.rect + Point(roiRect.x, roiRect.y);
-            //cout<<"lastArmor: "<<"("<<lastArmor.rect.x<<","<<lastArmor.rect.y<<")"<<" w:"<<lastArmor.rect.width<<" h:"<<lastArmor.rect.height<<endl;
+
+            targetArmor = possibleArmors[0];
+
+            MakeRectSafe(targetArmor.rect, img.size());
+
+            targetArmor.rect  = targetArmor.rect + Point(roiRect.x, roiRect.y);
+
+            for(int i = 0; i< 4;i++)
+            {
+                targetArmor.pts[i] = targetArmor.pts[i] + Point2f(roiRect.x, roiRect.y);
+            }
+            //cout<<"targetArmor: "<<"("<<targetArmor.rect.x<<","<<targetArmor.rect.y<<")"<<" w:"<<targetArmor.rect.width
+            // <<" h:"<<targetArmor.rect.height<<endl;
             //cout<<"roiRect"<<"("<<roiRect.x<<","<<roiRect.y<<")"<<" w:"<<roiRect.width<<" h:"<<roiRect.height<<endl;
+
             if (showArmorBox)
             {
-                rectangle(img, lastArmor.rect, Scalar(0, 125, 255), 2);
+                rectangle(img, targetArmor.rect, Scalar(0, 125, 255), 2);
             }
+
             if (showArmorBoxes)
             {
-                for (auto & final_armor : finalArmors)
+                for (auto & final_armor : possibleArmors)
                 {
                     final_armor.rect = final_armor.rect + Point(roiRect.x, roiRect.y);
                     MakeRectSafe(final_armor.rect, img.size());
@@ -130,45 +198,54 @@ namespace rm
                     rectangle(img, final_armor.rect, Scalar(0, 225, 255), 2);
                 }
             }
-            roiRect = lastArmor.rect;
-            finalArmors.clear();
+
+            roiRect = targetArmor.rect;
+            possibleArmors.clear();
             return true;
         }
         else
         {
             detectCnt = 0;
             lostCnt++;
-            finalArmors.clear();
+
+            possibleArmors.clear();
+
             return false;
         }
     }
 
-/**
-	   * @brief:get the average intensity of roi image
-	   * @param {Mat} [img][]
-	   * @return: the average intensity of roi image
-	   * @details:
-	   */
-    int ArmorDetector::GetAverageIntensity(Mat &img)
+    /**
+    * @brief get the Rect instance that describe the target armor's geometry information
+    * @param none
+    * @return the Rect instance that describe the target armor's geometry information
+    * @details none
+    */
+    Rect ArmorDetector::GetArmorRect() const
     {
-        Mat dst;
-        cvtColor(img, dst, COLOR_BGR2GRAY);
-        averageIntensity = static_cast<int>(mean(dst).val[0]);
-        return averageIntensity;
+        return targetArmor.rect;
     }
 
-/**
-	 * @brief: match led sticks
-	 * @param {vector<Light_Stick>} [LED][]
-	 * @param {sizet_t} [i][]
-	 * @param {sizet_t} [j][]
-	 * @return: none
-	 * @details:
-	 */
+    /**
+    * @brief judge wheter the target armor is small armor or big armor
+    * @param none
+    * @return if the target is small armor then return true, otherwise return false
+    * @details this function just used for simplifying the using of targetArmor.armorType
+    */
+    bool ArmorDetector::IsSmall() const
+    {
+        return (targetArmor.armorType == SMALL_ARMOR);
+    }
+
+    /**
+    * @brief match lamps to series of armors
+    * @param [lights] a vector of all the possible lamps in the image
+    * @return none
+    * @details none
+    */
     void ArmorDetector::MaxMatch(vector<LEDStick> lights)
     {
         static float yDiff, xDiff;
-        static float nL, nW;
+        static float nL,nW;
         static float dAngle;
         static float contourLen1;
         static float contourLen2;
@@ -177,91 +254,97 @@ namespace rm
         vector<MatchLight> matchLights;
         float match_factor_;
 
-        finalArmors.clear();
-
         if (lights.size() < 2)
             return;
+
         for (unsigned int i = 0; i < lights.size() - 1; i++)
         {
             for (unsigned int j = i + 1; j < lights.size(); j++)
             {
-                //the difference between to angles
-                dAngle = fabs(lights[i].light_angle - lights[j].light_angle);
+                /*the difference between to angles*/
+                dAngle = fabs(lights[i].lightAngle - lights[j].lightAngle);
                 if(dAngle > param.maxAngleError)continue;
                 //cout<<"dangle:"<<dAngle<<endl;
-                //the difference ratio of the two lights' height 
+
+                /*the difference ratio of the two lights' height*/
                 contourLen1 = abs(lights[i].rect.size.height - lights[j].rect.size.height) / max(lights[i].rect.size.height, lights[j].rect.size.height);
                 if(contourLen1 > param.maxLengthError)continue;
                 //cout<<"contourLen1:"<<contourLen1<<endl;
-                //the difference ratio of the two lights' width 
+
+                /*the difference ratio of the two lights' width*/
                 //contourLen2 = abs(lights[i].rect.size.width - lights[i].rect.size.width) / max(lights[i].rect.size.width, lights[j].rect.size.width);
                 //cout<<"contourLen2:"<<contourLen2<<endl;
-                //the average height of two lights(also the height of the armor defined by these two lights)
-                nW = (lights[i].rect.size.height + lights[j].rect.size.height) / 2; //װ�׵ĸ߶�
+
+                /*the average height of two lights(also the height of the armor defined by these two lights)*/
+                nW = (lights[i].rect.size.height + lights[j].rect.size.height) / 2;
                 //cout<<"nW:"<<nW<<endl;
-                //the width between the center points of two lights
+
+                /*the width between the center points of two lights*/
                 nL = fabs(lights[i].rect.center.x - lights[j].rect.center.x);
                 //cout<<"nL:"<<nL<<endl;
-                //anyway, the difference of the lights' angle is tiny,so anyone of them can be the angle of the armor 
-                nAngle = fabs(lights[i].light_angle);
+
+                /*anyway, the difference of the lights' angle is tiny,so anyone of them can be the angle of the armor*/
+                nAngle = fabs(lights[i].lightAngle);
                 if(nAngle > param.maxArmorAngle)continue;
                 //cout<<"nAngle:"<<nAngle<<endl;
-                //the ddifference of the y coordinate of the two center points  
+
+                /*the ddifference of the y coordinate of the two center points*/
                 yDiff = abs(lights[i].rect.center.y - lights[j].rect.center.y) / nW;
                 if(yDiff > param.maxYDiff)continue;
                 //cout<<"yDiff:"<<yDiff<<endl;
-                //the ratio of the width and the height, must larger than 1 
+
+                /*the ratio of the width and the height, must larger than 1 */
                 ratio = nL / nW;
                 if(ratio > param.maxRatio || ratio < param.minRatio)continue;
-                //the match factor is still rough now, but it can help filter  the most possible target from  the detected armors 
+
+                /*the match factor is still rough now, but it can help filter  the most possible target from  the detected armors*/
                 match_factor_ = dAngle + contourLen1 + contourLen2 + yDiff + MIN(fabs(ratio - 1.5), fabs(ratio - 3.5));
-//			    if (dAngle <= param.maxAngleError && contourLen1 < param.maxLengthError  && yDiff < param.maxYDiff && ratio < param.maxRatio && ratio > param.minRatio && nAngle < param.maxArmorAngle)
-//			    {
+
                 if (!findState)
                     findState = true;
-                matchLights.push_back(MatchLight {false, i, j, match_factor_});
-//              priority_=dAngle+contourLen1+contourLen2+yDiff+MIN(abs(ratio-1.5),abs(ratio-3.5));
-//				armor = Armor(lights[i],lights[j]);
-//				finalArmors.push_back(armor);
+
+                matchLights.push_back(MatchLight(false, i, j, match_factor_));
             }
-//		}
         }
+        /*sort these pairs of lamps by match factor*/
         sort(matchLights.begin(), matchLights.end(), compMatchFactor);
-        //matching the lights by the priority fractors
+
+        /*matching the lights by the priority factors*/
         for (int i = 0; i < matchLights.size(); i++)
         {
 
             if (!matchLights[i].used)
             {
-                finalArmors.emplace_back(lights[matchLights[i].match_index1], lights[matchLights[i].match_index2]);
+                possibleArmors.emplace_back(lights[matchLights[i].matchIndex1], lights[matchLights[i].matchIndex2]);
 
                 for (int j = i; j < matchLights.size(); j++)
                 {
                     if (matchLights[j].used)
                         continue;
-                    if (matchLights[j].match_index1 == matchLights[i].match_index1 ||
-                        matchLights[j].match_index1 == matchLights[i].match_index2 ||
-                        matchLights[j].match_index2 == matchLights[i].match_index1 ||
-                        matchLights[j].match_index2 == matchLights[i].match_index2)
+                    if (matchLights[j].matchIndex1 == matchLights[i].matchIndex1 ||
+                        matchLights[j].matchIndex1 == matchLights[i].matchIndex2 ||
+                        matchLights[j].matchIndex2 == matchLights[i].matchIndex1 ||
+                        matchLights[j].matchIndex2 == matchLights[i].matchIndex2)
                     {
                         matchLights[j].used = true;
                     }
                 }
             }
         }
-        if (finalArmors.empty())
+
+        if (possibleArmors.empty())
             findState = false;
     }
 
-/**
-	 * @brief: preprocession
-	 * @param {Mat} [img][roi image]
-	 * @return:
-	 * @details:if average value in a region of the colorMap is larger than 0, then we can inference that in this region the light is more possible to be red
-*/
+    /**
+    * @brief pre-procession of an image captured
+    * @param [img] the ROI image that clipped by the GetRIO function
+    * @return none
+    * @details if average value in a region of the colorMap is larger than 0, then we can inference that in this region
+    * the light is more possible to be red
+    */
     void ArmorDetector::Preprocess(Mat &img)
     {
-        //gamma tranform
         Mat bright;
         vector<Mat> channels;
         split(img,channels);
@@ -271,14 +354,13 @@ namespace rm
         rSubB = Mat(channels[2] - channels[0]);
         threshold(bright, thresholdMap, 180, 255, CV_MINMAX);
         colorMap = rSubB - bSubR ;
-        //LUT(img, img);
     }
 
-/**
-	 * @brief: detect and filter lights in img
-	 * @param :img
-	 * @return: a vector of possible led object
-**/
+    /**
+    * @brief detect and filter lights in img
+    * @param img
+    * @return a vector of possible led object
+    **/
     vector<LEDStick> ArmorDetector::LightDetection(Mat &img)
     {
         const Mat &roi_image = img;
@@ -286,119 +368,63 @@ namespace rm
         float angle_ = 0;
         Scalar_<double> avg;
         float stick_area;
-    //	if (hsvMode)
-    //	{
-    //
-    //		if (blueTarget)
-    //		{
-    //			cv::Mat img_hsv_blue, img_threshold_blue;
-    //			cvtColor(roi_image, img_hsv_blue, COLOR_BGR2HSV);
-    //			cv::Mat blue_low(cv::Scalar(90, 150, 46));
-    //			cv::Mat blue_higher(cv::Scalar(140, 255, 255));
-    //			cv::inRange(img_hsv_blue, blue_low, blue_higher, img_threshold_blue);
-    //			Mat element = getStructuringElement(MORPH_RECT, Size(1, 1));
-    //			morphologyEx(img_threshold_blue, hsv_binary, MORPH_OPEN, element);
-    //		}
-    //		else
-    //		{
-    //			cv::Mat img_hsv_red1, img_hsv_red2, img_threshold_red, img_threshold_red1, img_threshold_red2;
-    //			cvtColor(roi_image, img_hsv_red1, COLOR_BGR2HSV);
-    //			cvtColor(roi_image, img_hsv_red2, COLOR_BGR2HSV);
-    //			cv::Mat red1_low(cv::Scalar(0, 43, 46));
-    //			cv::Mat red1_higher(cv::Scalar(3, 255, 255));
-    //			cv::Mat red2_low(cv::Scalar(170, 43, 46));
-    //			cv::Mat red2_higher(cv::Scalar(180, 255, 255));
-    //			cv::inRange(img_hsv_red1, red1_low, red1_higher, img_threshold_red1);
-    //			cv::inRange(img_hsv_red2, red2_low, red2_higher, img_threshold_red2);
-    //			img_threshold_red = img_threshold_red1 | img_threshold_red2;
-    //			Mat element = getStructuringElement(MORPH_RECT, Size(1, 1));
-    //			morphologyEx(img_threshold_red, hsv_binary, MORPH_OPEN, element);
-    //		}
-    //	}
+
         vector<LEDStick> LED_Stick_v;
 
-    //	Mat brightness, gray, binary_brightness_img, binary_color_img, process_img;
-    //	vector<Mat> BGRSplit; //channels subtract
-    //	split(roi_image, BGRSplit);
-    //	if (blueTarget)
-    //	{
-    //		BGRSplit[2] = BGRSplit[0] - BGRSplit[2];
-    //		Mat dst1[] = {BGRSplit[0] * 2, BGRSplit[1], BGRSplit[0]}; //����ͨ��λ�ã��Ҷ�ת��greenͨ�����,red���
-    //		merge(dst1, 3, process_img);
-    //		cvtColor(process_img, gray, COLOR_BGR2GRAY);
-    //	}
-    //	else
-    //	{
-    //		BGRSplit[2] = BGRSplit[2] - BGRSplit[0];
-    //		Mat dst1[] = {BGRSplit[2] * 5, BGRSplit[2] + 50, BGRSplit[1]}; //����ͨ��λ�ã��Ҷ�ת��greenͨ�����,red���
-    //		merge(dst1, 3, process_img);
-    //		cvtColor(process_img, gray, COLOR_BGR2GRAY);
-    //	}
-    //	//cvtColor(roi_image, gray, COLOR_BGR2GRAY);
-    //	//Mat element = getStructuringElement(MORPH_RECT, Size(3,3));
-    //	//vector<cv::Mat> bgr;
-    //	Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
-    //
-    //	//GaussianBlur(gray, gray, Size(3, 3),1,1);
-    //	threshold(gray, brightness, 100, 255, THRESH_BINARY);
-    //	//dilate(brightness, binary_brightness_img, kernel1, Point(-1, -1), 1);
-    //	morphologyEx(binary_brightness_img, binary_brightness_img, MORPH_CLOSE, kernel);
-    //	morphologyEx(hsv_binary, binary_color_img, MORPH_CLOSE, kernel);
-
-    //    printf("bin_th = %d, color_th = %d\r\n", show_bin_th, show_color_th);
         if (showBianryImg)
         {
             imshow("binary_brightness_img", thresholdMap);
         }
+
         vector<vector<Point>> contours_light;
+
+
         findContours(thresholdMap, contours_light, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
         for (auto & i : contours_light)
         {
             if (i.size() < 5)
                 continue;
-            double length = arcLength(i, true); 
+
+            double length = arcLength(i, true);
+
             if (length > 10 && length < 4000)
             {
-                //
                 //cout<<"contours_brightness: "<<contours_brightness[ii].size()<<endl;
                 RotatedRect Likely_stick = fitEllipse(i);
                 stick_area = Likely_stick.size.width * Likely_stick.size.height;
                 if((stick_area > param.maxLightArea) || (stick_area < param.minLightArea))continue;
                 float rate_height2width = Likely_stick.size.height / Likely_stick.size.width;
                 if((rate_height2width < param.minLightW2H) || (rate_height2width > param.maxLightW2H))continue;
+
                 angle_ = (Likely_stick.angle > 90.0f) ? (Likely_stick.angle - 180.0f) : (Likely_stick.angle);
+
                 if(fabs(angle_) >= param.maxLightAngle)continue;
-                //height
-//            float rate_height2width = Likely_stick.size.height / Likely_stick.size.width;
-//            if((rate_height2width > param.minLightW2H) && (rate_height2width < param.maxLightW2H))
-                //cout<<"stick_area: "<<stick_area<<endl;
-                //cout<<"rate_width_height: "<<rate_width_height<<endl;
-//            if ((fabs(angle_) <= param.maxLightAngle) && ((stick_area < param.maxLightArea) && (stick_area > param.minLightArea)) && (rate_height2width > param.minLightW2H) && (rate_height2width < param.maxLightW2H))
-//            {
+
                 mask = Mat::zeros(img.rows,img.cols,CV_8UC1);
                 rectangle(mask,Likely_stick.boundingRect(),Scalar(1),-1);
                 avg = mean(colorMap, mask);
+
                 if((blueTarget && avg[0] < 0) || (!blueTarget && avg[0] > 0))
                 {
                     LEDStick Build_stick_information(Likely_stick, angle_);
                     LED_Stick_v.push_back(Build_stick_information);
                 }
             }
-//        }
         }
         return LED_Stick_v;
     }
 
-/**
-	 * @brief: get he region of interest
-	 * @param {Mat} [img][]
-	 * @return: none
-	 * @details:
-*/
+    /**
+    * @brief get he region of interest
+    * @param [img] the image from camera or video that to be processed
+    * @return none
+    * @details none
+    */
     void ArmorDetector::GetRoi(Mat &img)
     {
         Size img_size = img.size();
-        Rect rect_tmp = roiRect;//replace this
+        Rect rect_tmp = roiRect;
         if (lostCnt>5||rect_tmp.width == 0|| rect_tmp.height == 0)
         {
             roiRect = Rect(0, 0, img_size.width, img_size.height);
@@ -410,7 +436,7 @@ namespace rm
             int h = int(rect_tmp.height * scale);
             int x = int(rect_tmp.x - (w - rect_tmp.width) * 0.5);
             int y = int(rect_tmp.y - (h - rect_tmp.height) * 0.5);
-            //
+
             roiRect = Rect(x, y, w, h);
             //MakeRectSafe(roiRect, img.size());
             if (!MakeRectSafe(roiRect, img_size))
@@ -420,13 +446,14 @@ namespace rm
         }
     }
 
-/**
-	 * @brief: make the rect safe
-	 * @param {Rect} [rect][a rect may be not safe]
-	 *        {Size} [size][the image size, the biggest rect size]
-	 * @return:
- */
-    inline bool ArmorDetector::MakeRectSafe(cv::Rect &rect, cv::Size size)
+    /**
+    * @brief make the rect safe
+    * @param [rect] a rect may be not safe
+    * @param [size] the image size, the biggest rect size
+    * @return it will never be false
+    * @details none
+    */
+    inline bool ArmorDetector::MakeRectSafe(cv::Rect &rect, const cv::Size& size)
     {
         if (rect.x < 0)
             rect.x = 0;
@@ -440,12 +467,13 @@ namespace rm
     }
 
 
-/**
-	 * @brief: track a armor
-	 * @param {Mat} [src][NULL]
-	 *        {Rect2d} [target][tracker will be updated by this region]
-	 * @return: if tracking action succeseful
-	 */
+    /**
+    * @brief track a armor
+    * @param [src] the image from camera or video that to be processed
+    * @param [target] tracker will be updated by this region
+    * @return if tracker ever found armors, return true, otherwise return false
+    * @details none
+    */
     bool ArmorDetector::trackingTarget(Mat &src, Rect2d target)
     {
         auto pos = target;
@@ -465,10 +493,10 @@ namespace rm
 
         if (DetectArmor(src)) 
         {
-            lastArmor.rect.x += roiRect.x;
-            lastArmor.rect.y += roiRect.y;
-            tracker = TrackerToUse::create();
-            tracker->init(src, lastArmor.rect);
+            targetArmor.rect.x += roiRect.x;
+            targetArmor.rect.y += roiRect.y;
+            tracker = cv::TrackerKCF::create();
+            tracker->init(src, targetArmor.rect);
             return true;
         }
         else
@@ -479,25 +507,16 @@ namespace rm
     }
 
 
-/*for sort*/
     bool CompArmorPriority(const Armor &a, const Armor &b)
     {
         return a.priority < b.priority;
     }
 
-/*for sort*/
     bool compMatchFactor(const MatchLight &a, const MatchLight &b)
     {
-        return a.match_factor < b.match_factor;
+        return a.matchFactor < b.matchFactor;
     }
-} // namespace rm
-
-/**
- * @brief: װ�װ����ͱ���
- * @param {bool} [is_small][�Ƿ�ΪСװ�װ�]
- * @return:
- * @details: װ�װ����ͱ��档
- */
+}
 /*
  bool ArmorDetector::getTypeResult(bool is_small)
  {

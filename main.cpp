@@ -1,34 +1,42 @@
-//
-// Created by luojunhui on 1/28/20.
-//
+
 #include<thread>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
-#include "preoptions.h"
 #include "ArmorDetector.hpp"
+
 #include "SerialPort.hpp"
-#include "Media/RMDriver.h"
+
+#include "RMVideoCapture.hpp"
+
+#include  "Media/RMDriver.h"
+
 #include "SolveAngle.hpp"
-#define CVUI_IMPLEMENTATION
+
 #include "RMTools.hpp"
-#include "SerialPort.hpp"
+
+#include "mydefine.h"
+
 #define USECAM 1
+#define USEDAHUA 1
 
 using namespace std;
 using namespace rm;
+using namespace cv;
 
 int main(int argc, char** argv)
 {
-    VideoCapture cap;
-    RMDriver videoDriver;
+    redTarget = true;
+    showArmorBoxes = true;
     Mat src;
     ArmorDetector AD;
     SolveAngle sA;
     Serial serial;
     float yaw,pitch,dis;
     RNG rng;
+
+    //freopen("log.txt","w",stdout);
 
     const int stateNum = 4;
     const int measureNum = 2;
@@ -45,42 +53,50 @@ int main(int argc, char** argv)
     setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
     setIdentity(KF.errorCovPost, Scalar::all(1));
     rng.fill(KF.statePost, RNG::UNIFORM, 0, winHeight > winWidth ? winWidth : winHeight);
+
     Mat measurement = Mat::zeros(measureNum, 1, CV_32F);
     Point2f pret;
 
-    //Visualize
+#ifdef DEBUGMODE
     int value1, value;
     Mat src1 = Mat(780, 1080, CV_8UC3, Scalar(255, 255, 255));
     Mat src2 = Mat(640, 720, CV_8UC3, Scalar(255, 255, 255));
-    auto *a = new RMTools::DisPlayWaveCLASS(src1, &value, &value1,"Display Window", 100);
+    auto *a = new RMTools::DisPlayWaveCLASS(src1, &value, &value1,"Display Window", 200);
 
     Mat DebugWindow = Mat::zeros(480,640,CV_8UC3);
-//    Mat checkBG = Mat(100,150,CV_8UC3,Scalar(255,255,255));
-//    char OSName[20];
-//    int16_t count = 0;
-//    char current_str[100], current_str_win[100];
-//    string checkWindow = "ChecBox";
-//    cv::namedWindow(checkWindow);
-//    cvui::init(checkWindow);
+#endif
 
 #if USECAM==1
-    videoDriver.InitCam();
-    videoDriver.StartGrab();
-    CThread::sleep(100);
-    if(videoDriver.SetCam() == -1)
-    {
-        cout<<"Set Camera Failed!"<<endl;
-        return 0;
-    }
-    videoDriver.Grab(src);
-    //printf("whatever");
+    #if USEDAHUA==1
+        RMDriver videoDriver;
+        videoDriver.InitCam();
+        videoDriver.StartGrab();
+        CThread::sleep(100);
+        if(videoDriver.SetCam() == -1)
+        {
+            cout<<"Set Camera Failed!"<<endl;
+            return 0;
+        }
+        videoDriver.Grab(src);
+    #else
+        RMVideoCapture videoDriver(2);
+        if(!videoDriver.isOpened())
+        {
+            cout<<"Open Camera Failed!"<<endl;
+            return 0;
+        }
+        videoDriver.startStream();
+        videoDriver.info();
+    #endif
 #elif USECAM==0
-    cap.open("/home/ljh/视频/Videos/test1.mp4");
+    VideoCapture cap;
+    cap.open("/home/ljh/视频/Videos/LINUX_Video_0.avi");
     cap.read(src);
 #endif
 
     AD.Init();
     serial.InitPort();
+
     while (1)
     {
         if(!src.empty())
@@ -88,43 +104,59 @@ int main(int argc, char** argv)
             //imwrite("src.jpg",src);
             if(AD.ArmorDetectTask(src))
             {
-                sA.GetPose(AD.lastArmor.rect,20,yaw,pitch,dis,AD.IsSmall());
+                sA.GetPoseV(AD.targetArmor.pts,20,yaw,pitch,dis,AD.IsSmall());
                 prediction = KF.predict();
-                predict_pt = Point2f(prediction.at<float>(0), prediction.at<float>(1));   //Ô¤²âÖµ(x',y')
+                predict_pt = Point2f(prediction.at<float>(0), prediction.at<float>(1));
                 //3.update measurement
-                measurement.at<float>(0) = (float)AD.lastArmor.rect.x;
-                measurement.at<float>(1) = (float)AD.lastArmor.rect.y;
-                KF.correct(measurement);
-                value = (int)(pret.x/1000+200);
-                value1 = (int)(predict_pt.x/1000+200);
+                measurement.at<float>(0) = (float)yaw;
+                measurement.at<float>(1) = (float)pitch;
+
+                yaw = yaw - 20;
+		pitch = -1*(pitch - 17);
+                //KF.correct(measurement);
+#ifdef DEBUGMODE
+                if(abs(yaw - sA.averageY) < 60)
+                    value = yaw + 200;
+                else
+                    value = sA.averageY + 200;
+                //value1 = (int)(predict_pt.x+200);
+                //value = AD.targetArmor.rect.y/10;
+//                cout<<"Armor Left Top X:"<<AD.targetArmor.pts[0].x<<" Armor Left Top Y:"<<AD.targetArmor.pts[0].y<<endl;
+//                cout<<"Armor Right Top X:"<<AD.targetArmor.pts[1].x<<" Armor Right Top Y:"<<AD.targetArmor.pts[1].y<<endl;
+//                cout<<"Armor Right Bottom X:"<<AD.targetArmor.pts[2].x<<" Armor Right Bottom Y:"<<AD.targetArmor.pts[2].y<<endl;
+//                cout<<"Armor Left Bottom X:"<<AD.targetArmor.pts[3].x<<" Armor Left Bottom Y:"<<AD.targetArmor.pts[3].y<<endl;
+//                cout<<"-------------------------------------------------------------------------------------------"<<endl;
+                //value = value + 200;
+                cout<<yaw<<endl;
+#endif
                 serial.pack(pitch,yaw,dis,1,1,0);
             }else
             {
-                value = (int)(pret.x/100+200);
-                value1 = (int)(predict_pt.x/100+200);
-            	serial.pack(0,0,dis,1,1,0);
+#ifdef DEBUGMODE
+                value1 = (int)(predict_pt.x + 200);
+#endif
+                serial.pack(0,0,dis,1,0,0);
             }
             serial.WriteData();
-
-////            a->DisplayWave2();
-////            imshow("src",src);
-//            cout<<"pitch: "<<pitch<<" "<<"yaw: "<<yaw<<" "<<"distance: "<<dis<<" SMALL?: "<<AD.IsSmall()<<" ArmorX: "<<AD.lastArmor.center.x<<" ArmorY: "<<AD.lastArmor.center.y<<endl;
-////            if (cvui::button(checkBG,  10, 20, "GRAB Image"))
-////            {
-////                sprintf(current_str, "%s_PIC_%d.jpg",OSName,count++);
-////                imwrite(current_str, src);
-////            }
-////            imshow(checkWindow, checkBG);
+#ifdef DEBUGMODE
+            a->DisplayWave();
+            imshow("src",src);
+#endif
+	    pyrDown(src,src);
+	    pyrDown(src,src);
+	    imshow("src",src);
         }
-
 #if USECAM==1
+    #if USEDAHUA==1
         videoDriver.Grab(src);
+    #else
+        videoDriver>>src;
+    #endif
 #elif USECAM==0
         cap.read(src);
 #endif
         if(waitKey(20)==27)break;
     }
-
     return 0;
 }
 

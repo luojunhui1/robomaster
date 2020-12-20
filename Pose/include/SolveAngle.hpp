@@ -23,9 +23,12 @@ public:
 	float scale = 0.99f;
 	float f_ = 1500;
 
+	float averageP;
+	float averageY;
 	vector<Point2f> rectPoint2D;
 	void Generate2DPoints(Rect rect);
 	void GetPose(const Rect& rect, float ballet_speed, float& yaw, float& pitch, float& dist, bool small);
+    void GetPoseV(const vector<Point2f> pts, float ballet_speed, float& yaw, float& pitch, float& dist,bool small);
 	void Generate3DPoints(bool mode);
 private:
 	Mat_<double> cameraMatrix;
@@ -35,10 +38,18 @@ private:
 	vector<Point3f> targetPoints3D;
 	float targetWidth3D{};
 	float targetHeight3D{};
+
+	float historyPitch[4];
+    float historyYaw[4];
+    inline float averagePitch();
+    inline float averageYaw();
+    int curAngleCount;
 private:
 	float fx_{};
 	float fy_{};
 	float cx_{};
 	float cy_{};
+
+
 	
 };

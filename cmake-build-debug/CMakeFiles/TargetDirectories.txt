@@ -1,3 +1,0 @@
-/home/ljh/文档/RMCurUse/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/ljh/文档/RMCurUse/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/ljh/文档/RMCurUse/cmake-build-debug/CMakeFiles/run.dir

@@ -1,0 +1,3 @@
+/home/ljh/Documents/RMCurTest/build/CMakeFiles/rebuild_cache.dir
+/home/ljh/Documents/RMCurTest/build/CMakeFiles/run.dir
+/home/ljh/Documents/RMCurTest/build/CMakeFiles/edit_cache.dir
