@@ -21,6 +21,15 @@ using namespace Dahua::GenICam;
 using namespace Dahua::Infra;
 using namespace cv;
 
+struct MapBuffer
+{
+    Mat image[10];
+    int curWIndex = 0;
+    int curRIndex = 0;
+    std::mutex _mutexs[10];
+};
+
+MapBuffer mapBufferG;
 
 class StreamRetrieve : public CThread
 {
@@ -103,8 +112,15 @@ void StreamRetrieve::threadProc()
         {
             //try for 2ms to lock
 //            unique_lock<timed_mutex> lock(mapBufferG._mutexs[mapBufferG.curWIndex],chrono::milliseconds(10));
-
-   
+            if(!mapBufferG._mutexs[mapBufferG.curWIndex].try_lock())
+            {
+                continue;
+            }
+            mapBufferG.image[mapBufferG.curWIndex] = Mat(Size(displayFrame->Width(), displayFrame->Height()),\
+                                               CV_8UC3, displayFrame->bufPtr());
+            imshow("cur",mapBufferG.image[mapBufferG.curWIndex]);
+            mapBufferG._mutexs[mapBufferG.curWIndex].unlock();
+            mapBufferG.curWIndex = (mapBufferG.curWIndex + 1)%10;
 
         }else
         {

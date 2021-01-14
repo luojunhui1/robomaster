@@ -67,13 +67,6 @@ namespace rm
         unsigned int matchIndex1 = -1;
         unsigned int matchIndex2 = -1;
         float matchFactor = 10000;
-	MatchLight(bool used_ = false,unsigned int match1 = 0,unsigned int match2 = 0,float fractor = 1000)
-	{
-		used = used_;
-		matchIndex1 = match1;
-		matchIndex2 = match2;
-		matchFactor = fractor;
-	}
     } MatchLight;
 
     /**

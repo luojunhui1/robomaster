@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(RMCurUse)
 SET(CMAKE_BUILE_TYPE DEBUG)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++14 -lv4l1 -lv4l2 -pthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++14 -pthread -lv4l1 -lv4l2")
 SET(BIN_NAME "run")
 
 FIND_PACKAGE(OpenCV 4.4.0 REQUIRED)
@@ -27,14 +27,16 @@ MESSAGE(STATUS " libraries: ${OpenCVLIBS}")
 MESSAGE(STATUS "includepath:${PROJECT_SOURCE_DIR} ${OpenCV_INCLUDE_DIRS}")
 
 LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/Drivers/DAHUA/lib)
-LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/Drivers/DAHUA/lib/GenICam/bin)
+
 FILE(GLOB_RECURSE sourcefiles "Other/src/*.cpp" "Energy/src/*.cpp" "Armor/src/*.cpp" "Serials/src/*.cpp" "Thread/src/*.cpp" "Pose/src/*.cpp" "Drivers/RM/src/*.cpp" "Filter/src/*.cpp")
-ADD_EXECUTABLE(${BIN_NAME} main.cpp ${sourcefiles})
+ADD_EXECUTABLE(${BIN_NAME} main.cpp ${sourcefiles} Other/src/mydefine.cpp)
 
 #aux_source_directory(. ALL_SRCS)
 #add_executable(robomaster_1_6 ${ALL_SRCS})
 
+list(APPEND PSMOVEAPI_TRACKER_REQUIRED_LIBS v4l2)
+
 TARGET_LINK_LIBRARIES(${BIN_NAME} ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${BIN_NAME} ${OpenCV_LIBS})
-TARGET_LINK_LIBRARIES(${BIN_NAME} MVSDK RecordVideo avcodec avfilter avformat avutil postproc swresample swscale x264 ImageConvert rt pthread )
+TARGET_LINK_LIBRARIES(${BIN_NAME} MVSDK RecordVideo avcodec avfilter avformat avutil postproc swresample swscale x264 ImageConvert rt pthread)
 

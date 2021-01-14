@@ -8,9 +8,8 @@
 
 #include "SerialPort.hpp"
 
+#include "Media/RMDriver.h"
 #include "RMVideoCapture.hpp"
-
-#include  "Media/RMDriver.h"
 
 #include "SolveAngle.hpp"
 
@@ -18,8 +17,10 @@
 
 #include "mydefine.h"
 
-#define USECAM 1
+#define USECAM 0
 #define USEDAHUA 1
+#define USEXAVIER 1
+#define DEBUGMODE 0
 
 using namespace std;
 using namespace rm;
@@ -36,7 +37,7 @@ int main(int argc, char** argv)
     float yaw,pitch,dis;
     RNG rng;
 
-    //freopen("log.txt","w",stdout);
+    freopen("log.txt","w",stdout);
 
     const int stateNum = 4;
     const int measureNum = 2;
@@ -57,7 +58,7 @@ int main(int argc, char** argv)
     Mat measurement = Mat::zeros(measureNum, 1, CV_32F);
     Point2f pret;
 
-#ifdef DEBUGMODE
+#if DEBUGMODE == 1
     int value1, value;
     Mat src1 = Mat(780, 1080, CV_8UC3, Scalar(255, 255, 255));
     Mat src2 = Mat(640, 720, CV_8UC3, Scalar(255, 255, 255));
@@ -95,7 +96,7 @@ int main(int argc, char** argv)
 #endif
 
     AD.Init();
-    serial.InitPort();
+    //serial.InitPort();
 
     while (1)
     {
@@ -111,10 +112,9 @@ int main(int argc, char** argv)
                 measurement.at<float>(0) = (float)yaw;
                 measurement.at<float>(1) = (float)pitch;
 
-                yaw = yaw - 20;
-		pitch = -1*(pitch - 17);
+                yaw = yaw - 10;
                 //KF.correct(measurement);
-#ifdef DEBUGMODE
+#if DEBUGMODE == 1
                 if(abs(yaw - sA.averageY) < 60)
                     value = yaw + 200;
                 else
@@ -132,19 +132,16 @@ int main(int argc, char** argv)
                 serial.pack(pitch,yaw,dis,1,1,0);
             }else
             {
-#ifdef DEBUGMODE
+#if DEBUGMODE == 1
                 value1 = (int)(predict_pt.x + 200);
 #endif
-                serial.pack(0,0,dis,1,0,0);
+                serial.pack(0,0,dis,1,1,0);
             }
             serial.WriteData();
-#ifdef DEBUGMODE
+#if DEBUGMODE == 1
             a->DisplayWave();
-            imshow("src",src);
 #endif
-	    pyrDown(src,src);
-	    pyrDown(src,src);
-	    imshow("src",src);
+            imshow("src",src);
         }
 #if USECAM==1
     #if USEDAHUA==1

@@ -44,8 +44,6 @@ bool Serial::InitPort(int nSpeed_, char nEvent_, int nBits_, int nStop_) {
 
 void Serial::pack(float pitch, float yaw, float dist, uint8_t centerLock, uint8_t targetMode,uint8_t buffMode)
 {
-    cout<<"yaw is:"<<yaw<<endl;
-    cout<<"pitch is:"<<pitch<<endl;
     unsigned char *p;
     buff[0] = 0xA5;
     buff[1] = 0X01;
@@ -90,7 +88,6 @@ bool Serial::WriteData() {
         }
         return false;
     }
-    cout<<"Write Data Successfully"<<endl;
     return true;
 }
 

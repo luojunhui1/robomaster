@@ -302,8 +302,7 @@ namespace rm
 
                 if (!findState)
                     findState = true;
-
-                matchLights.push_back(MatchLight(false, i, j, match_factor_));
+                matchLights.push_back(MatchLight {false, i, j, match_factor_});
             }
         }
         /*sort these pairs of lamps by match factor*/
