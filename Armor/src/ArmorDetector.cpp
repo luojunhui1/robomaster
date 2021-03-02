@@ -4,7 +4,6 @@
 
 namespace rm
 {
-
     /**
     * @brief Armor constructor
     * @param [L1] one lamp of the armor
@@ -12,7 +11,7 @@ namespace rm
     * @return none
     * @details none
     */
-    Armor::Armor(const LEDStick &L1, const LEDStick &L2)
+    Armor::Armor(const LEDStick &L1, const LEDStick &L2, double priority_)
     {
         errorAngle = fabs(L1.lightAngle - L2.lightAngle);
         armorWidth = fabs(static_cast<int>(L1.rect.center.x - L2.rect.center.x));
@@ -21,7 +20,7 @@ namespace rm
         center.y = static_cast<int>((L1.rect.center.y + L2.rect.center.y) / 2);
         rect = Rect(center - Point2i(armorWidth / 2, armorHeight / 2), Size(armorWidth, armorHeight));
         armorType = (armorWidth / armorHeight > 4) ? (BIG_ARMOR) : (SMALL_ARMOR);
-        priority = fabs(center.x - 320)+fabs(center.y - 240);
+        priority = priority_;
 
         //need to make sure how to set values to the points
         pts.resize(4);
@@ -144,7 +143,11 @@ namespace rm
     {
         findState = false;
         vector<LEDStick> lights;
-
+/**
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * For test the detection accuracy of your detector, you need to close roi selector
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * */
         imgRoi = img(roiRect);
 
         Preprocess(imgRoi);
@@ -163,7 +166,7 @@ namespace rm
                 Point2f rect_point[4]; //
                 light.rect.points(rect_point);
                 for (int j = 0; j < 4; j++) {
-                    line(imgRoi, rect_point[j], rect_point[(j + 1) % 4], Scalar(255, 0, 255), 1);
+                    line(imgRoi, rect_point[j], rect_point[(j + 1) % 4], Scalar(0, 255, 255), 2);
                 }
             }
         }
@@ -190,10 +193,6 @@ namespace rm
             // <<" h:"<<targetArmor.rect.height<<endl;
             //cout<<"roiRect"<<"("<<roiRect.x<<","<<roiRect.y<<")"<<" w:"<<roiRect.width<<" h:"<<roiRect.height<<endl;
 
-            if (showArmorBox)
-            {
-                rectangle(img, targetArmor.rect, Scalar(0, 125, 255), 5);
-            }
 
             if (showArmorBoxes)
             {
@@ -202,8 +201,15 @@ namespace rm
                     final_armor.rect = final_armor.rect + Point(roiRect.x, roiRect.y);
                     MakeRectSafe(final_armor.rect, img.size());
                     //MakeRectSafe(final_armor.rect, imgRoi.size());
-                    rectangle(img, final_armor.rect, Scalar(0, 225, 255), 2);
+                    rectangle(img, final_armor.rect, Scalar(255, 0, 0), 2);
+                    //circle(img,final_armor.center + Point(roiRect.x, roiRect.y),5,Scalar(255,0,0),-1);
+                    putText(img,std::to_string(final_armor.priority),final_armor.center,FONT_HERSHEY_COMPLEX,0.7,Scalar(121,121,255),1);
                 }
+            }
+
+            if (showArmorBox)
+            {
+                rectangle(img, targetArmor.rect, Scalar(0, 0, 255), 5);
             }
 
             roiRect = targetArmor.rect;
@@ -259,7 +265,19 @@ namespace rm
         static float contourLen2;
         static float ratio;
         static float nAngle;
+        static float dAvgB;
+        static float sizeRatio;
+
+//        double netOutput = -1, maxNetPre = -1;
+//        int netSelect = 0;
+
         vector<MatchLight> matchLights;
+
+//        matchParams.clear();
+//        MatchParam matchParam;
+
+        MatchLight matchLight;
+        int matchCount = 0;
         float match_factor_;
 
         if (lights.size() < 2)
@@ -280,7 +298,7 @@ namespace rm
                 //cout<<"contourLen1:"<<contourLen1<<endl;
 
                 /*the difference ratio of the two lights' width*/
-                //contourLen2 = abs(lights[i].rect.size.width - lights[i].rect.size.width) / max(lights[i].rect.size.width, lights[j].rect.size.width);
+                contourLen2 = abs(lights[i].rect.size.width - lights[j].rect.size.width) / max(lights[i].rect.size.width, lights[j].rect.size.width);
                 //cout<<"contourLen2:"<<contourLen2<<endl;
 
                 /*the average height of two lights(also the height of the armor defined by these two lights)*/
@@ -292,7 +310,7 @@ namespace rm
                 //cout<<"nL:"<<nL<<endl;
 
                 /*anyway, the difference of the lights' angle is tiny,so anyone of them can be the angle of the armor*/
-                nAngle = fabs(lights[i].lightAngle);
+                nAngle = fabs((lights[i].lightAngle + lights[j].lightAngle)/2);
                 if(nAngle > param.maxArmorAngle)continue;
                 //cout<<"nAngle:"<<nAngle<<endl;
 
@@ -305,24 +323,65 @@ namespace rm
                 ratio = nL / nW;
                 if(ratio > param.maxRatio || ratio < param.minRatio)continue;
 
+                /*difference of average brightness*/
+                dAvgB = abs(lights[i].avgBrightness - lights[j].avgBrightness);
+
+                /*ratio of the two lamp's area, larger than 1*/
+                sizeRatio = lights[i].size/lights[j].size;
+
+                sizeRatio = (sizeRatio > 1)?(sizeRatio):(1/sizeRatio);
+
                 /*the match factor is still rough now, but it can help filter  the most possible target from  the detected armors*/
-                match_factor_ = dAngle + contourLen1 + contourLen2 + yDiff + MIN(fabs(ratio - 1.5), fabs(ratio - 3.5));
+                /*Of course, we need to find a formula that is more reasonable*/
+                match_factor_ =sizeRatio +contourLen1  + dAvgB + exp(dAngle + yDiff + MIN(fabs(ratio - 1.5), fabs(ratio - 3.5)));
 
                 if (!findState)
                     findState = true;
-                matchLights.push_back(MatchLight (false, i, j, match_factor_));
+
+                matchLight = MatchLight (false, i, j, match_factor_);
+//                matchParam = MatchParam(dAngle,contourLen1,contourLen2,ratio,nAngle,yDiff,dAvgB,sizeRatio);
+
+                matchLights.push_back(matchLight);
+//                matchParams.push_back(matchParam);
+
+                /*clip image and extract armor from it and display window for every armor*/
+                //Armor curArmor = Armor(lights[matchLight.matchIndex1],lights[matchLight.matchIndex2],matchLight.matchFactor);
+//                netOutput = net.Fit(dAngle,contourLen1,contourLen2,ratio,nAngle,yDiff,dAvgB,sizeRatio);
+//                if(netOutput > maxNetPre)
+//                {
+//                    maxNetPre = netOutput;
+//                    netSelect = matchCount;
+//                }
+//
+//                printf("==============================================\n");
+//                printf("Match Count %d\n",matchCount++);
+//
+//                printf("dAngle: %f\n",dAngle);
+//                printf("contourlen1: %f\n", contourLen1);
+//                printf("contourlen2: %f\n", contourLen2);
+//                printf("Ratio: %f\n", ratio);
+//                printf("nAngle: %f\n", nAngle);
+//                printf("yDiff: %f\n", yDiff);
+//                printf("dAvgB: %f\n", dAvgB);
+//                printf("Armor Type Error: %f\n", exp(MIN(fabs(ratio - 1.5), fabs(ratio - 3.5))));
+//                printf("Match Fractor: %f\n", match_factor_);
+//                //printf("Net Output: %lf\n",  net.Fit(dAngle,contourLen1,contourLen2,ratio,nAngle,yDiff,dAvgB,sizeRatio));
+//                printf("===============================================\n");
             }
+
         }
+
         /*sort these pairs of lamps by match factor*/
         sort(matchLights.begin(), matchLights.end(), compMatchFactor);
+//        Armor curArmor = Armor(lights[matchLights[netSelect].matchIndex1],lights[matchLights[netSelect].matchIndex2],matchLights[netSelect].matchFactor);
+//        imshow("Net Selected",imgRoi(curArmor.rect));
 
         /*matching the lights by the priority factors*/
         for (int i = 0; i < matchLights.size(); i++)
         {
-
             if (!matchLights[i].used)
             {
-                possibleArmors.emplace_back(lights[matchLights[i].matchIndex1], lights[matchLights[i].matchIndex2]);
+                possibleArmors.emplace_back(lights[matchLights[i].matchIndex1], lights[matchLights[i].matchIndex2],matchLights[i].matchFactor);
 
                 for (int j = i; j < matchLights.size(); j++)
                 {
@@ -356,10 +415,15 @@ namespace rm
         vector<Mat> channels;
         split(img,channels);
         cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
+
+        //imshow("gray",bright);
+
         //Attention!!!if the caculate result is small than 0, because the mat format is CV_UC3, it will be set as 0.
         bSubR = Mat(channels[0] - channels[2]);
         rSubB = Mat(channels[2] - channels[0]);
-        threshold(bright, thresholdMap, 160, 255, CV_MINMAX);
+
+        GaussianBlur(bright,bright,Size(5,5),3);
+        threshold(bright, thresholdMap, 200, 255, CV_MINMAX);
         colorMap = rSubB - bSubR ;
     }
 
@@ -371,18 +435,18 @@ namespace rm
     vector<LEDStick> ArmorDetector::LightDetection(Mat &img)
     {
         const Mat &roi_image = img;
-        Mat hsv_binary;
+        Mat hsv_binary,lampImage;
         float angle_ = 0;
-        Scalar_<double> avg;
+        Scalar_<double> avg,avgBrghtness;
         float stick_area;
-
+        Rect rectLamp;
         vector<LEDStick> LED_Stick_v;
 
         if (showBianryImg)
         {
-		Mat wh;
-		pyrDown(thresholdMap,wh);
-            	imshow("binary_brightness_img", wh);
+//		        Mat wh;
+//		        pyrDown(thresholdMap,wh);
+            imshow("binary_brightness_img", thresholdMap);
         }
 
         vector<vector<Point>> contours_light;
@@ -410,13 +474,21 @@ namespace rm
 
                 if(fabs(angle_) >= param.maxLightAngle)continue;
 
-                mask = Mat::zeros(img.rows,img.cols,CV_8UC1);
-                rectangle(mask,Likely_stick.boundingRect(),Scalar(1),-1);
-                avg = mean(colorMap, mask);
+                rectLamp = Likely_stick.boundingRect();
+                MakeRectSafe(rectLamp,img.size());
+                mask = Mat::ones(rectLamp.height,rectLamp.width,CV_8UC1);
+
+                /*Add this to make sure numbers on armors will not be recognized as lamps*/
+                lampImage = thresholdMap(rectLamp);
+                avgBrghtness = mean(lampImage,mask);
+                //if(avgBrghtness[0] < 255*0.4)continue;
+
+                lampImage = colorMap(rectLamp);
+                avg = mean(lampImage, mask);
 
                 if((blueTarget && avg[0] < 0) || (!blueTarget && avg[0] > 0))
                 {
-                    LEDStick Build_stick_information(Likely_stick, angle_);
+                    LEDStick Build_stick_information(Likely_stick, angle_,avgBrghtness[0],stick_area);
                     LED_Stick_v.push_back(Build_stick_information);
                 }
             }
@@ -486,7 +558,7 @@ namespace rm
     bool ArmorDetector::trackingTarget(Mat &src, Rect2d target)
     {
         auto pos = target;
-        if (!tracker->update(src, target)) 
+        if (!tracker->update(src, target))
         {
             detectCnt = 0;
             return false;
@@ -500,7 +572,7 @@ namespace rm
         MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT));
         //rectangle(src,roiRect,Scalar(0,0,0),3);
 
-        if (DetectArmor(src)) 
+        if (DetectArmor(src))
         {
 //            targetArmor.rect.x += roiRect.x;
 //            targetArmor.rect.y += roiRect.y;
@@ -516,85 +588,18 @@ namespace rm
         }
     }
 
-
-    bool CompArmorPriority(const Armor &a, const Armor &b)
+    void ArmorDetector::saveMatchParam(FILE* fileP,int selectedIndex1,int selectedIndex2)
     {
-        return a.priority < b.priority;
+        if(fileP == nullptr)
+        {
+            perror("file open Error!\n");
+        }
+
+        /*this section set for make database*/
     }
 
-    bool compMatchFactor(const MatchLight &a, const MatchLight &b)
+    bool compMatchFactor(const MatchLight a, const MatchLight b)
     {
         return a.matchFactor < b.matchFactor;
     }
 }
-/*
- bool ArmorDetector::getTypeResult(bool is_small)
- {
-	 if (history_.size() < filter_size_) {
-		 history_.push_back(is_small);
-	 }
-	 else {
-		 history_.push_back(is_small);
-		 history_.pop_front();
-	 }
-
- }
-
- */
-/*
-
- // װ�װ������߼� �ⲿ���Ȳ���
- void ArmorFinder::run(cv::Mat& src) {
-	 getsystime(frame_time); //����ȡ��ǰ֡ʱ��(�����㹻��ȷ)
- //    stateSearchingTarget(src);                    // for debug
- //    goto end;
-	 switch (state) {
-	 case SEARCHING_STATE:
-		 if (stateSearchingTarget(src)) {
-			 if ((target_box.rect & cv::Rect2d(0, 0, 640, 480)) == target_box.rect) { // �ж�װ�װ������Ƿ�����ͼ������
-				 if (!classifier) {                                         ///* ���������������
-					 cv::Mat roi = src(target_box.rect).clone(), roi_gray;  //        bool showLightBlobs = true;
-/* ��ʹ��װ�������������ж��Ƿ����
-					 cv::cvtColor(roi, roi_gray, CV_RGB2GRAY);
-					 cv::threshold(roi_gray, roi_gray, 180, 255, cv::THRESH_BINARY);
-					 contour_area = cv::countNonZero(roi_gray);
-				 }
-				 tracker = TrackerToUse::create();                       // �ɹ���Ѱ��װ�װ壬����tracker����
-				 tracker->Init(src, target_box.rect);
-				 state = TRACKING_STATE;
-				 tracking_cnt = 0;
-				 LOGM(STR_CTR(WORD_LIGHT_CYAN, "into track"));
-			 }
-		 }
-		 break;
-	 case TRACKING_STATE:
-		 if (!stateTrackingTarget(src) || ++tracking_cnt > 100) {    // ���׷��100֡ͼ��
-			 state = SEARCHING_STATE;
-			 LOGM(STR_CTR(WORD_LIGHT_YELLOW, "into search!"));
-		 }
-		 break;
-	 case STANDBY_STATE:
-	 default:
-		 stateStandBy(); // currently meaningless
-	 }
- end:
-	 if (is_anti_top) { // �жϵ�ǰ�Ƿ�Ϊ������ģʽ
-		 antiTop();
-	 }
-	 else if (target_box.rect != cv::Rect2d()) {
-		 anti_top_cnt = 0;
-		 time_seq.clear();
-		 angle_seq.Clear();
-		 sendBoxPosition(0);
-	 }
-
-	 if (target_box.rect != cv::Rect2d()) {
-		 last_box = target_box;
-	 }
-
-	 if (showArmorBox) {                 // ����������ʾ��ǰĿ��װ�װ�
-		 showArmorBox("box", src, target_box);
-		 cv::waitKey(1);
-	 }
- }
- */

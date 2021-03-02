@@ -1,0 +1,3 @@
+/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir

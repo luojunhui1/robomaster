@@ -148,6 +148,8 @@ namespace V4L2KAS
             ioctl(fd, VIDIOC_QBUF, &buf);
 
         }
+
+
         type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         ioctl (fd, VIDIOC_STREAMON, &type);
         ioctl(fd, VIDIOC_DQBUF, &buf);

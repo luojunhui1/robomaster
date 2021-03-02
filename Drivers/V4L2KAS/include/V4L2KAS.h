@@ -18,9 +18,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include "mydefine.h"
 
-#define  IMAGEWIDTH    640
-#define  IMAGEHEIGHT   480
 #define FILE_VIDEO     "/dev/video0"
 
 using namespace cv;

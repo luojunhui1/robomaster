@@ -44,9 +44,14 @@
 #define  BLUE_ENEMY 9
 #endif
 
-#ifndef RED_ENEMY
-#define  RED_ENEMY 10
+#ifndef IMAGEWIDTH
+#define  IMAGEWIDTH 640
 #endif
+
+#ifndef IMAGEHEIGHT
+#define  IMAGEHEIGHT 480
+#endif
+
 #endif //ROBOMASTER_MYDEFINE_H
 
 extern bool showArmorBox;

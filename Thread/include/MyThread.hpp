@@ -13,10 +13,9 @@
 #include "preoptions.h"
 #include "mydefine.h"
 #include "Filter.h"
-#include "V4L2KAS.h"
+#include "RealSenseDriver.h"
 
 using namespace std;
-using namespace V4L2KAS;
 
 namespace rm
 {
@@ -103,7 +102,10 @@ namespace rm
         void InitSignals(void);
 
         /* Camera */
-        std::unique_ptr<V4L2Driver> videoCapturePtr;
+        std::unique_ptr<RealSenseDriver> videoCapturePtr;
+
+        /*read video*/
+        std::unique_ptr<cv::VideoCapture> videoReaderPtr;
 
         FrameBuffer buffer;
 

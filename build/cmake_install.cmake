@@ -1,4 +1,4 @@
-# Install script for directory: /home/ljh/Documents/infantry
+# Install script for directory: /home/ljh/文档/A_RM/hero
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ljh/Documents/infantry/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ljh/文档/A_RM/hero/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

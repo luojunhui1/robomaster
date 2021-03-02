@@ -1,3 +1,3 @@
-/home/ljh/Documents/infantry/build/CMakeFiles/rebuild_cache.dir
-/home/ljh/Documents/infantry/build/CMakeFiles/edit_cache.dir
-/home/ljh/Documents/infantry/build/CMakeFiles/run.dir
+/home/ljh/文档/A_RM/hero/build/CMakeFiles/rebuild_cache.dir
+/home/ljh/文档/A_RM/hero/build/CMakeFiles/edit_cache.dir
+/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir

@@ -4,23 +4,23 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/ljh/Documents/infantry/Armor/src/ArmorDetector.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o"
-  "/home/ljh/Documents/infantry/Drivers/V4L2KAS/src/V4L2KAS.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o"
-  "/home/ljh/Documents/infantry/Filter/src/Filter.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Filter/src/Filter.cpp.o"
-  "/home/ljh/Documents/infantry/Other/src/mydefine.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Other/src/mydefine.cpp.o"
-  "/home/ljh/Documents/infantry/Other/src/preoptions.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Other/src/preoptions.cpp.o"
-  "/home/ljh/Documents/infantry/Other/src/systime.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Other/src/systime.cpp.o"
-  "/home/ljh/Documents/infantry/Pose/src/Kalman.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Pose/src/Kalman.cpp.o"
-  "/home/ljh/Documents/infantry/Pose/src/SolveAngle.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o"
-  "/home/ljh/Documents/infantry/Serials/src/SericalPort.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o"
-  "/home/ljh/Documents/infantry/Thread/src/MyThread.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/Thread/src/MyThread.cpp.o"
-  "/home/ljh/Documents/infantry/main.cpp" "/home/ljh/Documents/infantry/build/CMakeFiles/run.dir/main.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Armor/src/ArmorDetector.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/src/V4L2KAS.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Filter/src/Filter.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Filter/src/Filter.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Other/src/mydefine.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Other/src/mydefine.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Other/src/preoptions.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Other/src/preoptions.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Other/src/systime.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Other/src/systime.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Pose/src/Kalman.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Pose/src/Kalman.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Serials/src/SericalPort.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/Thread/src/MyThread.cpp.o"
+  "/home/ljh/文档/A_RM/hero/main.cpp" "/home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/usr/local/include/opencv4"
   "../Thread/include"
   "../Serials/include"
   "../Armor/include"
@@ -28,7 +28,9 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../Pose/include"
   "../Filter/include"
   "../Drivers/V4L2KAS/include"
+  "../Drivers/RealSense/include"
   "/usr/include/eigen3"
+  "/usr/local/include/opencv4"
   )
 
 # Targets to which this target links.

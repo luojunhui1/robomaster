@@ -6,15 +6,17 @@ using namespace rm;
 using namespace cv;
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
+    PreOptions(argc,argv);
+
     ImgProdCons pro;
     pro.Init();
 
-    runWithCamera = true;
+    runWithCamera = false;
     blueTarget = false;
     showArmorBox = true;
-    showBianryImg = false;
+    showBianryImg = true;
     showOrigin = false;
 
     //std::thread produceThread(&rm::ImgProdCons::Produce, &pro);
