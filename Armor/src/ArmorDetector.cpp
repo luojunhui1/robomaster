@@ -119,6 +119,9 @@ namespace rm
         findState = false;
         detectCnt = 0;
         lostCnt = 120;
+        lastBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
+        dBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
+        lastImg = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC3,Scalar(0,0,0));
     }
 
     /**
@@ -129,7 +132,9 @@ namespace rm
     */
     bool ArmorDetector::ArmorDetectTask(Mat &img)
     {
+#ifdef USEROI
         GetRoi(img); //get roi
+#endif
         return DetectArmor(img);
     }
 
@@ -142,15 +147,27 @@ namespace rm
     bool ArmorDetector::DetectArmor(Mat &img)
     {
         findState = false;
+        chance = true;
         vector<LEDStick> lights;
 /**
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * For test the detection accuracy of your detector, you need to close roi selector
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * */
+#ifdef USEROI
         imgRoi = img(roiRect);
+#else
+        imgRoi = img;
+#endif
+        Preprocess(imgRoi,false);
 
-        Preprocess(imgRoi);
+        if (showBianryImg)
+        {
+//		        Mat wh;
+//		        pyrDown(thresholdMap,wh);
+            imshow("binary_brightness_img", thresholdMap);
+        }
+
 //        if(saveTrackingImage)
 //        {
 //            imwrite("image.jpg",img);
@@ -172,7 +189,7 @@ namespace rm
         }
 
         MaxMatch(lights);
-
+REBACK:
         if (findState)
         {
             detectCnt++;
@@ -211,18 +228,34 @@ namespace rm
             {
                 rectangle(img, targetArmor.rect, Scalar(0, 0, 255), 5);
             }
-
+#ifdef USEROI
             roiRect = targetArmor.rect;
+#endif
             lastArmor = targetArmor;
             possibleArmors.clear();
+
+            lastImg = img.clone();
+
             return true;
         }
         else
         {
+            if(chance)
+            {
+                Preprocess(img,true);
+                lights = LightDetection(dBright);
+                MaxMatch(lights);
+
+                chance = false;
+                roiRect = Rect(0,0,IMAGEWIDTH,IMAGEHEIGHT );
+
+                goto REBACK;
+            }
             detectCnt = 0;
             lostCnt++;
 
             possibleArmors.clear();
+            lastImg = img.clone();
 
             return false;
         }
@@ -405,11 +438,13 @@ namespace rm
     /**
     * @brief pre-procession of an image captured
     * @param [img] the ROI image that clipped by the GetRIO function
+    * @param [type] choose to preprocess the current image or the lastest two images, when the type is true, parameter
+    * img must be the origin image but not the roi image
     * @return none
     * @details if average value in a region of the colorMap is larger than 0, then we can inference that in this region
     * the light is more possible to be red
     */
-    void ArmorDetector::Preprocess(Mat &img)
+    void ArmorDetector::Preprocess(Mat &img, bool type)
     {
         Mat bright;
         vector<Mat> channels;
@@ -423,8 +458,23 @@ namespace rm
         rSubB = Mat(channels[2] - channels[0]);
 
         GaussianBlur(bright,bright,Size(5,5),3);
-        threshold(bright, thresholdMap, 200, 255, CV_MINMAX);
+        threshold(bright, thresholdMap, 180, 255, CV_MINMAX);
+
+        if(type)
+        {
+            cvtColor(lastImg,lastBright,CV_BGR2GRAY);//0,2,1
+            cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
+
+            dBright = bright - lastBright;
+            normalize(dBright,dBright,0,255,NORM_MINMAX);
+            GaussianBlur(dBright,dBright,Size(5,5),3);
+            threshold(dBright, dBright, 160, 255, CV_MINMAX);
+        }
+
+        imshow("dBright",dBright);
+
         colorMap = rSubB - bSubR ;
+
     }
 
     /**
@@ -432,9 +482,8 @@ namespace rm
     * @param img
     * @return a vector of possible led object
     **/
-    vector<LEDStick> ArmorDetector::LightDetection(Mat &img)
+    vector<LEDStick> ArmorDetector::LightDetection(Mat& img)
     {
-        const Mat &roi_image = img;
         Mat hsv_binary,lampImage;
         float angle_ = 0;
         Scalar_<double> avg,avgBrghtness;
@@ -442,17 +491,10 @@ namespace rm
         Rect rectLamp;
         vector<LEDStick> LED_Stick_v;
 
-        if (showBianryImg)
-        {
-//		        Mat wh;
-//		        pyrDown(thresholdMap,wh);
-            imshow("binary_brightness_img", thresholdMap);
-        }
-
         vector<vector<Point>> contours_light;
 
 
-        findContours(thresholdMap, contours_light, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+        findContours(img, contours_light, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
         for (auto & i : contours_light)
         {
@@ -479,7 +521,7 @@ namespace rm
                 mask = Mat::ones(rectLamp.height,rectLamp.width,CV_8UC1);
 
                 /*Add this to make sure numbers on armors will not be recognized as lamps*/
-                lampImage = thresholdMap(rectLamp);
+                lampImage = img(rectLamp);
                 avgBrghtness = mean(lampImage,mask);
                 //if(avgBrghtness[0] < 255*0.4)continue;
 
@@ -508,7 +550,7 @@ namespace rm
         Rect rect_tmp = roiRect;
         if (lostCnt>5||rect_tmp.width == 0|| rect_tmp.height == 0)
         {
-            roiRect = Rect(0, 0, img_size.width, img_size.height);
+            roiRect = Rect(0, 0,FRAMEWIDTH, FRAMEHEIGHT);
         }
         else if(detectCnt>0)
         {
@@ -520,7 +562,7 @@ namespace rm
 
             roiRect = Rect(x, y, w, h);
             //MakeRectSafe(roiRect, img.size());
-            if (!MakeRectSafe(roiRect, img_size))
+            if (!MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT)))
             {
                 roiRect = Rect(0, 0, img_size.width, img_size.height);
             }
@@ -536,6 +578,7 @@ namespace rm
     */
     inline bool ArmorDetector::MakeRectSafe(cv::Rect &rect, const cv::Size& size)
     {
+        if(rect.x >= size.width || rect.y >= size.height)rect = Rect(0,0,0,0);
         if (rect.x < 0)
             rect.x = 0;
         if (rect.x + rect.width > size.width)
@@ -546,7 +589,6 @@ namespace rm
             rect.height = size.height - rect.y ;
         return !(rect.width <= 0 || rect.height <= 0);
     }
-
 
     /**
     * @brief track a armor
@@ -568,16 +610,15 @@ namespace rm
             detectCnt = 0;
             return false;
         }
+
+#ifdef USEROI
         roiRect = Rect(pos.x - pos.width , pos.y - pos.height , 3*pos.width, 3*pos.height); //tracker
+#endif
+
         MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT));
-        //rectangle(src,roiRect,Scalar(0,0,0),3);
 
         if (DetectArmor(src))
         {
-//            targetArmor.rect.x += roiRect.x;
-//            targetArmor.rect.y += roiRect.y;
-//            tracker = cv::TrackerKCF::create();
-//            tracker->init(src, targetArmor.rect);
             detectCnt++;
             return true;
         }
@@ -594,7 +635,6 @@ namespace rm
         {
             perror("file open Error!\n");
         }
-
         /*this section set for make database*/
     }
 

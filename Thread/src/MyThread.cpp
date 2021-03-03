@@ -194,13 +194,13 @@ namespace rm
     {
         Frame frame;
         Mat image0;
-        armorDetectorPtr->Init();
+
         if (!runWithCamera)
         {
             if(blueTarget)
                 videoReaderPtr->open("/home/ljh/视频/Videos/LINUX_Video_0.avi");
             else
-                videoReaderPtr->open("/home/ljh/视频/Videos/LINUX_Video_0.avi");
+                videoReaderPtr->open("/home/ljh/视频/Videos/test1.mp4");
             videoReaderPtr->read(image0);
         }else
         {
@@ -215,8 +215,9 @@ namespace rm
 
         FRAMEWIDTH = image0.cols;
         FRAMEHEIGHT = image0.rows;
-		
-//videowriter = VideoWriter(videoName,CAP_OPENCV_MJPEG,60,Size(FRAMEWIDTH,FRAMEHEIGHT));
+        armorDetectorPtr->Init();
+		//printf("WIDTH:%d HEIGHT:%d\n",FRAMEWIDTH,FRAMEHEIGHT);
+        //videowriter = VideoWriter(videoName,CAP_OPENCV_MJPEG,60,Size(FRAMEWIDTH,FRAMEHEIGHT));
         do
         {
             auto startTime = chrono::high_resolution_clock::now();
@@ -273,7 +274,7 @@ namespace rm
                     break;
                     case TRACKING_MODE:
                     {
-                        
+                        cout<<"TRACKING!"<<endl;
                         //这里一开始就是trakcking，若追踪到目标，继续，未追踪到，进入searching,进入tracking函数时要判断分类器是否可用
                         if (armorDetectorPtr->trackingTarget(image0, armorDetectorPtr->targetArmor.rect))
                         {
@@ -305,9 +306,9 @@ namespace rm
             }
             if(showOrigin)
             {
-		//videowriter.write(image0);
-		//pyrDown(image0,image0);
-		        pyrDown(image0,image0);
+                //videowriter.write(image0);
+                //pyrDown(image0,image0);
+		        //pyrDown(image0,image0);
                 imshow("src",image0);
                 waitKey(30);
             }

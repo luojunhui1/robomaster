@@ -52,6 +52,10 @@
 #define  IMAGEHEIGHT 480
 #endif
 
+#ifndef USEROI
+#define  USEROI 1
+#endif
+
 #endif //ROBOMASTER_MYDEFINE_H
 
 extern bool showArmorBox;

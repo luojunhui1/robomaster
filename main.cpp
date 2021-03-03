@@ -17,7 +17,8 @@ int main(int argc, char** argv)
     blueTarget = false;
     showArmorBox = true;
     showBianryImg = true;
-    showOrigin = false;
+    showOrigin = true;
+    showLamps = true;
 
     //std::thread produceThread(&rm::ImgProdCons::Produce, &pro);
     std::thread consumeThread(&rm::ImgProdCons::Consume, &pro);

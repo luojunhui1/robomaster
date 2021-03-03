@@ -456,7 +456,7 @@ namespace rm {
             cout << "First set Filter" << endl;
             FirstSetFilter(targetPoint);
         } else {
-            cout << "Continue set Filter" << endl;
+            //cout << "Continue set Filter" << endl;
             ContinueSetFilter(targetPoint);
         }
 //        v_tx_old = (BestArmor.center.x - p_tx_old)/t;

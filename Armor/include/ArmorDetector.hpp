@@ -164,11 +164,11 @@ namespace rm
 
         bool DetectArmor(Mat &img);
 
-        void Preprocess(Mat &img);
+        void Preprocess(Mat &img, bool type);
 
         void MaxMatch(vector<LEDStick> lights);
 
-        vector<LEDStick> LightDetection(Mat &img);
+        vector<LEDStick> LightDetection(Mat& img);
 
         /*tool functions*/
         static bool MakeRectSafe(cv::Rect &rect, const cv::Size &size);
@@ -210,6 +210,12 @@ namespace rm
         /*a gray image, the difference between rSubB and bSubR*/
         Mat_<int> colorMap;
 
+        /*last cnt binary image*/
+        /*if you want to use this, you must close the roi selector*/
+        Mat lastImg;
+        Mat lastBright;
+        Mat dBright;
+        bool chance = false;
         /*a binary image*/
         Mat thresholdMap;
 
