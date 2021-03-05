@@ -4,6 +4,9 @@
 
 #ifndef ROBOMASTER_MYDEFINE_H
 #define ROBOMASTER_MYDEFINE_H
+
+#include <string>
+
 #ifndef AUTO_SHOOT_STATE
 #define  AUTO_SHOOT_STATE 0
 #endif
@@ -56,8 +59,10 @@
 #define  USEROI 1
 #endif
 
-#endif //ROBOMASTER_MYDEFINE_H
-
+#ifndef CARNAME_
+    #define CARNAME_
+    enum CARNAME {HERO, INFANTRY, SENTRY, UAV, VIDEO,NOTDEFINED};
+#endif
 extern bool showArmorBox;
 extern bool showArmorBoxes;
 extern bool showLightBlobs;
@@ -74,3 +79,8 @@ extern bool hsvMode;
 extern bool saveTrackingImage;
 extern int FRAMEWIDTH;
 extern int FRAMEHEIGHT;
+extern CARNAME carName;
+extern std::string videoPath;
+extern size_t cameraIndex;
+
+#endif //ROBOMASTER_MYDEFINE_H

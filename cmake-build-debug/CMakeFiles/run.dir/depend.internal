@@ -118,14 +118,21 @@ CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o
  /usr/local/include/opencv4/opencv2/video/tracking.hpp
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o
+ ../Drivers/Driver.h
  ../Drivers/RealSense/include/RealSenseDriver.h
  ../Other/include/mydefine.h
  /home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp
+ /usr/local/include/opencv4/opencv2/calib3d.hpp
  /usr/local/include/opencv4/opencv2/core.hpp
+ /usr/local/include/opencv4/opencv2/core/affine.hpp
+ /usr/local/include/opencv4/opencv2/core/async.hpp
  /usr/local/include/opencv4/opencv2/core/base.hpp
  /usr/local/include/opencv4/opencv2/core/bufferpool.hpp
  /usr/local/include/opencv4/opencv2/core/check.hpp
  /usr/local/include/opencv4/opencv2/core/core.hpp
+ /usr/local/include/opencv4/opencv2/core/cuda.hpp
+ /usr/local/include/opencv4/opencv2/core/cuda.inl.hpp
+ /usr/local/include/opencv4/opencv2/core/cuda_types.hpp
  /usr/local/include/opencv4/opencv2/core/cv_cpu_dispatch.h
  /usr/local/include/opencv4/opencv2/core/cv_cpu_helper.h
  /usr/local/include/opencv4/opencv2/core/cvdef.h
@@ -151,14 +158,76 @@ CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o
  /usr/local/include/opencv4/opencv2/core/utils/tls.hpp
  /usr/local/include/opencv4/opencv2/core/version.hpp
  /usr/local/include/opencv4/opencv2/core/vsx_utils.hpp
+ /usr/local/include/opencv4/opencv2/dnn.hpp
+ /usr/local/include/opencv4/opencv2/dnn/dict.hpp
+ /usr/local/include/opencv4/opencv2/dnn/dnn.hpp
+ /usr/local/include/opencv4/opencv2/dnn/dnn.inl.hpp
+ /usr/local/include/opencv4/opencv2/dnn/layer.hpp
+ /usr/local/include/opencv4/opencv2/dnn/utils/inference_engine.hpp
+ /usr/local/include/opencv4/opencv2/dnn/version.hpp
+ /usr/local/include/opencv4/opencv2/features2d.hpp
+ /usr/local/include/opencv4/opencv2/flann.hpp
+ /usr/local/include/opencv4/opencv2/flann/all_indices.h
+ /usr/local/include/opencv4/opencv2/flann/allocator.h
+ /usr/local/include/opencv4/opencv2/flann/any.h
+ /usr/local/include/opencv4/opencv2/flann/autotuned_index.h
+ /usr/local/include/opencv4/opencv2/flann/composite_index.h
+ /usr/local/include/opencv4/opencv2/flann/config.h
+ /usr/local/include/opencv4/opencv2/flann/defines.h
+ /usr/local/include/opencv4/opencv2/flann/dist.h
+ /usr/local/include/opencv4/opencv2/flann/dynamic_bitset.h
+ /usr/local/include/opencv4/opencv2/flann/flann_base.hpp
+ /usr/local/include/opencv4/opencv2/flann/general.h
+ /usr/local/include/opencv4/opencv2/flann/ground_truth.h
+ /usr/local/include/opencv4/opencv2/flann/heap.h
+ /usr/local/include/opencv4/opencv2/flann/hierarchical_clustering_index.h
+ /usr/local/include/opencv4/opencv2/flann/index_testing.h
+ /usr/local/include/opencv4/opencv2/flann/kdtree_index.h
+ /usr/local/include/opencv4/opencv2/flann/kdtree_single_index.h
+ /usr/local/include/opencv4/opencv2/flann/kmeans_index.h
+ /usr/local/include/opencv4/opencv2/flann/linear_index.h
+ /usr/local/include/opencv4/opencv2/flann/logger.h
+ /usr/local/include/opencv4/opencv2/flann/lsh_index.h
+ /usr/local/include/opencv4/opencv2/flann/lsh_table.h
+ /usr/local/include/opencv4/opencv2/flann/matrix.h
+ /usr/local/include/opencv4/opencv2/flann/miniflann.hpp
+ /usr/local/include/opencv4/opencv2/flann/nn_index.h
+ /usr/local/include/opencv4/opencv2/flann/params.h
+ /usr/local/include/opencv4/opencv2/flann/random.h
+ /usr/local/include/opencv4/opencv2/flann/result_set.h
+ /usr/local/include/opencv4/opencv2/flann/sampling.h
+ /usr/local/include/opencv4/opencv2/flann/saving.h
+ /usr/local/include/opencv4/opencv2/flann/timer.h
  /usr/local/include/opencv4/opencv2/highgui.hpp
  /usr/local/include/opencv4/opencv2/highgui/highgui.hpp
  /usr/local/include/opencv4/opencv2/imgcodecs.hpp
  /usr/local/include/opencv4/opencv2/imgproc.hpp
  /usr/local/include/opencv4/opencv2/imgproc/imgproc.hpp
+ /usr/local/include/opencv4/opencv2/ml.hpp
+ /usr/local/include/opencv4/opencv2/ml/ml.inl.hpp
+ /usr/local/include/opencv4/opencv2/objdetect.hpp
+ /usr/local/include/opencv4/opencv2/objdetect/detection_based_tracker.hpp
+ /usr/local/include/opencv4/opencv2/opencv.hpp
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp
+ /usr/local/include/opencv4/opencv2/photo.hpp
+ /usr/local/include/opencv4/opencv2/stitching.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/blenders.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/camera.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/exposure_compensate.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/matchers.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/motion_estimators.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/seam_finders.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/util.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/util_inl.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/warpers.hpp
+ /usr/local/include/opencv4/opencv2/stitching/detail/warpers_inl.hpp
+ /usr/local/include/opencv4/opencv2/stitching/warpers.hpp
+ /usr/local/include/opencv4/opencv2/video.hpp
+ /usr/local/include/opencv4/opencv2/video/background_segm.hpp
+ /usr/local/include/opencv4/opencv2/video/tracking.hpp
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o
+ ../Drivers/Driver.h
  ../Drivers/V4L2KAS/include/V4L2KAS.h
  ../Other/include/mydefine.h
  /home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/src/V4L2KAS.cpp
@@ -579,6 +648,7 @@ CMakeFiles/run.dir/Filter/src/Filter.cpp.o
  /usr/local/include/opencv4/opencv2/video/tracking.hpp
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/run.dir/Other/src/mydefine.cpp.o
+ ../Other/include/mydefine.h
  /home/ljh/文档/A_RM/hero/Other/src/mydefine.cpp
 CMakeFiles/run.dir/Other/src/preoptions.cpp.o
  ../Other/include/log.h
@@ -810,7 +880,79 @@ CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o
  /home/ljh/文档/A_RM/hero/Serials/src/SericalPort.cpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o
  ../Armor/include/ArmorDetector.hpp
+ ../Drivers/DAHUA/include/GenICam/AcquisitionControl.h
+ ../Drivers/DAHUA/include/GenICam/AnalogControl.h
+ ../Drivers/DAHUA/include/GenICam/Camera.h
+ ../Drivers/DAHUA/include/GenICam/Defs.h
+ ../Drivers/DAHUA/include/GenICam/DeviceControl.h
+ ../Drivers/DAHUA/include/GenICam/DigitalIOControl.h
+ ../Drivers/DAHUA/include/GenICam/EventSubscribe.h
+ ../Drivers/DAHUA/include/GenICam/Frame.h
+ ../Drivers/DAHUA/include/GenICam/GigE/GigECamera.h
+ ../Drivers/DAHUA/include/GenICam/GigE/GigEInterface.h
+ ../Drivers/DAHUA/include/GenICam/ISPControl.h
+ ../Drivers/DAHUA/include/GenICam/ImageFormatControl.h
+ ../Drivers/DAHUA/include/GenICam/ParameterNode.h
+ ../Drivers/DAHUA/include/GenICam/PixelType.h
+ ../Drivers/DAHUA/include/GenICam/StreamSource.h
+ ../Drivers/DAHUA/include/GenICam/System.h
+ ../Drivers/DAHUA/include/GenICam/TransportLayerControl.h
+ ../Drivers/DAHUA/include/GenICam/UserSetControl.h
+ ../Drivers/DAHUA/include/Infra/Allocator.h
+ ../Drivers/DAHUA/include/Infra/AtomicCount.h
+ ../Drivers/DAHUA/include/Infra/CString.h
+ ../Drivers/DAHUA/include/Infra/Defs.h
+ ../Drivers/DAHUA/include/Infra/Detail/allocatorstringstorage.h
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_gcc.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_gcc_x86.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_pthreads.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_sync.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_win32.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_win64.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/construct.h
+ ../Drivers/DAHUA/include/Infra/Detail/flex_string.h
+ ../Drivers/DAHUA/include/Infra/Detail/flex_string_details.h
+ ../Drivers/DAHUA/include/Infra/Detail/flex_string_shell.h
+ ../Drivers/DAHUA/include/Infra/Detail/ministringstorage.h
+ ../Drivers/DAHUA/include/Infra/Detail/simplestringstorage.h
+ ../Drivers/DAHUA/include/Infra/Detail/smallstringopt.h
+ ../Drivers/DAHUA/include/Infra/Detail/vectorstringstorage.h
+ ../Drivers/DAHUA/include/Infra/Function.h
+ ../Drivers/DAHUA/include/Infra/FunctionTemplate.h
+ ../Drivers/DAHUA/include/Infra/Guard.h
+ ../Drivers/DAHUA/include/Infra/Mutex.h
+ ../Drivers/DAHUA/include/Infra/PrintLog.h
+ ../Drivers/DAHUA/include/Infra/ReadWriteMutex.h
+ ../Drivers/DAHUA/include/Infra/RecursiveMutex.h
+ ../Drivers/DAHUA/include/Infra/Signal.h
+ ../Drivers/DAHUA/include/Infra/SignalTemplate.h
+ ../Drivers/DAHUA/include/Infra/String.h
+ ../Drivers/DAHUA/include/Infra/Thread.h
+ ../Drivers/DAHUA/include/Infra/Time.h
+ ../Drivers/DAHUA/include/Infra/Types/IntTypes.h
+ ../Drivers/DAHUA/include/Infra/Types/Types.h
+ ../Drivers/DAHUA/include/Infra/Vector.h
+ ../Drivers/DAHUA/include/Media/ImageConvert.h
+ ../Drivers/DAHUA/include/Media/RGBConvert.h
+ ../Drivers/DAHUA/include/Media/RMDriver.h
+ ../Drivers/DAHUA/include/Media/RecordVideo.h
+ ../Drivers/DAHUA/include/Media/StreamRetrieve.h
+ ../Drivers/DAHUA/include/Memory/Block.h
+ ../Drivers/DAHUA/include/Memory/Detail/checked_delete.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/shared_count.h
+ ../Drivers/DAHUA/include/Memory/Detail/smartptr_detail.h
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base.h
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_gcc_ia64.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_gcc_x86.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_impl.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_w32.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_impl.hpp
+ ../Drivers/DAHUA/include/Memory/SharedPtr.h
+ ../Drivers/DAHUA/include/Memory/WeakPtr.h
+ ../Drivers/Driver.h
  ../Drivers/RealSense/include/RealSenseDriver.h
+ ../Drivers/V4L2KAS/include/V4L2KAS.h
  ../Filter/include/Filter.h
  ../Other/include/RMTools.hpp
  ../Other/include/mydefine.h
@@ -1142,7 +1284,79 @@ CMakeFiles/run.dir/Thread/src/MyThread.cpp.o
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/run.dir/main.cpp.o
  ../Armor/include/ArmorDetector.hpp
+ ../Drivers/DAHUA/include/GenICam/AcquisitionControl.h
+ ../Drivers/DAHUA/include/GenICam/AnalogControl.h
+ ../Drivers/DAHUA/include/GenICam/Camera.h
+ ../Drivers/DAHUA/include/GenICam/Defs.h
+ ../Drivers/DAHUA/include/GenICam/DeviceControl.h
+ ../Drivers/DAHUA/include/GenICam/DigitalIOControl.h
+ ../Drivers/DAHUA/include/GenICam/EventSubscribe.h
+ ../Drivers/DAHUA/include/GenICam/Frame.h
+ ../Drivers/DAHUA/include/GenICam/GigE/GigECamera.h
+ ../Drivers/DAHUA/include/GenICam/GigE/GigEInterface.h
+ ../Drivers/DAHUA/include/GenICam/ISPControl.h
+ ../Drivers/DAHUA/include/GenICam/ImageFormatControl.h
+ ../Drivers/DAHUA/include/GenICam/ParameterNode.h
+ ../Drivers/DAHUA/include/GenICam/PixelType.h
+ ../Drivers/DAHUA/include/GenICam/StreamSource.h
+ ../Drivers/DAHUA/include/GenICam/System.h
+ ../Drivers/DAHUA/include/GenICam/TransportLayerControl.h
+ ../Drivers/DAHUA/include/GenICam/UserSetControl.h
+ ../Drivers/DAHUA/include/Infra/Allocator.h
+ ../Drivers/DAHUA/include/Infra/AtomicCount.h
+ ../Drivers/DAHUA/include/Infra/CString.h
+ ../Drivers/DAHUA/include/Infra/Defs.h
+ ../Drivers/DAHUA/include/Infra/Detail/allocatorstringstorage.h
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_gcc.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_gcc_x86.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_pthreads.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_sync.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_win32.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/atomic_count_win64.hpp
+ ../Drivers/DAHUA/include/Infra/Detail/construct.h
+ ../Drivers/DAHUA/include/Infra/Detail/flex_string.h
+ ../Drivers/DAHUA/include/Infra/Detail/flex_string_details.h
+ ../Drivers/DAHUA/include/Infra/Detail/flex_string_shell.h
+ ../Drivers/DAHUA/include/Infra/Detail/ministringstorage.h
+ ../Drivers/DAHUA/include/Infra/Detail/simplestringstorage.h
+ ../Drivers/DAHUA/include/Infra/Detail/smallstringopt.h
+ ../Drivers/DAHUA/include/Infra/Detail/vectorstringstorage.h
+ ../Drivers/DAHUA/include/Infra/Function.h
+ ../Drivers/DAHUA/include/Infra/FunctionTemplate.h
+ ../Drivers/DAHUA/include/Infra/Guard.h
+ ../Drivers/DAHUA/include/Infra/Mutex.h
+ ../Drivers/DAHUA/include/Infra/PrintLog.h
+ ../Drivers/DAHUA/include/Infra/ReadWriteMutex.h
+ ../Drivers/DAHUA/include/Infra/RecursiveMutex.h
+ ../Drivers/DAHUA/include/Infra/Signal.h
+ ../Drivers/DAHUA/include/Infra/SignalTemplate.h
+ ../Drivers/DAHUA/include/Infra/String.h
+ ../Drivers/DAHUA/include/Infra/Thread.h
+ ../Drivers/DAHUA/include/Infra/Time.h
+ ../Drivers/DAHUA/include/Infra/Types/IntTypes.h
+ ../Drivers/DAHUA/include/Infra/Types/Types.h
+ ../Drivers/DAHUA/include/Infra/Vector.h
+ ../Drivers/DAHUA/include/Media/ImageConvert.h
+ ../Drivers/DAHUA/include/Media/RGBConvert.h
+ ../Drivers/DAHUA/include/Media/RMDriver.h
+ ../Drivers/DAHUA/include/Media/RecordVideo.h
+ ../Drivers/DAHUA/include/Media/StreamRetrieve.h
+ ../Drivers/DAHUA/include/Memory/Block.h
+ ../Drivers/DAHUA/include/Memory/Detail/checked_delete.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/shared_count.h
+ ../Drivers/DAHUA/include/Memory/Detail/smartptr_detail.h
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base.h
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_gcc_ia64.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_gcc_x86.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_impl.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_base/sp_counted_base_w32.hpp
+ ../Drivers/DAHUA/include/Memory/Detail/sp_counted_impl.hpp
+ ../Drivers/DAHUA/include/Memory/SharedPtr.h
+ ../Drivers/DAHUA/include/Memory/WeakPtr.h
+ ../Drivers/Driver.h
  ../Drivers/RealSense/include/RealSenseDriver.h
+ ../Drivers/V4L2KAS/include/V4L2KAS.h
  ../Filter/include/Filter.h
  ../Other/include/RMTools.hpp
  ../Other/include/mydefine.h

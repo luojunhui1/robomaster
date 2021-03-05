@@ -170,6 +170,87 @@ Armor/src/ArmorDetector.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.s
 .PHONY : Armor/src/ArmorDetector.cpp.s
 
+Drivers/DAHUA/src/RGBConvert.o: Drivers/DAHUA/src/RGBConvert.cpp.o
+
+.PHONY : Drivers/DAHUA/src/RGBConvert.o
+
+# target to build an object file
+Drivers/DAHUA/src/RGBConvert.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o
+.PHONY : Drivers/DAHUA/src/RGBConvert.cpp.o
+
+Drivers/DAHUA/src/RGBConvert.i: Drivers/DAHUA/src/RGBConvert.cpp.i
+
+.PHONY : Drivers/DAHUA/src/RGBConvert.i
+
+# target to preprocess a source file
+Drivers/DAHUA/src/RGBConvert.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.i
+.PHONY : Drivers/DAHUA/src/RGBConvert.cpp.i
+
+Drivers/DAHUA/src/RGBConvert.s: Drivers/DAHUA/src/RGBConvert.cpp.s
+
+.PHONY : Drivers/DAHUA/src/RGBConvert.s
+
+# target to generate assembly for a file
+Drivers/DAHUA/src/RGBConvert.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.s
+.PHONY : Drivers/DAHUA/src/RGBConvert.cpp.s
+
+Drivers/DAHUA/src/RMDriver.o: Drivers/DAHUA/src/RMDriver.cpp.o
+
+.PHONY : Drivers/DAHUA/src/RMDriver.o
+
+# target to build an object file
+Drivers/DAHUA/src/RMDriver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o
+.PHONY : Drivers/DAHUA/src/RMDriver.cpp.o
+
+Drivers/DAHUA/src/RMDriver.i: Drivers/DAHUA/src/RMDriver.cpp.i
+
+.PHONY : Drivers/DAHUA/src/RMDriver.i
+
+# target to preprocess a source file
+Drivers/DAHUA/src/RMDriver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.i
+.PHONY : Drivers/DAHUA/src/RMDriver.cpp.i
+
+Drivers/DAHUA/src/RMDriver.s: Drivers/DAHUA/src/RMDriver.cpp.s
+
+.PHONY : Drivers/DAHUA/src/RMDriver.s
+
+# target to generate assembly for a file
+Drivers/DAHUA/src/RMDriver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.s
+.PHONY : Drivers/DAHUA/src/RMDriver.cpp.s
+
+Drivers/DAHUA/src/StreamRetrieve.o: Drivers/DAHUA/src/StreamRetrieve.cpp.o
+
+.PHONY : Drivers/DAHUA/src/StreamRetrieve.o
+
+# target to build an object file
+Drivers/DAHUA/src/StreamRetrieve.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o
+.PHONY : Drivers/DAHUA/src/StreamRetrieve.cpp.o
+
+Drivers/DAHUA/src/StreamRetrieve.i: Drivers/DAHUA/src/StreamRetrieve.cpp.i
+
+.PHONY : Drivers/DAHUA/src/StreamRetrieve.i
+
+# target to preprocess a source file
+Drivers/DAHUA/src/StreamRetrieve.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.i
+.PHONY : Drivers/DAHUA/src/StreamRetrieve.cpp.i
+
+Drivers/DAHUA/src/StreamRetrieve.s: Drivers/DAHUA/src/StreamRetrieve.cpp.s
+
+.PHONY : Drivers/DAHUA/src/StreamRetrieve.s
+
+# target to generate assembly for a file
+Drivers/DAHUA/src/StreamRetrieve.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.s
+.PHONY : Drivers/DAHUA/src/StreamRetrieve.cpp.s
+
 Drivers/RealSense/src/RealSenseDriver.o: Drivers/RealSense/src/RealSenseDriver.cpp.o
 
 .PHONY : Drivers/RealSense/src/RealSenseDriver.o
@@ -223,6 +304,33 @@ Drivers/V4L2KAS/src/V4L2KAS.s: Drivers/V4L2KAS/src/V4L2KAS.cpp.s
 Drivers/V4L2KAS/src/V4L2KAS.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.s
 .PHONY : Drivers/V4L2KAS/src/V4L2KAS.cpp.s
+
+Drivers/VideoDriver/src/VideoDriver.o: Drivers/VideoDriver/src/VideoDriver.cpp.o
+
+.PHONY : Drivers/VideoDriver/src/VideoDriver.o
+
+# target to build an object file
+Drivers/VideoDriver/src/VideoDriver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o
+.PHONY : Drivers/VideoDriver/src/VideoDriver.cpp.o
+
+Drivers/VideoDriver/src/VideoDriver.i: Drivers/VideoDriver/src/VideoDriver.cpp.i
+
+.PHONY : Drivers/VideoDriver/src/VideoDriver.i
+
+# target to preprocess a source file
+Drivers/VideoDriver/src/VideoDriver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.i
+.PHONY : Drivers/VideoDriver/src/VideoDriver.cpp.i
+
+Drivers/VideoDriver/src/VideoDriver.s: Drivers/VideoDriver/src/VideoDriver.cpp.s
+
+.PHONY : Drivers/VideoDriver/src/VideoDriver.s
+
+# target to generate assembly for a file
+Drivers/VideoDriver/src/VideoDriver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.s
+.PHONY : Drivers/VideoDriver/src/VideoDriver.cpp.s
 
 Filter/src/Filter.o: Filter/src/Filter.cpp.o
 
@@ -479,12 +587,24 @@ help:
 	@echo "... Armor/src/ArmorDetector.o"
 	@echo "... Armor/src/ArmorDetector.i"
 	@echo "... Armor/src/ArmorDetector.s"
+	@echo "... Drivers/DAHUA/src/RGBConvert.o"
+	@echo "... Drivers/DAHUA/src/RGBConvert.i"
+	@echo "... Drivers/DAHUA/src/RGBConvert.s"
+	@echo "... Drivers/DAHUA/src/RMDriver.o"
+	@echo "... Drivers/DAHUA/src/RMDriver.i"
+	@echo "... Drivers/DAHUA/src/RMDriver.s"
+	@echo "... Drivers/DAHUA/src/StreamRetrieve.o"
+	@echo "... Drivers/DAHUA/src/StreamRetrieve.i"
+	@echo "... Drivers/DAHUA/src/StreamRetrieve.s"
 	@echo "... Drivers/RealSense/src/RealSenseDriver.o"
 	@echo "... Drivers/RealSense/src/RealSenseDriver.i"
 	@echo "... Drivers/RealSense/src/RealSenseDriver.s"
 	@echo "... Drivers/V4L2KAS/src/V4L2KAS.o"
 	@echo "... Drivers/V4L2KAS/src/V4L2KAS.i"
 	@echo "... Drivers/V4L2KAS/src/V4L2KAS.s"
+	@echo "... Drivers/VideoDriver/src/VideoDriver.o"
+	@echo "... Drivers/VideoDriver/src/VideoDriver.i"
+	@echo "... Drivers/VideoDriver/src/VideoDriver.s"
 	@echo "... Filter/src/Filter.o"
 	@echo "... Filter/src/Filter.i"
 	@echo "... Filter/src/Filter.s"

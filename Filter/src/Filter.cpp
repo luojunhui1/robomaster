@@ -77,7 +77,6 @@ namespace rm {
         F = _F;
         x_ = x;
 
-
         is_set_x = true;
     }
 
@@ -92,6 +91,7 @@ namespace rm {
  */
     void KF_two::Prediction(Eigen::MatrixXd _F) {
         F = _F;
+
         //得到预测值
         x_ = F * x_;
         P = F * P * F.transpose() + Q;
@@ -212,6 +212,13 @@ namespace rm {
         v_ty_old = 0;
     }
 
+    /**
+     * @brief Judge current input point is an armor or not through the compare the current velocity with local velocity
+     * parameter, update px to make sure px[flag] stores the most possible x coordinate index of the current armor.
+     * @param flag actually an index to operate px circularly
+     * @return none
+     * @details none
+     */
     bool Kalman::JudgeArmor(int &flag) {
         dx = (p_tx_now - px[(flag + 19) % 20]) / 20;
         if (abs(dx) < abs(8 * Vmean)) {
@@ -248,10 +255,14 @@ namespace rm {
         //cout << "第一次滤波" << endl;
         //目标移动速度,单位为cm/ms
         v_tx_now = (targetPoint.x - p_tx_old) / t;
+
+        /*local variable v_ty_now ? */
         float v_ty_now = (targetPoint.y - p_ty_old) / t;
 
         p_tx_now = targetPoint.x;// px,py in this pf
         p_ty_now = targetPoint.y;
+
+
         //todo record vx begin
         px_flag = 0;
         vx_flag = 0;
@@ -267,8 +278,11 @@ namespace rm {
         fx = 0;
         //传参
         Eigen::VectorXd x(4, 1);
+
+        /*velocity multiplied with 1000?*/
         x << targetPoint.x, targetPoint.y, v_tx_now * 1000, v_ty_now * 1000;
         KF_forecast.set_x(x);
+
         //update p & v
         p_tx_old = targetPoint.x;
         p_ty_old = targetPoint.y;
@@ -298,6 +312,8 @@ namespace rm {
         //todo judge if it is reasonable
         px_flag++;
         //vx_flag++;
+
+        /*judge if px have been updated 20 times or not*/
         if (!set_px) {
             if (px_flag == 19) {
                 set_px = true;
@@ -305,6 +321,7 @@ namespace rm {
             px[px_flag] = p_tx_now;
         }
         JudgeArmor(px_flag);
+
 
         v_tx_now = (px[(px_flag + 20) % 20] - px[(px_flag + 19) % 20]) / t;
 
@@ -344,8 +361,6 @@ namespace rm {
         //todo calculate errors
         p_tx_old = targetPoint.x;
         p_ty_old = targetPoint.y;
-
-
 
 //        if((abs(v_tx_now)>0.3)&&(abs(v_tx_now)<0.6)) {
 //            v_tx_old = (v_tx_now)*50;
@@ -436,9 +451,15 @@ namespace rm {
         float delta_x = 0;
         float delta_y = 0;
 
+        if((targetPoint.x  - p_tx_old)*(targetPoint.x  - p_tx_old)
+                                            + (targetPoint.y - p_ty_old)*(targetPoint.y - p_ty_old) > 3000)
+            flag = true;
+
         if (flag) {
             FirstFind(targetPoint);
+
             KF_forecast.is_set_x = false;
+
             //状态协方差矩阵重新复位
             Eigen::MatrixXd P_in = Eigen::MatrixXd(4, 4);
             P_in << 1.0, 0.0, 0.0, 0.0,

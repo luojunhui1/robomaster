@@ -122,13 +122,12 @@ void SolveAngle::GetPose(const Rect& rect, float ballet_speed, bool small)
 
 void SolveAngle::GetPoseV(Point2f predictOffset, const vector<Point2f>& pts, float ballet_speed, bool small)
 {
-    Kalman1  kalman;
     cv::Mat Rvec;
     cv::Mat_<float> Tvec;
     Generate3DPoints(small);
     rvecs = Mat::zeros(3, 1, CV_64FC1);
     tvecs = Mat::zeros(3, 1, CV_64FC1);
-    //Generate2DPoints(rect);
+
     if(pts.size() != 4)return;
 
     for(auto p:pts)

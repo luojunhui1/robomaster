@@ -1,7 +1,11 @@
 file(REMOVE_RECURSE
   "CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o"
+  "CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o"
+  "CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o"
+  "CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o"
   "CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o"
   "CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o"
+  "CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o"
   "CMakeFiles/run.dir/Filter/src/Filter.cpp.o"
   "CMakeFiles/run.dir/Other/src/mydefine.cpp.o"
   "CMakeFiles/run.dir/Other/src/preoptions.cpp.o"

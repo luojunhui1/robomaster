@@ -19,7 +19,7 @@ namespace rm
         center.x = static_cast<int>((L1.rect.center.x + L2.rect.center.x) / 2);
         center.y = static_cast<int>((L1.rect.center.y + L2.rect.center.y) / 2);
         rect = Rect(center - Point2i(armorWidth / 2, armorHeight / 2), Size(armorWidth, armorHeight));
-        armorType = (armorWidth / armorHeight > 4) ? (BIG_ARMOR) : (SMALL_ARMOR);
+        armorType = (armorWidth / armorHeight > 3.5) ? (BIG_ARMOR) : (SMALL_ARMOR);
         priority = priority_;
 
         //need to make sure how to set values to the points
@@ -112,8 +112,7 @@ namespace rm
     void ArmorDetector::Init()
     {
         possibleArmors.clear();
-        history.clear();
-        history_.clear();
+
         targetArmor.init();
         roiRect = Rect(0, 0, 0, 0);
         findState = false;
@@ -148,6 +147,7 @@ namespace rm
     {
         findState = false;
         chance = true;
+
         vector<LEDStick> lights;
 /**
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -231,6 +231,7 @@ REBACK:
 #ifdef USEROI
             roiRect = targetArmor.rect;
 #endif
+
             lastArmor = targetArmor;
             possibleArmors.clear();
 
@@ -253,6 +254,7 @@ REBACK:
             }
             detectCnt = 0;
             lostCnt++;
+
 
             possibleArmors.clear();
             lastImg = img.clone();

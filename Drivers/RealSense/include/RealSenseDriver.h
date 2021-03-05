@@ -19,18 +19,20 @@
 #include <librealsense2/rsutil.h>
 
 #include "mydefine.h"
+#include "Driver.h"
 
 #define  FPS           60
 
 using namespace rs2;
 using namespace cv;
 
-class RealSenseDriver
+class RealSenseDriver: public Driver
 {
 public:
-    void Init();
-    void Start();
-    void Grab(Mat& src);
+    bool InitCam() override;
+    bool StartGrab() override;
+    int SetCam() override;
+    bool Grab(Mat& src) override;
 private:
     rs2::config *config;
     context ctx;

@@ -13,12 +13,12 @@ int main(int argc, char** argv)
     ImgProdCons pro;
     pro.Init();
 
-    runWithCamera = false;
-    blueTarget = false;
-    showArmorBox = true;
-    showBianryImg = true;
-    showOrigin = true;
-    showLamps = true;
+//    runWithCamera = false;
+//    blueTarget = false;
+//    showArmorBox = true;
+//    showBianryImg = true;
+//    showOrigin = true;
+//    showLamps = true;
 
     //std::thread produceThread(&rm::ImgProdCons::Produce, &pro);
     std::thread consumeThread(&rm::ImgProdCons::Consume, &pro);

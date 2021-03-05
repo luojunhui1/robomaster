@@ -4,7 +4,7 @@
 
 #include "RealSenseDriver.h"
 
-void RealSenseDriver::Init()
+bool RealSenseDriver::InitCam()
 {
     auto list = ctx.query_devices(); // Get a snapshot of currently connected devices
     if (list.size() == 0)
@@ -17,14 +17,23 @@ void RealSenseDriver::Init()
     config->enable_stream(RS2_STREAM_DEPTH, IMAGEWIDTH, IMAGEHEIGHT, RS2_FORMAT_Z16,FPS);
     config->enable_stream(RS2_STREAM_INFRARED, 1, IMAGEWIDTH, IMAGEHEIGHT, RS2_FORMAT_Y8, FPS);
     config->enable_stream(RS2_STREAM_INFRARED, 2, IMAGEWIDTH, IMAGEHEIGHT, RS2_FORMAT_Y8, FPS);
+
+    return true;
 }
 
-void RealSenseDriver::Start()
+bool RealSenseDriver::StartGrab()
 {
     pipe.start(*config);
+
+    return true;
 }
 
-void RealSenseDriver::Grab(Mat& src)
+int RealSenseDriver::SetCam()
+{
+    return 0;
+}
+
+bool RealSenseDriver::Grab(Mat& src)
 {
     data = pipe.wait_for_frames(); // Wait for next set of frames from the camera
     frame_ = data.get_color_frame();
@@ -32,4 +41,6 @@ void RealSenseDriver::Grab(Mat& src)
     src_ =  Mat(Size(IMAGEWIDTH,IMAGEHEIGHT), CV_8UC3,(void*)frame_.get_data(),Mat::AUTO_STEP);
 
     flip(src_,src,-1);
+
+    return true;
 }

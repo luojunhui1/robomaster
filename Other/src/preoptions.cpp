@@ -1,5 +1,11 @@
 #include "preoptions.h"
 #include "log.h"
+
+#include <cstdlib>
+#include <cstring>
+#include <dirent.h>
+
+#include <iostream>
 #include <map>
 
 using namespace std;
@@ -64,10 +70,10 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 			LOGM("Enable show origin");
 		}
 	}},
-	{"-camera", {
-		"start the program with camera directly without asking.", []() {
-                runWithCamera = true;
-			LOGM("Run with camera!");
+	{"-video", {
+		"start the program with reading video directly without asking.", []() {
+                carName = VIDEO;
+			LOGM("Run with Video!");
 		}
 	}},
 	{"-save", {
@@ -83,11 +89,35 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 		}
 	}},
 	{"-energy", {
-		"",[]() {
+		"show energy",[]() {
                 showEnergy = true;
 			LOGM("Enable show energy part!");
 		}
 	}},
+    {"-hero", {
+                        "",[]() {
+                carName = HERO;
+                LOGM("HERO SET SAIL! COMMANDER!");
+            }
+                }},
+    {"-uav", {
+                        "",[]() {
+                carName = UAV;
+                LOGM("UAV SET SAIL! COMMANDER!");
+            }
+                }},
+    {"-infantry", {
+                        "",[]() {
+                carName = INFANTRY;
+                LOGM("INFANTRY SET SAIL! COMMANDER!");
+            }
+                }},
+    {"-sentry", {
+                          "",[]() {
+                carName = SENTRY;
+                LOGM("SENTRY SET SAIL! COMMANDER!");
+            }
+                  }},
 	{"-debug", {
 		"show armors,energy and video.", []() {
                 showArmorBox = true;
@@ -106,8 +136,25 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 
 void PreOptions(int argc, char** argv) {
 	if (argc >= 2) {
-		for (int i = 1; i < argc; i++) {
-			auto key = options.find(std::string(argv[i])); // argv[i]是运行程序时的选项
+        char* token;
+        string str;
+
+        for (int i = 1; i < argc; i++) {
+            token = strtok(argv[i],"= ");
+			if(!strcmp(token,"-path"))
+            {
+                token = strtok(NULL,"= ");
+                LOGM("Set Video Path as %s",token);
+                videoPath = std::string(token);
+                continue;
+            }else if(!strcmp(token,"-cameraIndex"))
+            {
+                token = strtok(NULL,"= ");
+                LOGM("Set Camera Index as %s",token);
+                stoi(token,&cameraIndex,10);
+                continue;
+            }
+            auto key = options.find(std::string(argv[i])); // argv[i]是运行程序时的选项
 			if (key != options.end()) {
 				key->second.second();
 			}
@@ -118,6 +165,12 @@ void PreOptions(int argc, char** argv) {
 		if (!redTarget && !blueTarget)
 		{
 			LOGW("Forget to choose target color!");
+			exit(0);
 		}
+		if(carName == NOTDEFINED)
+        {
+		    LOGW("HAAVE NOT DEFINED CAR NAME! LITTLE FULL!");
+		    exit(0);
+        }
 	}
 }

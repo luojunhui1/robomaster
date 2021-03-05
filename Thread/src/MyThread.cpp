@@ -134,7 +134,6 @@ namespace rm
 
 
     ImgProdCons::ImgProdCons() :
-            videoCapturePtr(unique_ptr<RealSenseDriver>(new RealSenseDriver())),
             buffer(6), /*frame size is 6*/
             serialPtr(unique_ptr<Serial>(new Serial())),
             solverPtr(unique_ptr<SolveAngle>(new SolveAngle())),
@@ -151,15 +150,30 @@ namespace rm
         InitSignals();
 
         /*initialize camera*/
-//        videoCapturePtr->RMopen(0, 2); //camera id 0 buffersize 2
-//        videoCapturePtr->setVideoFormat(640, 480, 2);//1 is mjpg,2 is jepg,3 is yuyv
-//        videoCapturePtr->setExposureTime(100);
-//        videoCapturePtr->setFPS(200);
-//        videoCapturePtr->startStream();
-//        videoCapturePtr->info();
-    //    videoCapturePtr->open(0);
+
+        switch (carName) {
+            case HERO:
+                driver = &intelCapture;
+                break;
+            case INFANTRY:
+                driver = &v4l2Capture;
+                break;
+            case SENTRY:
+                driver = &dahuaCapture;
+                break;
+            case UAV:
+                driver = &v4l2Capture;
+                break;
+            case VIDEO:
+                driver = &videoCapture;
+        }
+
 	    if(runWithCamera)
-	        videoCapturePtr->Init();
+        {
+            driver->InitCam();
+            driver->SetCam();
+            driver->StartGrab();
+        }
 //	videoCapturePtr->Info();
 //	videoCapturePtr->SetFormat();
 //	videoCapturePtr->RequireBuffer();
@@ -192,39 +206,34 @@ namespace rm
 
     void ImgProdCons::Consume()
     {
-        Frame frame;
-        Mat image0;
-
         if (!runWithCamera)
         {
             if(blueTarget)
                 videoReaderPtr->open("/home/ljh/视频/Videos/LINUX_Video_0.avi");
             else
-                videoReaderPtr->open("/home/ljh/视频/Videos/test1.mp4");
+                videoReaderPtr->open("/home/ljh/视频/Videos/Xavier_12_19.avi");
             videoReaderPtr->read(image0);
         }else
         {
-            videoCapturePtr->Start();
-            videoCapturePtr->Grab(image0);
+            driver->Grab(image0);
 
             while(image0.empty())
             {
-                videoCapturePtr->Grab(image0);
+                driver->Grab(image0);
             }
         }
 
         FRAMEWIDTH = image0.cols;
         FRAMEHEIGHT = image0.rows;
         armorDetectorPtr->Init();
-		//printf("WIDTH:%d HEIGHT:%d\n",FRAMEWIDTH,FRAMEHEIGHT);
-        //videowriter = VideoWriter(videoName,CAP_OPENCV_MJPEG,60,Size(FRAMEWIDTH,FRAMEHEIGHT));
+
         do
         {
             auto startTime = chrono::high_resolution_clock::now();
             if (!runWithCamera)
                 videoReaderPtr->read(image0);
             else
-                videoCapturePtr->Grab(image0);
+                driver->Grab(image0);
 //            double time = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime)).count();
 //            cout<<"GRAB  FREQUENCY: "<< 1000.0/time<<endl;
 
@@ -247,18 +256,20 @@ namespace rm
                         //cout<<"Begin Search Mode!"<<endl;
                         if (armorDetectorPtr->ArmorDetectTask(image0))
                         {
-			            //cout<<"Target Get!!!!!!!!!!!!"<<endl;
-//                            bool is_small_ = armorDetectorPtr->isSmall();
-                            int8_t armorType_ = (armorDetectorPtr->IsSmall()) ? (SMALL_ARMOR) : (BIG_ARMOR);
+                            //Point2f predOff = kalman->SetKF(armorDetectorPtr->targetArmor.center);
+                            armorType = (armorDetectorPtr->IsSmall()) ? (SMALL_ARMOR) : (BIG_ARMOR);
                             solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),armorDetectorPtr->targetArmor.pts,
                                                     15,armorDetectorPtr->IsSmall());
-                            cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
+                            //circle(image0,predOff + (Point2f)armorDetectorPtr->targetArmor.center,5,Scalar(253, 121, 168),-1);
+
+                            //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
 
                             serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist,solverPtr->shoot,
                                             1,AUTO_SHOOT_STATE);
-//                            cout<<"IF SHOOT: "<< solverPtr->shoot<<endl;
+
+
                             serialPtr->WriteData();
-                            states->UpdateStates(armorType_, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
+                            states->UpdateStates(armorType, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
 
                             armorDetectorPtr->tracker = TrackerKCF::create();
                             armorDetectorPtr->tracker->init(image0, armorDetectorPtr->targetArmor.rect);
@@ -274,25 +285,25 @@ namespace rm
                     break;
                     case TRACKING_MODE:
                     {
-                        cout<<"TRACKING!"<<endl;
+                        //cout<<"TRACKING!"<<endl;
                         //这里一开始就是trakcking，若追踪到目标，继续，未追踪到，进入searching,进入tracking函数时要判断分类器是否可用
                         if (armorDetectorPtr->trackingTarget(image0, armorDetectorPtr->targetArmor.rect))
                         {
                             //cout<<"Target Get!!!!!!!!!!!!"<<endl;
-                            bool is_small_ = armorDetectorPtr->IsSmall();
-                            Point2f predOff = kalman->SetKF(armorDetectorPtr->targetArmor.center);
-                            int8_t armor_type_ = (is_small_) ? (SMALL_ARMOR) : (BIG_ARMOR);
-                            solverPtr->GetPoseV(predOff,armorDetectorPtr->targetArmor.pts,
+                            //bool is_small_ = armorDetectorPtr->IsSmall();
+                            //Point2f predOff = kalman->SetKF(armorDetectorPtr->targetArmor.center);
+                            armorType = (armorDetectorPtr->IsSmall()) ? (SMALL_ARMOR) : (BIG_ARMOR);
+                            solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),armorDetectorPtr->targetArmor.pts,
                                                 15,armorDetectorPtr->IsSmall());
-                            //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
 
+                            //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
                             //circle(image0,predOff + (Point2f)armorDetectorPtr->targetArmor.center,5,Scalar(253, 121, 168),-1);
 
                             serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist,solverPtr->shoot,
                                             1,AUTO_SHOOT_STATE);
                             //cout<<"IF SHOOT: "<< solverPtr->shoot<<endl;
                             serialPtr->WriteData();
-                            states->UpdateStates(armor_type_, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
+                            states->UpdateStates(armorType, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
                         }
                         else
                         {

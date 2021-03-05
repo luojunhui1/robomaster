@@ -5,8 +5,12 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/ljh/文档/A_RM/hero/Armor/src/ArmorDetector.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RGBConvert.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RMDriver.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/StreamRetrieve.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o"
   "/home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o"
   "/home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/src/V4L2KAS.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Drivers/VideoDriver/src/VideoDriver.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o"
   "/home/ljh/文档/A_RM/hero/Filter/src/Filter.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Filter/src/Filter.cpp.o"
   "/home/ljh/文档/A_RM/hero/Other/src/mydefine.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Other/src/mydefine.cpp.o"
   "/home/ljh/文档/A_RM/hero/Other/src/preoptions.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Other/src/preoptions.cpp.o"
@@ -29,6 +33,9 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../Filter/include"
   "../Drivers/V4L2KAS/include"
   "../Drivers/RealSense/include"
+  "../Drivers/DAHUA/include"
+  "../Drivers/VideoDriver/include"
+  "../Drivers"
   "/usr/include/eigen3"
   "/usr/local/include/opencv4"
   )

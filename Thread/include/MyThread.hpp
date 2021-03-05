@@ -13,12 +13,18 @@
 #include "preoptions.h"
 #include "mydefine.h"
 #include "Filter.h"
+
 #include "RealSenseDriver.h"
+#include "Media/RMDriver.h"
+#include "V4L2KAS.h"
+#include "VideoDriver.hpp"
 
 using namespace std;
+using namespace V4L2KAS;
 
 namespace rm
 {
+
     /*min unit to describe figure*/
     struct Frame
     {
@@ -101,8 +107,14 @@ namespace rm
         static void SignalHandler(int);
         void InitSignals(void);
 
+        /*Camera Driver Instances*/
+        RMDriver dahuaCapture;
+        V4L2Driver v4l2Capture;
+        RealSenseDriver intelCapture;
+        VideoDriver videoCapture;
+
         /* Camera */
-        std::unique_ptr<RealSenseDriver> videoCapturePtr;
+        Driver *driver;
 
         /*read video*/
         std::unique_ptr<cv::VideoCapture> videoReaderPtr;
@@ -121,6 +133,11 @@ namespace rm
         std::unique_ptr<States> states;
 
         std::unique_ptr<Kalman> kalman;
+
+        Frame frame;
+        Mat image0;
+        int armorType;
+
     };
 
 }

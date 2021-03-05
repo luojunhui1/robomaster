@@ -36,7 +36,6 @@ namespace rm {
 
         Eigen::VectorXd x_;                         //状态向量[锁定目标绝对pitch,锁定目标绝对yaw,v_pitch,v_yaw]
 
-
         KF_two(Eigen::MatrixXd P_in, Eigen::MatrixXd Q_in, Eigen::MatrixXd H_in, Eigen::MatrixXd R_in);
 
         void Prediction(Eigen::MatrixXd _F);

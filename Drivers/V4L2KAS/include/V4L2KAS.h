@@ -7,6 +7,9 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
+#include <cstdlib>
+
 #include <linux/videodev2.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -15,13 +18,15 @@
 #include <sys/mman.h>
 #include <sys/select.h>
 #include <chrono>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
 #include "mydefine.h"
+#include "Driver.h"
 
-#define FILE_VIDEO     "/dev/video0"
-
+using namespace std;
 using namespace cv;
 
 namespace V4L2KAS
@@ -33,8 +38,9 @@ namespace V4L2KAS
     };
 
 
-    class V4L2Driver
+    class V4L2Driver: public Driver
     {
+        char devicePath[30];
         int      fd;
         struct   v4l2_capability   cap;
         struct v4l2_fmtdesc fmtdesc;
@@ -47,11 +53,11 @@ namespace V4L2KAS
         struct buffer *buffers;
 
     public:
-        bool Init();
+        bool InitCam() override;
         bool Info();
-        bool SetFormat();
+        int  SetCam() override;
         bool RequireBuffer();
-        bool Grab(Mat& src);
+        bool Grab(Mat& src) override;
 
     };
 }

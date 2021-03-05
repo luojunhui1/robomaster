@@ -189,11 +189,12 @@ namespace rm
 
         /*the last armor selected to be attacked*/
         Armor lastArmor;
-        /* the armors have been selected*/
-        vector<Armor> history;
 
-        /*the armor find state history*/
-        std::list<bool> history_;
+//        /* the armors have been selected*/
+//        vector<Armor> history;
+//
+//        /*the armor find state history*/
+//        std::list<bool> history_;
 
         /*current find state*/
         bool findState;
@@ -211,11 +212,12 @@ namespace rm
         Mat_<int> colorMap;
 
         /*last cnt binary image*/
-        /*if you want to use this, you must close the roi selector*/
         Mat lastImg;
         Mat lastBright;
         Mat dBright;
         bool chance = false;
+
+
         /*a binary image*/
         Mat thresholdMap;
 

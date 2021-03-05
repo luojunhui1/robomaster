@@ -5,13 +5,16 @@
 
 namespace V4L2KAS
 {
-    bool V4L2Driver::Init()
+    bool V4L2Driver::InitCam()
     {
         /**
-            * Open the Video Device
-            */
+        * Open the Video Device
+        */
+        memset(devicePath,'\0',30);
+        strcpy(devicePath,"/dev/video");
+        strcat(devicePath,(to_string(cameraIndex)).c_str());
 
-        if ((fd = open(FILE_VIDEO, O_RDWR)) == -1)
+        if ((fd = open(devicePath, O_RDWR)) == -1)
         {
             printf("Error opening V4L interface\n");
             return false;
@@ -26,7 +29,7 @@ namespace V4L2KAS
      */
         if (ioctl(fd, VIDIOC_QUERYCAP, &cap) == -1)
         {
-            printf("Error opening device %s: unable to query device.\n",FILE_VIDEO);
+            printf("Error opening device %s: unable to query device.\n",devicePath);
             return (false);
         }
         else
@@ -39,12 +42,12 @@ namespace V4L2KAS
 
             if ((cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) == V4L2_CAP_VIDEO_CAPTURE)
             {
-                printf("Device %s: supports capture.\n",FILE_VIDEO);
+                printf("Device %s: supports capture.\n",devicePath);
             }
 
             if ((cap.capabilities & V4L2_CAP_STREAMING) == V4L2_CAP_STREAMING)
             {
-                printf("Device %s: supports streaming.\n",FILE_VIDEO);
+                printf("Device %s: supports streaming.\n",devicePath);
             }
         }
 
@@ -61,7 +64,7 @@ namespace V4L2KAS
         }
         return true;
     }
-    bool V4L2Driver::SetFormat()
+    int V4L2Driver::SetCam()
     {
     /**
      * Set the image format as MJPEG
@@ -75,13 +78,13 @@ namespace V4L2KAS
         if(ioctl(fd, VIDIOC_S_FMT, &fmt) == -1)
         {
             printf("Unable to set format\n");
-            return false;
+            return 0;
         }
 
         if(ioctl(fd, VIDIOC_G_FMT, &fmt) == -1)
         {
             printf("Unable to get format\n");
-            return false;
+            return 0;
         }
         {
             printf("fmt.type:\t\t%d\n",fmt.type);
@@ -90,8 +93,17 @@ namespace V4L2KAS
             printf("pix.width:\t\t%d\n",fmt.fmt.pix.width);
             printf("pix.field:\t\t%d\n",fmt.fmt.pix.field);
         }
-        return true;
+
+        if(!RequireBuffer())
+        {
+            printf("RequireBuffer Failed!\n");
+            return 0;
+        }
+        return 1;
     }
+
+    /*For simplicity of this project, we call this function at the end of SerCam function, so you should not use this
+     * function independently unless you are sure what you are doing*/
     bool V4L2Driver::RequireBuffer()
     {
         /**
