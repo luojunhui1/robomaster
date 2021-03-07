@@ -7,6 +7,8 @@
 #include <mutex>
 #include <memory>
 
+#include <condition_variable>
+
 #include "ArmorDetector.hpp"
 #include "SerialPort.hpp"
 #include "SolveAngle.hpp"
@@ -29,8 +31,23 @@ namespace rm
     struct Frame
     {
         cv::Mat img;
-        uint32_t seq;         //count from 1
+        uint32_t seq;         //count from 0
         double timeStamp;	//time in ms, from initialization to now
+
+        Frame()=default;
+
+        Frame(const Mat& img_, uint32_t seq_, double timeStamp_)
+        {
+            img = img_.clone();
+            seq = seq_;
+            timeStamp = timeStamp_;
+        }
+
+        Frame clone() const
+        {
+            return Frame(img,seq,timeStamp);
+        }
+
     };
 
     /*figure queue*/
@@ -41,9 +58,9 @@ namespace rm
 
         ~FrameBuffer() = default;
 
-        bool push(const Frame& frame);
+        inline bool push(const Frame& frame);
 
-        bool pop(Frame& frame);
+        inline bool pop(Frame& frame);
 
     private:
         std::vector<Frame> frames;
@@ -53,6 +70,7 @@ namespace rm
         uint32_t headIdx;
         uint32_t size;
         double lastGetTimeStamp;
+
     };
 
     /*describe the run states*/
@@ -105,7 +123,7 @@ namespace rm
         */
         static bool quitFlag;
         static void SignalHandler(int);
-        void InitSignals(void);
+        static void InitSignals(void);
 
         /*Camera Driver Instances*/
         RMDriver dahuaCapture;
@@ -135,9 +153,15 @@ namespace rm
         std::unique_ptr<Kalman> kalman;
 
         Frame frame;
-        Mat image0;
-        int armorType;
+        Frame detectFrame;
 
+        mutex readLock;
+        mutex writeLock;
+        mutex shareRead;
+
+        condition_variable writeCon;
+        condition_variable readCon;
+        int armorType;
     };
 
 }

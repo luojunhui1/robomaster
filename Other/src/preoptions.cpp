@@ -139,7 +139,8 @@ void PreOptions(int argc, char** argv) {
         char* token;
         string str;
 
-        for (int i = 1; i < argc; i++) {
+        for (int i = 1; i < argc; i++)
+        {
             token = strtok(argv[i],"= ");
 			if(!strcmp(token,"-path"))
             {
@@ -154,7 +155,7 @@ void PreOptions(int argc, char** argv) {
                 stoi(token,&cameraIndex,10);
                 continue;
             }
-            auto key = options.find(std::string(argv[i])); // argv[i]是运行程序时的选项
+            auto key = options.find(std::string(argv[i])); //argv[i]是运行程序时的选项
 			if (key != options.end()) {
 				key->second.second();
 			}

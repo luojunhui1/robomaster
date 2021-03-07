@@ -12,18 +12,10 @@ using namespace cv;
 class Driver
 {
 public:
-    virtual bool InitCam(){
-        return false;
-    };
-    virtual bool StartGrab(){
-        return false;
-    };
-    virtual int SetCam(){
-        return 0;
-    };
-    virtual bool Grab(Mat& src){
-        return false;
-    };
+    virtual bool InitCam() = 0 ;
+    virtual bool StartGrab() = 0;
+    virtual int SetCam() = 0;
+    virtual bool Grab(Mat& src) = 0;
 };
 
 #endif //HERO_DRIVER_H

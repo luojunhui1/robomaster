@@ -20,12 +20,13 @@ int main(int argc, char** argv)
 //    showOrigin = true;
 //    showLamps = true;
 
-    //std::thread produceThread(&rm::ImgProdCons::Produce, &pro);
+    std::thread produceThread(&rm::ImgProdCons::Produce, &pro);
     std::thread consumeThread(&rm::ImgProdCons::Consume, &pro);
     //std::thread senseThread(&rm::ImgProdCons::feedback, &pro);
 
-    //produceThread.join();
+    produceThread.join();
     consumeThread.join();
+
     //senseThread.join();
 
     return 0;

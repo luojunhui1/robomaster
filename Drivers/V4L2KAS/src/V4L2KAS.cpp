@@ -176,4 +176,8 @@ namespace V4L2KAS
 
         return true;
     }
+    bool V4L2Driver::StartGrab()
+    {
+
+    }
 }

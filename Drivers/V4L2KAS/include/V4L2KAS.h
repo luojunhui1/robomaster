@@ -53,11 +53,12 @@ namespace V4L2KAS
         struct buffer *buffers;
 
     public:
-        bool InitCam() override;
+        bool InitCam();
+        bool StartGrab();
         bool Info();
-        int  SetCam() override;
+        int  SetCam();
         bool RequireBuffer();
-        bool Grab(Mat& src) override;
+        bool Grab(Mat& src);
 
     };
 }

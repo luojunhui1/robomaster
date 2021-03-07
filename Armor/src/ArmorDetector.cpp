@@ -473,7 +473,7 @@ REBACK:
             threshold(dBright, dBright, 160, 255, CV_MINMAX);
         }
 
-        imshow("dBright",dBright);
+        //imshow("dBright",dBright);
 
         colorMap = rSubB - bSubR ;
 

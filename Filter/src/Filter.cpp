@@ -474,7 +474,7 @@ namespace rm {
 
         if (!KF_forecast.is_set_x) {
             //第一次连续射击
-            cout << "First set Filter" << endl;
+            //cout << "First set Filter" << endl;
             FirstSetFilter(targetPoint);
         } else {
             //cout << "Continue set Filter" << endl;
