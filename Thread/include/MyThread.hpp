@@ -7,8 +7,8 @@
 #include <mutex>
 #include <memory>
 #include <shared_mutex>
-
 #include <condition_variable>
+#include <sys/timeb.h>
 
 #include "ArmorDetector.hpp"
 #include "SerialPort.hpp"
@@ -33,11 +33,11 @@ namespace rm
     {
         cv::Mat img;
         uint32_t seq;         //count from 0
-        double timeStamp;	//time in ms, from initialization to now
+        long long timeStamp;	//time in ms, from initialization to now
 
         Frame()=default;
 
-        Frame(const Mat& img_, uint32_t seq_, double timeStamp_)
+        Frame(const Mat& img_, uint32_t seq_, long long timeStamp_)
         {
             img = img_.clone();
             seq = seq_;
@@ -134,7 +134,6 @@ namespace rm
         mutex writeLock;
         mutex energyLock;
         mutex feedbackLock;
-        std::shared_timed_mutex shareRead;
 
 
         condition_variable writeCon;

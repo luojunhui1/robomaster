@@ -18,16 +18,16 @@
 /*--------------------------------暂定协议-------------------------------------*/
 
 //暂定20字节,头1字节,数据18字节,尾1字节
-#define    VISION_LENGTH        20
+#define    VISION_LENGTH        25
 //起始字节,协议固定为0xA5
 #define    VISION_SOF         (0xA5)
 //end字节,协议固定为0xA5
 #define    VISION_TOF         (0xA6)
 
 /**    ----------------------------------------------------------------------------------------------------
-FIELD  |  A5  |  CmdID  |  yaw  |  pitch  | distance  |  shoot  |  find  |  none  |  none  |  none |  A6  |
+FIELD  |  A5  |  CmdID  |  yaw  |  pitch  | distance  |  shoot  |  find  |  timestamp |  A6  |
        ----------------------------------------------------------------------------------------------------
-BYTE   |   1  |    1    |   4   |    4    |     4     |    1    |    1   |    1   |    1   |   1   |   1  |
+BYTE   |   1  |    1    |   4   |    4    |     4     |    1    |    1   |     8     |   1  |
        ----------------------------------------------------------------------------------------------------
 **/
 
@@ -51,7 +51,7 @@ public:
 
     explicit Serial(int nSpeed = 115200, char nEvent = 'N', int nBits = 8, int nStop = 1);
     ~Serial();
-    void pack(float yaw, float pitch, float dist, uint8_t shoot, uint8_t find, uint8_t CmdID);
+    void pack(float yaw, float pitch, float dist, uint8_t shoot, uint8_t find, uint8_t CmdID, long long timeStamp);
     bool InitPort(int nSpeed = 115200, char  nEvent = 'N', int nBits = 8, int nStop = 1);
     bool WriteData();
     bool ReadData(unsigned char* buffer, unsigned int length);

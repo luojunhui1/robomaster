@@ -110,6 +110,8 @@ namespace rm
         //auto startTime = chrono::high_resolution_clock::now();
         static uint32_t seq = 0;
         Mat newImg;
+        long long timeStamp;
+        struct timeb curTime{};
 
         while(!ImgProdCons::quitFlag)
         {
@@ -123,7 +125,8 @@ namespace rm
                 continue;
             //cout<<"Produce Captured Image"<<endl;
 
-            double timeStamp =clock();
+            ftime(&curTime);
+            timeStamp = (curTime.time*1000 + curTime.millitm - 1610812848148);
 
             frame = Frame{newImg, seq, timeStamp};
 
@@ -143,8 +146,6 @@ namespace rm
             unique_lock<mutex> lock(compareLock);
             readCon.wait(lock,[]{ return !compareMission&&produceMission;});
 
-            shared_lock<shared_timed_mutex> sharedLock(shareRead);
-
             armorComparePtr->DetectArmor(compareFrame.img);
 
             //cout<<"COMPARE MISSION! ===="<<endl;
@@ -161,8 +162,6 @@ namespace rm
             unique_lock<mutex> lock(detectLock);
 
             readCon.wait(lock,[]{ return !detectMission&&produceMission;});
-
-            shared_lock<shared_timed_mutex> sharedLock(shareRead);
 
             switch (curDetectMode)
             {
@@ -211,7 +210,6 @@ namespace rm
         do {
             unique_lock<mutex> lock(energyLock);
             readCon.wait(lock,[]{ return !energyMission&&produceMission;});
-            shared_lock<shared_timed_mutex> sharedLock(shareRead);
 
             if(curControlState == BIG_ENERGY_STATE || curControlState == SMALL_ENERGY_STATE)
             {
@@ -240,7 +238,7 @@ namespace rm
                 }
 
                 serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
-                                1, AUTO_SHOOT_STATE);
+                                1, AUTO_SHOOT_STATE,frame.timeStamp);
                 serialPtr->WriteData();
 
                 //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
