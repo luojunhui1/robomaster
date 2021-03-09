@@ -21,12 +21,17 @@ int main(int argc, char** argv)
 //    showLamps = true;
 
     std::thread produceThread(&rm::ImgProdCons::Produce, &pro);
-    std::thread consumeThread(&rm::ImgProdCons::Consume, &pro);
+    std::thread detectThread(&rm::ImgProdCons::Detect, &pro);
+    std::thread compareThread(&rm::ImgProdCons::Compare, &pro);
+    std::thread energyThread(&rm::ImgProdCons::Energy, &pro);
+    std::thread feedbackThread(&rm::ImgProdCons::Feedback, &pro);
     //std::thread senseThread(&rm::ImgProdCons::feedback, &pro);
 
     produceThread.join();
-    consumeThread.join();
-
+    detectThread.join();
+    compareThread.join();
+    energyThread.join();
+    feedbackThread.join();
     //senseThread.join();
 
     return 0;

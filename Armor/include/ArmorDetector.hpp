@@ -162,9 +162,9 @@ namespace rm
 
         void GetRoi(Mat &img);
 
-        bool DetectArmor(Mat &img);
+        virtual bool DetectArmor(Mat &img);
 
-        void Preprocess(Mat &img, bool type);
+        virtual void Preprocess(Mat &img);
 
         void MaxMatch(vector<LEDStick> lights);
 
@@ -187,15 +187,6 @@ namespace rm
         /*the final armor selected to be attacked*/
         Armor targetArmor;
 
-        /*the last armor selected to be attacked*/
-        Armor lastArmor;
-
-//        /* the armors have been selected*/
-//        vector<Armor> history;
-//
-//        /*the armor find state history*/
-//        std::list<bool> history_;
-
         /*current find state*/
         bool findState;
 
@@ -206,20 +197,16 @@ namespace rm
         Rect roiRect;
 
         /* variables would be used in functions*/
-    private:
+    public:
 
         /*a gray image, the difference between rSubB and bSubR*/
         Mat_<int> colorMap;
 
-        /*last cnt binary image*/
-        Mat lastImg;
-        Mat lastBright;
-        Mat dBright;
-        bool chance = false;
-
-
-        /*a binary image*/
-        Mat thresholdMap;
+//        /*last cnt binary image*/
+//        Mat lastImg;
+//        Mat lastBright;
+//        Mat dBright;
+//        bool chance = false;
 
         /*a gray image, the pixel's value is the difference between red channel and blue channel*/
         Mat_<int> rSubB;
@@ -232,6 +219,9 @@ namespace rm
 
         /*ROI image*/
         Mat imgRoi;
+
+        /*a binary image*/
+        Mat thresholdMap;
 
         /*the frequency information*/
     public:
@@ -256,6 +246,17 @@ namespace rm
 
         /*if the tracer found the target, return true, otherwise return false*/
         bool trackingTarget(Mat &src, Rect2d target);
+    };
+
+    class ArmorCompare: public ArmorDetector
+    {
+    private:
+        Mat lastBright;
+        Mat dBright;
+    public:
+        void InitCompare();
+        void Preprocess(Mat &img) override;
+        bool DetectArmor(Mat &img) override;
     };
 
     /**

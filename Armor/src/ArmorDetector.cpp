@@ -118,9 +118,6 @@ namespace rm
         findState = false;
         detectCnt = 0;
         lostCnt = 120;
-        lastBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
-        dBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
-        lastImg = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC3,Scalar(0,0,0));
     }
 
     /**
@@ -146,7 +143,6 @@ namespace rm
     bool ArmorDetector::DetectArmor(Mat &img)
     {
         findState = false;
-        chance = true;
 
         vector<LEDStick> lights;
 /**
@@ -154,12 +150,9 @@ namespace rm
  * For test the detection accuracy of your detector, you need to close roi selector
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * */
-#ifdef USEROI
         imgRoi = img(roiRect);
-#else
-        imgRoi = img;
-#endif
-        Preprocess(imgRoi,false);
+
+        Preprocess(imgRoi);
 
         if (showBianryImg)
         {
@@ -228,36 +221,31 @@ REBACK:
             {
                 rectangle(img, targetArmor.rect, Scalar(0, 0, 255), 5);
             }
-#ifdef USEROI
+
             roiRect = targetArmor.rect;
-#endif
 
-            lastArmor = targetArmor;
             possibleArmors.clear();
-
-            lastImg = img.clone();
 
             return true;
         }
         else
         {
-            if(chance)
-            {
-                Preprocess(img,true);
-                lights = LightDetection(dBright);
-                MaxMatch(lights);
-
-                chance = false;
-                roiRect = Rect(0,0,IMAGEWIDTH,IMAGEHEIGHT );
-
-                goto REBACK;
-            }
+//            if(chance)
+//            {
+//                Preprocess(img,true);
+//                lights = LightDetection(dBright);
+//                MaxMatch(lights);
+//
+//                chance = false;
+//                roiRect = Rect(0,0,IMAGEWIDTH,IMAGEHEIGHT );
+//
+//                goto REBACK;
+//            }
             detectCnt = 0;
             lostCnt++;
 
 
             possibleArmors.clear();
-            lastImg = img.clone();
 
             return false;
         }
@@ -446,7 +434,7 @@ REBACK:
     * @details if average value in a region of the colorMap is larger than 0, then we can inference that in this region
     * the light is more possible to be red
     */
-    void ArmorDetector::Preprocess(Mat &img, bool type)
+    void ArmorDetector::Preprocess(Mat &img)
     {
         Mat bright;
         vector<Mat> channels;
@@ -462,16 +450,16 @@ REBACK:
         GaussianBlur(bright,bright,Size(5,5),3);
         threshold(bright, thresholdMap, 180, 255, CV_MINMAX);
 
-        if(type)
-        {
-            cvtColor(lastImg,lastBright,CV_BGR2GRAY);//0,2,1
-            cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
-
-            dBright = bright - lastBright;
-            normalize(dBright,dBright,0,255,NORM_MINMAX);
-            GaussianBlur(dBright,dBright,Size(5,5),3);
-            threshold(dBright, dBright, 160, 255, CV_MINMAX);
-        }
+//        if(type)
+//        {
+//            cvtColor(lastImg,lastBright,CV_BGR2GRAY);//0,2,1
+//            cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
+//
+//            dBright = bright - lastBright;
+//            normalize(dBright,dBright,0,255,NORM_MINMAX);
+//            GaussianBlur(dBright,dBright,Size(5,5),3);
+//            threshold(dBright, dBright, 160, 255, CV_MINMAX);
+//        }
 
         //imshow("dBright",dBright);
 
@@ -550,7 +538,7 @@ REBACK:
     {
         Size img_size = img.size();
         Rect rect_tmp = roiRect;
-        if (lostCnt>5||rect_tmp.width == 0|| rect_tmp.height == 0)
+        if (lostCnt>3||rect_tmp.width == 0|| rect_tmp.height == 0)
         {
             roiRect = Rect(0, 0,FRAMEWIDTH, FRAMEHEIGHT);
         }
@@ -613,9 +601,7 @@ REBACK:
             return false;
         }
 
-#ifdef USEROI
         roiRect = Rect(pos.x - pos.width , pos.y - pos.height , 3*pos.width, 3*pos.height); //tracker
-#endif
 
         MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT));
 
@@ -627,6 +613,61 @@ REBACK:
         else
         {
             detectCnt = 0;
+            return false;
+        }
+    }
+
+    void ArmorCompare::InitCompare()
+    {
+        Init();
+        lastBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
+        dBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
+    }
+
+    void ArmorCompare::Preprocess(Mat &img)
+    {
+        Mat bright;
+        vector<Mat> channels;
+        split(img,channels);
+        cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
+
+        //Attention!!!if the caculate result is small than 0, because the mat format is CV_UC3, it will be set as 0.
+        bSubR = Mat(channels[0] - channels[2]);
+        rSubB = Mat(channels[2] - channels[0]);
+        colorMap = rSubB - bSubR ;
+
+        dBright = bright - lastBright;
+        normalize(dBright,dBright,0,255,NORM_MINMAX);
+
+        GaussianBlur(dBright,dBright,Size(5,5),3);
+        threshold(dBright, thresholdMap, 180, 255, CV_MINMAX);
+
+        lastBright = bright.clone();
+    }
+
+    bool ArmorCompare::DetectArmor(Mat &img)
+    {
+        findState = false;
+
+        vector<LEDStick> lights;
+
+        Preprocess(img);
+
+        lights = LightDetection(thresholdMap);
+
+        MaxMatch(lights);
+
+        if(findState)
+        {
+            targetArmor = possibleArmors[0];
+
+            possibleArmors.clear();
+
+            return true;
+        }
+        else
+        {
+            possibleArmors.clear();
             return false;
         }
     }

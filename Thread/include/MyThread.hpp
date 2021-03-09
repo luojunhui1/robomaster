@@ -6,6 +6,7 @@
 #include <chrono>
 #include <mutex>
 #include <memory>
+#include <shared_mutex>
 
 #include <condition_variable>
 
@@ -50,49 +51,6 @@ namespace rm
 
     };
 
-    /*figure queue*/
-    class FrameBuffer
-    {
-    public:
-        FrameBuffer(int32_t size_);
-
-        ~FrameBuffer() = default;
-
-        inline bool push(const Frame& frame);
-
-        inline bool pop(Frame& frame);
-
-    private:
-        std::vector<Frame> frames;
-        std::vector<std::timed_mutex> mutexs;
-
-        uint32_t tailIdx;
-        uint32_t headIdx;
-        uint32_t size;
-        double lastGetTimeStamp;
-
-    };
-
-    /*describe the run states*/
-    class States
-    {
-    public:
-        States();
-        int8_t curArmorState{};// current armor is big or small
-        int8_t lastArmorState{};
-
-        int8_t curFindState{}; //current image find armor or not
-        int8_t lastFindState{};
-
-        int8_t curControlState{}; //current control mode
-        int8_t lastControlState{};
-
-        uint8_t curAttackMode{}; //tracking or searching
-        uint8_t lastAttackMode{};
-        void UpdateStates(int8_t armor_state,int8_t find_state,int8_t control_state,int8_t attack_mode);
-    };
-
-
     class ImgProdCons
     {
     public:
@@ -114,9 +72,28 @@ namespace rm
         void Produce();
 
         /*
-        * @Brief: run tasks
+        * @Brief: run task
         */
-        void Consume();
+        void Control();
+
+        /*
+         * @Brief: detect
+         */
+
+        void Detect();
+
+        /*
+         * @Brief: operations need two image
+         */
+        void Compare();
+
+        void Energy();
+
+        /*
+         * @Brief: derivation
+         */
+        void Receive();
+
     private:
         /*
         * To prevent camera from dying!
@@ -134,11 +111,6 @@ namespace rm
         /* Camera */
         Driver *driver;
 
-        /*read video*/
-        std::unique_ptr<cv::VideoCapture> videoReaderPtr;
-
-        FrameBuffer buffer;
-
         /* Serial */
         std::unique_ptr<Serial> serialPtr;
 
@@ -148,19 +120,30 @@ namespace rm
         /* Armor detector */
         std::unique_ptr<ArmorDetector> armorDetectorPtr;
 
-        std::unique_ptr<States> states;
+        /*Armor Compare*/
+        std::unique_ptr<ArmorCompare> armorComparePtr;
 
         std::unique_ptr<Kalman> kalman;
 
         Frame frame;
         Frame detectFrame;
+        Frame compareFrame;
 
-        mutex readLock;
+        mutex detectLock;
+        mutex compareLock;
         mutex writeLock;
-        mutex shareRead;
+        mutex energyLock;
+        mutex feedbackLock;
+        std::shared_timed_mutex shareRead;
+
 
         condition_variable writeCon;
         condition_variable readCon;
+        condition_variable compareCon;
+        condition_variable feedbackCon;
+        condition_variable energyCon;
+
+
         int armorType;
     };
 

@@ -14,132 +14,19 @@ using namespace cv;
 
 namespace rm
 {
-
-    int threadSem = 0;
-
     bool ImgProdCons::quitFlag = false;
 
+    bool produceMission = false;
+    bool compareMission = false;
+    bool detectMission = false;
+    bool energyMission = false;
+    bool feedbackMission = false;
 
-    /**
-     * @brief initializer of the frame buffer
-     * @param size_ the length of the frame queue
-     * @return none
-     * @details none
-     */
-    FrameBuffer::FrameBuffer(int32_t size_) :
-            frames(size_),
-            mutexs(size_),
-            tailIdx(0),
-            headIdx(0),
-            lastGetTimeStamp(0.0),
-            size(size_)
-            {
-            }
+    int8_t curControlState = AUTO_SHOOT_STATE; //current control mode
 
+    uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
 
-    /**
-     * @brief push frame into frame buffer
-     * @param frame
-     * @return if the frame successfully pushed into the buffer, return true
-     * @details none
-     */
-
-    inline bool FrameBuffer::push(const Frame &frame)
-    {
-        int32_t newHeadIdx = (headIdx + 1) % size;
-
-        //try for 2ms to lock
-        //std::lock_guard<std::mutex> lk(mutexs[newHeadIdx]);
-        //unique_lock<timed_mutex> lock(mutexs[newHeadIdx], chrono::milliseconds(2));
-
-//        std::unique_lock<mutex> lk(mutexs[0]);
-
-        mutexs[0].lock();
-        frames[0] = frame;
-        if (newHeadIdx == tailIdx)
-        {
-            tailIdx = (tailIdx + 1) % size;
-        }
-        headIdx = newHeadIdx;
-
-        threadSem++;
-
-        cout<<"PUSH IMAGE!"<<endl;
-
-        mutexs[0].unlock();
-//        lk.release();
-
-        sleep(1);
-
-        return true;
-    }
-
-
-    inline bool FrameBuffer::pop(Frame &frame)
-    {
-        //volatile const size_t _headIdx = headIdx;
-
-        //try for 2ms to lock
-        //unique_lock<timed_mutex> lock(mutexs[headIdx], chrono::milliseconds(20));
-        mutexs[1].lock();
-
-        if(threadSem == 0)
-        {
-            mutexs[1].unlock();
-            sleep(2);
-            return false;
-        }
-
-        if (frames[0].img.empty() ||
-            frames[0].timeStamp == lastGetTimeStamp)
-        {
-            perror("frame pop error!");
-            return false;
-        }
-
-        frame = frames[0].clone();
-
-        //lastGetTimeStamp = frames[headIdx].timeStamp;
-
-        threadSem--;
-        cout<<"PUSH IMAGE!"<<endl;
-        mutexs[1].unlock();
-
-        return true;
-    }
-
-
-    States::States()
-    {
-        curArmorState = BIG_ARMOR;
-        lastArmorState = BIG_ARMOR;
-
-        curControlState = AUTO_SHOOT_STATE;
-        lastControlState = AUTO_SHOOT_STATE;
-
-        curFindState = FIND_ARMOR_NO;
-        lastFindState = FIND_ARMOR_NO;
-
-        curAttackMode = SEARCH_MODE;
-        lastAttackMode = SEARCH_MODE;
-    }
-
-
-    void States::UpdateStates(int8_t armor_state, int8_t find_state, int8_t control_state, int8_t attack_mode)
-    {
-        //last states update
-        lastArmorState = curArmorState;
-        lastFindState = curFindState;
-        lastControlState = curControlState;
-        lastAttackMode = curAttackMode;
-
-        //current states update
-        curArmorState = armor_state;
-        curFindState = find_state;
-        curControlState = control_state;
-        curAttackMode = attack_mode;
-    }
-
+    auto startTime_ = chrono::high_resolution_clock::now();
 
     void ImgProdCons::SignalHandler(int)
     {
@@ -161,13 +48,11 @@ namespace rm
 
 
     ImgProdCons::ImgProdCons():
-            buffer(6), /*frame size is 6*/
             serialPtr(unique_ptr<Serial>(new Serial())),
             solverPtr(unique_ptr<SolveAngle>(new SolveAngle())),
             armorDetectorPtr(unique_ptr<ArmorDetector>(new ArmorDetector())),
-            states(unique_ptr<States>(new States())),
+            armorComparePtr(unique_ptr<ArmorCompare>(new ArmorCompare())),
             kalman(unique_ptr<Kalman>(new Kalman())),
-            videoReaderPtr(unique_ptr<VideoCapture>(new VideoCapture())),
             armorType(BIG_ARMOR),
             driver()
     {
@@ -212,6 +97,7 @@ namespace rm
                 FRAMEWIDTH = curImage.cols;
                 FRAMEHEIGHT = curImage.rows;
                 armorDetectorPtr->Init();
+                armorComparePtr->InitCompare();
                 break;
             }
         }while(true);
@@ -221,163 +107,153 @@ namespace rm
 
     void ImgProdCons::Produce()
     {
-        auto startTime = chrono::high_resolution_clock::now();
+        //auto startTime = chrono::high_resolution_clock::now();
         static uint32_t seq = 0;
         Mat newImg;
 
         while(!ImgProdCons::quitFlag)
         {
-//            if (ImgProdCons::quitFlag)
-//                return;
+            startTime_ = chrono::high_resolution_clock::now();
             unique_lock<mutex> lock(writeLock);
             //cout<<"Get write Lock"<<endl;
-            writeCon.wait(lock,[]{ return threadSem == 0;});
+            writeCon.wait(lock,[]{ return !produceMission;});
 
             //cout<<"Enter Produce Main Loop"<<endl;
             if (!driver->Grab(newImg))
                 continue;
             //cout<<"Produce Captured Image"<<endl;
 
-            double timeStamp = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime)).count();
-            /*write somthing, try to send serial some information,to make sure serial is working well,
-            because when interruption occurs we need to restart it from the beginning*/
-            //videoCapturePtr->read(newImg);
-//            if (newImg.empty())
-//            {
-//                continue;
-//            }
-            //cout<<"push Image!"<<endl;
-            //cout<<"Get Write Lock"<<endl;
+            double timeStamp =clock();
+
             frame = Frame{newImg, seq, timeStamp};
-            threadSem++;
-            //cout<<"Produce Thread sem: "<<threadSem<<endl;
+
+            detectFrame = frame.clone();
+            compareFrame = frame.clone();
+
+            //cout<<"PRODUCE MISSION!"<<endl;
+            detectMission = compareMission = energyMission = feedbackMission = false;
+            produceMission = true;
             readCon.notify_all();
         }
     }
 
-
-    void ImgProdCons::Consume()
+    void ImgProdCons::Compare()
     {
+        do {
+            unique_lock<mutex> lock(compareLock);
+            readCon.wait(lock,[]{ return !compareMission&&produceMission;});
 
-//        //cout<<"Enter Consume Frist Loop"<<endl;
-//        unique_lock<mutex> lock_(readLock);
-//        //cout<<"Get Read Lock"<<endl;
-//        readCon.wait(lock_,[]{ return threadSem > 0;});
-//        //cout<<"Consume Frist Loop, After Wait"<<endl;
-//
-//        detectFrame = frame.clone();
-//        cout<<"Consume Thread sem: "<<threadSem--<<endl;
-//        lock_.release();
-//
-//
-//        writeCon.notify_all();
+            shared_lock<shared_timed_mutex> sharedLock(shareRead);
 
+            armorComparePtr->DetectArmor(compareFrame.img);
+
+            //cout<<"COMPARE MISSION! ===="<<endl;
+
+            compareMission = true;
+            feedbackCon.notify_all();
+        }while(!ImgProdCons::quitFlag);
+    }
+
+    void ImgProdCons::Detect()
+    {
         do
         {
-            //cout<<"Enter Comsume Main Loop"<<endl;
-            auto startTime = chrono::high_resolution_clock::now();
+            unique_lock<mutex> lock(detectLock);
 
-            unique_lock<mutex> lock(readLock);
-            //cout<<"Get read Lock"<<endl;
-            readCon.wait(lock,[]{ return threadSem > 0;});
+            readCon.wait(lock,[]{ return !detectMission&&produceMission;});
 
-            detectFrame = frame.clone();
-            threadSem--;
-            //cout<<"Consume Main Loop Thread sem: "<<threadSem<<endl;
+            shared_lock<shared_timed_mutex> sharedLock(shareRead);
 
-            //cout<<"pop Image!"<<endl;
-//            double time = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime)).count();
-//            cout<<"GRAB  FREQUENCY: "<< 1000.0/time<<endl;
-
-            if (detectFrame.img.empty())
-                continue;
-            if (states->curControlState == BIG_ENERGY_STATE)
+            switch (curDetectMode)
             {
-
-            }
-            else if (states->curControlState == SMALL_ENERGY_STATE)
-            {
-
-            }
-            else if (states->curControlState == AUTO_SHOOT_STATE)
-            {
-//                cout<<detectFrame.timeStamp<<endl;
-
-                switch (states->curAttackMode)
+                case SEARCH_MODE:
                 {
-                    //cout<<detectFrame.timeStamp<<endl;
-                    case SEARCH_MODE:
+                    if (armorDetectorPtr->ArmorDetectTask(detectFrame.img))
                     {
-                        //cout<<"Begin Search Mode!"<<endl;
-                        if (armorDetectorPtr->ArmorDetectTask(detectFrame.img))
-                        {
-                            //Point2f predOff = kalman->SetKF(armorDetectorPtr->targetArmor.center);
-                            armorType = (armorDetectorPtr->IsSmall()) ? (SMALL_ARMOR) : (BIG_ARMOR);
-                            solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),armorDetectorPtr->targetArmor.pts,
-                                                    15,armorDetectorPtr->IsSmall());
-                            //circle(image0,predOff + (Point2f)armorDetectorPtr->targetArmor.center,5,Scalar(253, 121, 168),-1);
-
-//                            cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
-
-                            serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist,solverPtr->shoot,
-                                            1,AUTO_SHOOT_STATE);
-
-
-                            serialPtr->WriteData();
-                            states->UpdateStates(armorType, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
-
-                            armorDetectorPtr->tracker = TrackerKCF::create();
-                            armorDetectorPtr->tracker->init(detectFrame.img, armorDetectorPtr->targetArmor.rect);
-                        }
-                        else
-                        {
-                            serialPtr->pack(0,0,solverPtr->dist, solverPtr->shoot, 0,AUTO_SHOOT_STATE);
-                            serialPtr->WriteData();
-                            states->UpdateStates(SMALL_ARMOR, FIND_ARMOR_NO, AUTO_SHOOT_STATE, SEARCH_MODE);
-                        }
-                        //如果成功找到，将roi区域视为tracking区域,下一次进入tracking模式
+                        armorDetectorPtr->tracker = TrackerKCF::create();
+                        armorDetectorPtr->tracker->init(detectFrame.img, armorDetectorPtr->targetArmor.rect);
+                        curDetectMode = TRACKING_MODE;
                     }
-                    break;
-                    case TRACKING_MODE:
+                    else
                     {
-                        //cout<<"TRACKING!"<<endl;
-                        //这里一开始就是trakcking，若追踪到目标，继续，未追踪到，进入searching,进入tracking函数时要判断分类器是否可用
-                        if (armorDetectorPtr->trackingTarget(detectFrame.img, armorDetectorPtr->targetArmor.rect))
-                        {
-                            //cout<<"Target Get!!!!!!!!!!!!"<<endl;
-                            //bool is_small_ = armorDetectorPtr->IsSmall();
-                            //Point2f predOff = kalman->SetKF(armorDetectorPtr->targetArmor.center);
-                            armorType = (armorDetectorPtr->IsSmall()) ? (SMALL_ARMOR) : (BIG_ARMOR);
-                            solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),armorDetectorPtr->targetArmor.pts,
-                                                15,armorDetectorPtr->IsSmall());
-
-//                            cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
-                            //circle(image0,predOff + (Point2f)armorDetectorPtr->targetArmor.center,5,Scalar(253, 121, 168),-1);
-
-                            serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist,solverPtr->shoot,
-                                            1,AUTO_SHOOT_STATE);
-                            //cout<<"IF SHOOT: "<< solverPtr->shoot<<endl;
-                            serialPtr->WriteData();
-                            states->UpdateStates(armorType, FIND_ARMOR_YES, AUTO_SHOOT_STATE, TRACKING_MODE);
-                        }
-                        else
-                        {
-                            serialPtr->pack(0,0,solverPtr->dist, solverPtr->shoot, 0,AUTO_SHOOT_STATE);
-                            serialPtr->WriteData();
-                            states->UpdateStates(SMALL_ARMOR, FIND_ARMOR_NO, AUTO_SHOOT_STATE, SEARCH_MODE);
-                        }
+                        curDetectMode = SEARCH_MODE;
                     }
-                    break;
+                    //如果成功找到，将roi区域视为tracking区域,下一次进入tracking模式
                 }
+                break;
+                case TRACKING_MODE:
+                {
+                    //这里一开始就是trakcking，若追踪到目标，继续，未追踪到，进入searching,进入tracking函数时要判断分类器是否可用
+                    if (armorDetectorPtr->trackingTarget(detectFrame.img, armorDetectorPtr->targetArmor.rect))
+                    {
+                        curDetectMode = TRACKING_MODE;
+                    }
+                    else
+                    {
+                        curDetectMode = SEARCH_MODE;
+                    }
+                }
+                break;
             }
+
             if(showOrigin)
             {
                 imshow("src",detectFrame.img);
                 waitKey(30);
             }
-//            auto time = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime)).count();
-//            cout<<"FREQUENCY: "<< 1000.0/time<<endl;
-            writeCon.notify_one();
+            //cout<<"DETECT MISSION! ============"<<endl;
+            detectMission = true;
+            feedbackCon.notify_all();
         } while (!ImgProdCons::quitFlag);
+    }
+    void ImgProdCons::Energy()
+    {
+        do {
+            unique_lock<mutex> lock(energyLock);
+            readCon.wait(lock,[]{ return !energyMission&&produceMission;});
+            shared_lock<shared_timed_mutex> sharedLock(shareRead);
+
+            if(curControlState == BIG_ENERGY_STATE || curControlState == SMALL_ENERGY_STATE)
+            {
+                /*do energy detection*/
+            }
+            //cout<<"ENERGY MISSION ======"<<endl;
+            energyMission = true;
+            feedbackCon.notify_all();
+        }while(!ImgProdCons::quitFlag);
+    }
+
+    void ImgProdCons::Feedback()
+    {
+        do {
+            unique_lock<mutex> lock(feedbackLock);
+            feedbackCon.wait(lock,[]{ return !feedbackMission&&detectMission&&compareMission&&energyMission;});
+            if(curControlState == AUTO_SHOOT_STATE) {
+                if (armorDetectorPtr->findState) {
+                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),
+                                        armorDetectorPtr->targetArmor.pts,
+                                        15, armorDetectorPtr->IsSmall());
+                } else if (armorComparePtr->findState) {
+                    solverPtr->GetPoseV(kalman->SetKF(armorComparePtr->targetArmor.center),
+                                        armorComparePtr->targetArmor.pts,
+                                        15, armorComparePtr->IsSmall());
+                }
+
+                serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                                1, AUTO_SHOOT_STATE);
+                serialPtr->WriteData();
+
+                //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
+            }else
+            {
+                /*do energy things*/
+            }
+            //cout<<"FEEDBACK MISSION ================"<<endl;
+            produceMission = false;
+            feedbackMission = true;
+            auto time = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime_)).count();
+            cout<<"FREQUENCY: "<< 1000.0/time<<endl;
+            writeCon.notify_all();
+        }while(!ImgProdCons::quitFlag);
     }
 } // namespace rm
