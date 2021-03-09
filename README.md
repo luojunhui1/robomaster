@@ -7,4 +7,5 @@
 
 - 配置：
 	本代码中所有所需链接库及头文件，除openCV相关文件外均置于项目文件夹内，但须注意，当使用DAHUA工业摄像头及Intel435D摄像头时，存在链接库平台问题，需及时替换链接库版本。
-
+- 线程任务：
+	![multi-threads](https://github.com/luojunhui1/BlogPicture/blob/master/Windows/threads%20(1).jpg)
