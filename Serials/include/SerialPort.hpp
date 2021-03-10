@@ -17,7 +17,7 @@
 
 /*--------------------------------暂定协议-------------------------------------*/
 
-//暂定20字节,头1字节,数据18字节,尾1字节
+//暂定25字节,头1字节,数据18字节,尾1字节
 #define    VISION_LENGTH        25
 //起始字节,协议固定为0xA5
 #define    VISION_SOF         (0xA5)
@@ -32,6 +32,28 @@ BYTE   |   1  |    1    |   4   |    4    |     4     |    1    |    1   |     8
 **/
 
 using namespace std;
+
+struct ReceiveData
+{
+    uint8_t head;
+    uint8_t CmdID;
+
+    float yawAngle;
+    float pitchAngle;
+    float yawSpeed;
+    float pitchSpeed;
+    uint8_t targetMode;
+
+    uint8_t blankA;
+    uint8_t blankB;
+    uint8_t blankC;
+    uint8_t blankD;
+    uint8_t blankE;
+
+    uint8_t end;
+};
+
+
 /**
  * @brief SerialPort
  * @param filename 串口名字
@@ -40,6 +62,7 @@ using namespace std;
 class Serial
 {
 private:
+
     int fd;
     int nSpeed;
     char nEvent;
@@ -54,7 +77,7 @@ public:
     void pack(float yaw, float pitch, float dist, uint8_t shoot, uint8_t find, uint8_t CmdID, long long timeStamp);
     bool InitPort(int nSpeed = 115200, char  nEvent = 'N', int nBits = 8, int nStop = 1);
     bool WriteData();
-    bool ReadData(unsigned char* buffer, unsigned int length);
+    bool ReadData(ReceiveData* buffer);
 };
 
 

@@ -101,18 +101,54 @@ bool Serial::WriteData() {
     return true;
 }
 
-bool Serial::ReadData(unsigned char *buffer, unsigned int length) {
+bool Serial::ReadData(ReceiveData* buffer) {
     int cnt = 0, curr = 0;
-    while ((curr = read(fd, buffer + cnt, length - cnt)) > 0 && (cnt += curr) < length);
-    if (curr < 0) {
+    memset(buffer,0,sizeof(ReceiveData));
+    int readCount = 0;
+
+    while (readCount < int(sizeof(ReceiveData)))
+    {
+        int onceReadCount;
+        try
+        {
+            onceReadCount = read(fd, ((unsigned char *)(buffer)) + readCount, sizeof(ReceiveData) - readCount);
+        }
+        catch(exception e)
+        {
+            cout << e.what() << endl;
+            return false;
+        }
+
+        if (onceReadCount == -1)
+        {
+            if (errno == EAGAIN)
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        readCount += onceReadCount;
+    }
+
+    tcflush(fd, TCIFLUSH);
+
+    if (buffer->head != VISION_SOF || buffer->end != VISION_TOF)
+    {
         cout<<("Serial offline!")<<endl;
         close(fd);
         if (wait_uart) {
             InitPort(nSpeed, nEvent, nBits, nStop);
         }
+
         return false;
     }
-    return true;
+    else
+    {
+        return true;
+    }
+
 }
 
 int Serial::set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop) {
@@ -197,7 +233,6 @@ int Serial::set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop) {
 }
 static void sleep_ms(unsigned int secs)
 {
-
     struct timeval tval;
 
     tval.tv_sec=secs/1000;
@@ -205,5 +240,4 @@ static void sleep_ms(unsigned int secs)
     tval.tv_usec=(secs*1000)%1000000;
 
     select(0,NULL,NULL,NULL,&tval);
-
 }

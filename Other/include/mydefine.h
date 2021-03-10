@@ -11,8 +11,12 @@
 #define  AUTO_SHOOT_STATE 0
 #endif
 
+#ifndef FAR_DISTANCE_SHOOT
+#define  FAR_DISTANCE_SHOOT 1
+#endif
+
 #ifndef SMALL_ENERGY_STATE
-#define  SMALL_ENERGY_STATE 1
+#define  SMALL_ENERGY_STATE 2
 #endif
 
 #ifndef BIG_ENERGY_STATE
@@ -47,14 +51,6 @@
 #define  BLUE_ENEMY 9
 #endif
 
-#ifndef IMAGEWIDTH
-#define  IMAGEWIDTH 640
-#endif
-
-#ifndef IMAGEHEIGHT
-#define  IMAGEHEIGHT 480
-#endif
-
 #ifndef USEROI
 #define  USEROI 1
 #endif
@@ -63,6 +59,11 @@
     #define CARNAME_
     enum CARNAME {HERO, INFANTRY, SENTRY, UAV, VIDEO,NOTDEFINED};
 #endif
+
+#ifndef RECORD
+#define  RECORD 1
+#endif
+
 extern bool showArmorBox;
 extern bool showArmorBoxes;
 extern bool showLightBlobs;

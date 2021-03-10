@@ -26,6 +26,8 @@ namespace rm
 
     uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
 
+    FILE *fp;
+
     auto startTime_ = chrono::high_resolution_clock::now();
 
     void ImgProdCons::SignalHandler(int)
@@ -54,7 +56,9 @@ namespace rm
             armorComparePtr(unique_ptr<ArmorCompare>(new ArmorCompare())),
             kalman(unique_ptr<Kalman>(new Kalman())),
             armorType(BIG_ARMOR),
-            driver()
+            driver(),
+            curYaw(0),
+            curPitch(0)
     {
     }
 
@@ -102,7 +106,27 @@ namespace rm
             }
         }while(true);
 
+        //Protect process
+        pid_t pid;
+        int i;
+        pid=fork();        //创建第一子进程
+        if(pid<0) exit(1);//创建失败退出
+        if(pid>0) exit(0);//父进程退出
+        setsid();         //第一子进程成为领头进程，脱离终端
+        pid=fork();   //第一子进程生成第二子进程
+        if(pid<0) exit(1);//创建失败退出
+        if(pid>0) exit(0);//第一子进程退出
+        chdir("/home");//切换目录
+        umask(0);               //改变文件创建掩码
 
+        int fdTableSize = getdtablesize();
+
+        for(i=0;i<fdTableSize;i++)  //关闭文件流
+            close(i);
+
+#ifdef RECORD
+    fp = fopen("log.txt","w");
+#endif
     }
 
     void ImgProdCons::Produce()
@@ -236,9 +260,16 @@ namespace rm
                                         armorComparePtr->targetArmor.pts,
                                         15, armorComparePtr->IsSmall());
                 }
-
+#ifdef RECORD
+    fprintf(fp,"YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d,TIME: %lld\n"
+            ,solverPtr->yaw,solverPtr->pitch,solverPtr->dist,solverPtr->shoot,AUTO_SHOOT_STATE,frame.timeStamp);
+#endif
+                if(armorDetectorPtr->findState|| armorComparePtr->findState)
                 serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
                                 1, AUTO_SHOOT_STATE,frame.timeStamp);
+                else
+                    serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist, 0,
+                                    0, AUTO_SHOOT_STATE,frame.timeStamp);
                 serialPtr->WriteData();
 
                 //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
@@ -247,11 +278,29 @@ namespace rm
                 /*do energy things*/
             }
             //cout<<"FEEDBACK MISSION ================"<<endl;
+
+            /*Receive Data*/
+            unique_lock<mutex> lock1(receiveLock);
+            curPitch = receiveData.pitchAngle;
+            curYaw = receiveData.pitchAngle;
+            curControlState = receiveData.targetMode;
+
             produceMission = false;
             feedbackMission = true;
             auto time = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime_)).count();
-            cout<<"FREQUENCY: "<< 1000.0/time<<endl;
+            //cout<<"FREQUENCY: "<< 1000.0/time<<endl;
+
             writeCon.notify_all();
+        }while(!ImgProdCons::quitFlag);
+    }
+
+    void ImgProdCons::Receive()
+    {
+        do
+        {
+            /*Receive Data*/
+            unique_lock<mutex> lock1(receiveLock);
+            serialPtr->ReadData(&receiveData);
         }while(!ImgProdCons::quitFlag);
     }
 } // namespace rm

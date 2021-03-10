@@ -134,6 +134,7 @@ namespace rm
         mutex writeLock;
         mutex energyLock;
         mutex feedbackLock;
+        mutex receiveLock;
 
 
         condition_variable writeCon;
@@ -141,9 +142,13 @@ namespace rm
         condition_variable compareCon;
         condition_variable feedbackCon;
         condition_variable energyCon;
+        condition_variable receiveCon;
 
-
+        ReceiveData receiveData;
         int armorType;
+
+        float curYaw;
+        float curPitch;
     };
 
 }
