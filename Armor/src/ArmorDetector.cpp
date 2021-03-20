@@ -617,6 +617,11 @@ REBACK:
         }
     }
 
+    /**
+     * @brief initialize the ArmorCompare instance
+     * @param none
+     * @return none
+     */
     void ArmorCompare::InitCompare()
     {
         Init();
@@ -624,6 +629,14 @@ REBACK:
         dBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
     }
 
+    /**
+     * @brief preprocess, inherit from Preprocess() at 437 and almost the same with it
+     * @param img image
+     * @return none
+     * @details ignore the attention at line 645, because the code was casually added in class Detector at the beginning
+     * of the time, and we still keep the attention in our code because it reminds us: never change your code casually,
+     * because you may feel very painful when you try to analysis and decoupling your code.
+     */
     void ArmorCompare::Preprocess(Mat &img)
     {
         Mat bright;
@@ -645,6 +658,11 @@ REBACK:
         lastBright = bright.clone();
     }
 
+    /**
+     * @brief inherit from DetectArmor() at 143 and almost the same with it
+     * @param img
+     * @return find target armor or not
+     */
     bool ArmorCompare::DetectArmor(Mat &img)
     {
         findState = false;
@@ -672,6 +690,13 @@ REBACK:
         }
     }
 
+    /**
+     * @brief this function shall to serve for building our own database, unfortunately the database built by this way is
+     * not good.
+     * @param fileP file descriptor
+     * @param selectedIndex1 the index of target armor
+     * @param selectedIndex2 the index of target armor, because there may be two or more armors in the field of vision at one time
+     */
     void ArmorDetector::saveMatchParam(FILE* fileP,int selectedIndex1,int selectedIndex2)
     {
         if(fileP == nullptr)
@@ -681,6 +706,12 @@ REBACK:
         /*this section set for make database*/
     }
 
+    /**
+     * @brief compare two matched lamps' priority
+     * @param a matched lamp
+     * @param b matched lamp
+     * @return match up with the sort function in algorithm.h, sort the elements from smallest matchFractor to largest matchFractor
+     */
     bool compMatchFactor(const MatchLight a, const MatchLight b)
     {
         return a.matchFactor < b.matchFactor;

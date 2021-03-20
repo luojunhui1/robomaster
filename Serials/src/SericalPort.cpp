@@ -2,6 +2,10 @@
 
 bool wait_uart = false;
 
+/**
+ * @brief list all the available uart resources
+ * @return uart's name that user appointed
+ */
 string get_uart_dev_name() {
     FILE *ls = popen("ls /dev/ttyTHS* --color=never", "r");
     char name[20] = {0};
@@ -10,6 +14,14 @@ string get_uart_dev_name() {
     return name;
 }
 
+/**
+ * @brief constructor of Serial class
+ * @param nSpeed baud rate
+ * @param nEvent verification mode, odd parity, even parity or none
+ * @param nBits the length of data
+ * @param nStop length of stop bits
+ * @return none
+ */
 Serial::Serial(int nSpeed, char nEvent, int nBits, int nStop) :
         nSpeed(nSpeed), nEvent(nEvent), nBits(nBits), nStop(nStop) {
     if (wait_uart) {
@@ -25,11 +37,23 @@ Serial::Serial(int nSpeed, char nEvent, int nBits, int nStop) :
     }
 }
 
+/**
+ * @brief destructor of Serial class
+ * @return none
+ */
 Serial::~Serial() {
     close(fd);
     fd = -1;
 }
 
+/**
+ * @brief initialize port
+ * @param nSpeed_ baud rate
+ * @param nEvent_ verification mode, odd parity, even parity or none
+ * @param nBits_ the length of data
+ * @param nStop_ length of stop bits
+ * @return none
+ */
 bool Serial::InitPort(int nSpeed_, char nEvent_, int nBits_, int nStop_) {
     string name = PC2STM32;
     if (name.empty()) {
@@ -42,11 +66,22 @@ bool Serial::InitPort(int nSpeed_, char nEvent_, int nBits_, int nStop_) {
     return set_opt(fd, nSpeed_,nEvent_, nBits_, nStop_) >= 0;
 }
 
+/**
+ * @brief package the data needed by lower computer
+ * @param yaw yaw angle
+ * @param pitch pitch angle
+ * @param dist distance of target armor
+ * @param shoot shoot or not
+ * @param find found target armor or not
+ * @param CmdID command id
+ * @param timeStamp time stamp
+ * @details CmdID and timeStamo not really used in current code
+ * @return none
+ */
 void Serial::pack(float yaw, float pitch, float dist, uint8_t shoot, uint8_t find, uint8_t CmdID, long long timeStamp)
 {
     unsigned char *p;
     buff[0] = VISION_SOF;
-//    buff[1] = CmdID;
     memcpy(buff + 1, &CmdID, 1);
     memcpy(buff + 2, &yaw, 4);
     memcpy(buff + 6, &pitch, 4);
@@ -54,40 +89,13 @@ void Serial::pack(float yaw, float pitch, float dist, uint8_t shoot, uint8_t fin
     memcpy(buff + 14, &shoot, 4);
     memcpy(buff + 15, &find, 4);
     memcpy(buff + 16, &timeStamp, 8);
-
-//    p = (unsigned char*)&yaw;
-//    buff[2] = static_cast<unsigned char>(*p);
-//    buff[3] = static_cast<char>(*(p+1));
-//    buff[4] = static_cast<char>(*(p+2));
-//    buff[5] = static_cast<char>(*(p+3));
-//
-//    p = (unsigned char*)&pitch;
-//    buff[6] = static_cast<unsigned char>(*p);
-//    buff[7] = static_cast<char>(*(p+1));
-//    buff[8] = static_cast<char>(*(p+2));
-//    buff[9] = static_cast<char>(*(p+3));
-//
-//    p = (unsigned char*)&dist;
-//    buff[10] = static_cast<unsigned char>(*p);
-//    buff[11] = static_cast<char>(*(p+1));
-//    buff[12] = static_cast<char>(*(p+2));
-//    buff[13] = static_cast<char>(*(p+3));
-//
-//    buff[14] = static_cast<char>(shoot);
-//    buff[15] = static_cast<unsigned char>(find);
-//
-//    p = (unsigned char*)&timeStamp;
-//    buff[16] = static_cast<unsigned char>(*p);
-//    buff[17] = static_cast<char>(*(p + 1));
-//    buff[18] = static_cast<char>(*(p + 2));
-//    buff[19] = static_cast<char>(*(p + 3));
-//    buff[20] = static_cast<char>(*(p + 4));
-//    buff[21] = static_cast<char>(*(p + 5));
-//    buff[22] = static_cast<char>(*(p + 6));
-//    buff[23] = static_cast<char>(*(p + 7));
     buff[24] = static_cast<char>(VISION_TOF);
 }
 
+/**
+ * @brief write data to port
+ * @return always should be true
+ */
 bool Serial::WriteData() {
     int cnt = 0, curr = 0;
     if (fd <= 0){
@@ -110,6 +118,11 @@ bool Serial::WriteData() {
     return true;
 }
 
+/**
+ * @brief read data sent by lower computer
+ * @param buffer_ instance should be updated by data sent from lower computer
+ * @return on finding the right data in a limited length of received data, return true, if not, return false
+ */
 bool Serial::ReadData(struct ReceiveData &buffer_) {
     memset(buffRead,0,VISION_LENGTH);
     maxReadTime = VISION_LENGTH;
@@ -145,12 +158,6 @@ bool Serial::ReadData(struct ReceiveData &buffer_) {
         readCount += onceReadCount;
     }
 
-//	for(int i = 0; i < VISION_LENGTH; i++)
-//	{
-//		printf("%x\t",buffRead[i]);
-//	}
-//	printf("\n");
-
     if (buffRead[0] != VISION_SOF || buffRead[VISION_LENGTH - 1] != VISION_TOF)
     {
         return false;
@@ -167,6 +174,15 @@ bool Serial::ReadData(struct ReceiveData &buffer_) {
 
 }
 
+/**
+ * @brief set port
+ * @param fd file or port descriptor
+ * @param nSpeed baud rate
+ * @param nEvent verification mode, odd parity, even parity or none
+ * @param nBits length of data
+ * @param nStop length of stop bits
+ * @return
+ */
 int Serial::set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop) {
     termios newtio{}, oldtio{};
 

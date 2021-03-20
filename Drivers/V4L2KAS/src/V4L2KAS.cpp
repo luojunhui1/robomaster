@@ -19,7 +19,6 @@ namespace V4L2KAS
             printf("Error opening V4L interface\n");
             return false;
         }
-        SetCam();
         b_Buffer =  (uchar*)malloc(IMAGEWIDTH * IMAGEHEIGHT * 2);
         return true;
     }
@@ -66,7 +65,7 @@ namespace V4L2KAS
         }
         return true;
     }
-    int V4L2Driver::SetCam()
+    bool V4L2Driver::SetCam()
     {
     /**
      * Set the image format as MJPEG
@@ -80,13 +79,13 @@ namespace V4L2KAS
         if(ioctl(fd, VIDIOC_S_FMT, &fmt) == -1)
         {
             printf("Unable to set format\n");
-            return 0;
+            return false;
         }
 
         if(ioctl(fd, VIDIOC_G_FMT, &fmt) == -1)
         {
             printf("Unable to get format\n");
-            return 0;
+            return false;
         }
         {
             printf("fmt.type:\t\t%d\n",fmt.type);
@@ -99,9 +98,9 @@ namespace V4L2KAS
         if(!RequireBuffer())
         {
             printf("RequireBuffer Failed!\n");
-            return 0;
+            return false;
         }
-        return 1;
+        return true;
     }
 
     /*For simplicity of this project, we call this function at the end of SerCam function, so you should not use this

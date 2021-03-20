@@ -1488,6 +1488,11 @@ static int selectDevice(int cameraCnt)
     {
         return;
     }
+
+    /**
+     * @brief initialize the camera, include finding device, opening device, connecting device and create stream instance
+     * @return on success, return true; on error, return false
+     */
     bool RMDriver::InitCam()
     {
         // 发现设备
@@ -1534,7 +1539,13 @@ static int selectDevice(int cameraCnt)
             perror("create stream obj  fail.\r\n");
             return false;
         }
+        return true;
     }
+
+    /**
+     * @brief start the stream for grabing
+     * @return should always be true
+     */
     bool RMDriver::StartGrab()
     {
         // 开始取图
@@ -1545,21 +1556,14 @@ static int selectDevice(int cameraCnt)
             printf("StartGrabbing  fail.\n");
         }
 
-        // 建取流线程
-        // create get frame thread
-        //streamThreadSptr = Dahua::Memory::TSharedPtr<StreamRetrieve>(new StreamRetrieve(streamPtr));
-//        streamThreadSptr = Dahua::Memory::TSharedPtr<StreamRetrieve>(new StreamRetrieve(streamPtr));
-//        if (nullptr == streamThreadSptr)
-//        {
-//            printf("create thread obj failed.\n");
-//            return false;
-//        }
-//        //Start the grab thread
-//        streamThreadSptr->start();
-
         return true;
     }
-    int RMDriver::SetCam()
+
+    /**
+     * @brief set parameters for camera, but it not work well, ignore or fix it
+     * @return should always be true
+     */
+    bool RMDriver::SetCam()
     {
         setGrabMode(cameraSptr,true);
         setAcquisitionFrameRate(cameraSptr,100);
@@ -1569,28 +1573,16 @@ static int selectDevice(int cameraCnt)
 //                return -1;
 //        }
 //        setROI(cameraSptr,0,0,6400,480);
-        return 1;
+        return true;
     }
+
+    /**
+     * @brief grab frame from device and convert the raw data to Mat format in opencv
+     * @param src image should be updated by this function
+     * @return on success, return true; on fail, return false
+     */
     bool RMDriver::Grab(Mat& src)
     {
-        //try for 2ms to lock
-        //unique_lock<timed_mutex> lock(mapBufferG._mutexs[mapBufferG.curRIndex],chrono::milliseconds(5));
-//        if(!lock.owns_lock()||mapBufferG.image[mapBufferG.curRIndex].empty())
-//        {
-//            return false;
-//        }
-//        if(!mapBufferG._mutexs[mapBufferG.curRIndex].try_lock())
-//        {
-//            return false;
-//        }
-//        vector<Mat> dst;
-//        split(mapBufferG.image[mapBufferG.curRIndex],dst);
-//        //imshow("dst0",dst[0]);
-//        //imshow("dst1",dst[1]);
-//        //imshow("dst2",dst[2]);
-//        //imshow("dst",mapBufferG.image[mapBufferG.curRIndex]);
-//        mapBufferG._mutexs[mapBufferG.curRIndex].unlock();
-//        mapBufferG.curRIndex = (mapBufferG.curRIndex + 1)%10;
         CFrame frame;
         // 获取一帧
         // Get one frame
@@ -1618,17 +1610,21 @@ static int selectDevice(int cameraCnt)
         FrameBufferSPtr displayFrame;
         if (ConvertImage(frame, displayFrame))
         {
-            //try for 2ms to lock
-//            unique_lock<timed_mutex> lock(mapBufferG._mutexs[mapBufferG.curWIndex],chrono::milliseconds(10));
             src = Mat(Size(displayFrame->Width(), displayFrame->Height()),\
                                                CV_8UC3, displayFrame->bufPtr()).clone();
-            //imwrite("cur.jpg",src);
+            return true;
         }else
         {
             perror("Image Convert Failure！");
         }
+        return false;
     }
 
+    /**
+     * @brief stop grab frame from camera and disconnect camera
+     * @param none
+     * @return always should be true
+     */
     bool RMDriver::StopGrab()
     {
         // 停止相机拉流

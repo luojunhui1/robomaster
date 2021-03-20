@@ -33,6 +33,9 @@ BYTE   |   1  |    1    |   4   |    4    |     4     |    1    |    1   |     8
 
 using namespace std;
 
+/**
+ * @brief receive data structure
+ */
 struct ReceiveData
 {
     uint8_t head = 0;
@@ -53,13 +56,6 @@ struct ReceiveData
     uint8_t end;
 };
 
-union ByteToFloat
-{
-    float d;
-    uint8_t dat[4];
-};
-
-
 /**
  * @brief SerialPort
  * @param filename 串口名字
@@ -79,7 +75,6 @@ private:
     uint8_t curBuf;
     int readCount;
     int maxReadTime;
-    ByteToFloat trans;
     static int set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop);
 public:
 

@@ -37,7 +37,10 @@ namespace V4L2KAS
         unsigned int length;
     };
 
-
+    /**
+     * @brief camera driver for all camera support VUC protocol
+     * @param none
+     */
     class V4L2Driver: public Driver
     {
         char devicePath[30];
@@ -56,7 +59,7 @@ namespace V4L2KAS
         bool InitCam();
         bool StartGrab();
         bool Info();
-        int  SetCam();
+        bool  SetCam();
         bool RequireBuffer();
         bool Grab(Mat& src);
 

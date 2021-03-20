@@ -14,7 +14,7 @@ class Driver
 public:
     virtual bool InitCam() = 0 ;
     virtual bool StartGrab() = 0;
-    virtual int SetCam() = 0;
+    virtual bool SetCam() = 0;
     virtual bool Grab(Mat& src) = 0;
     virtual ~Driver(){};
 };

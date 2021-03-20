@@ -50,6 +50,11 @@ static int isInputValid(char* pInpuStr);
 // this function is independent of the SDK interface operation camera
 static int selectDevice(int cameraCnt);
 
+/**
+ * @brief camera driver for DAHUA camera, should be used with the dynamic libraries provided by http://download.huaraytech.com/pub/sdk/
+ * @param none
+ * @details trash!
+ */
 class RMDriver: public Driver
 {
 private:
@@ -227,7 +232,7 @@ public:
 public:
     bool InitCam() override;
     bool StartGrab() override;
-    int SetCam() override;
+    bool SetCam() override;
     bool Grab(Mat& src) override;
 
     bool StopGrab();

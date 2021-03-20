@@ -202,12 +202,6 @@ namespace rm
         /*a gray image, the difference between rSubB and bSubR*/
         Mat_<int> colorMap;
 
-//        /*last cnt binary image*/
-//        Mat lastImg;
-//        Mat lastBright;
-//        Mat dBright;
-//        bool chance = false;
-
         /*a gray image, the pixel's value is the difference between red channel and blue channel*/
         Mat_<int> rSubB;
 

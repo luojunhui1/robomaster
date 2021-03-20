@@ -26,12 +26,17 @@
 using namespace rs2;
 using namespace cv;
 
+/**
+ * @brief camera driver for Intel 435D
+ * @param none
+ * @details the api provided by intel is simple and easy to use, which forms a sharp contrast with dahua's api
+ */
 class RealSenseDriver: public Driver
 {
 public:
     bool InitCam() override;
     bool StartGrab() override;
-    int SetCam() override;
+    bool SetCam() override;
     bool Grab(Mat& src) override;
 private:
     rs2::config *config;

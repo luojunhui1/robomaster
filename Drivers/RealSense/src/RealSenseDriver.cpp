@@ -28,9 +28,9 @@ bool RealSenseDriver::StartGrab()
     return true;
 }
 
-int RealSenseDriver::SetCam()
+bool RealSenseDriver::SetCam()
 {
-    return 0;
+    return false;
 }
 
 bool RealSenseDriver::Grab(Mat& src)
