@@ -35,22 +35,28 @@ using namespace std;
 
 struct ReceiveData
 {
-    uint8_t head;
-    uint8_t CmdID;
+    uint8_t head = 0;
+    uint8_t CmdID = 0;
 
-    float yawAngle;
-    float pitchAngle;
-    float yawSpeed;
-    float pitchSpeed;
-    uint8_t targetMode;
+    float yawAngle = 0;
+    float pitchAngle = 0;
+    float yawSpeed = 0;
+    float pitchSpeed = 0;
+    uint8_t targetMode = 0;
 
-    uint8_t blankA;
-    uint8_t blankB;
-    uint8_t blankC;
-    uint8_t blankD;
-    uint8_t blankE;
+    uint8_t blankA = 0;
+    uint8_t blankB = 0;
+    uint8_t blankC = 0;
+    uint8_t blankD = 0;
+    uint8_t blankE = 0;
 
     uint8_t end;
+};
+
+union ByteToFloat
+{
+    float d;
+    uint8_t dat[4];
 };
 
 
@@ -69,6 +75,11 @@ private:
     int nBits;
     int nStop;
     uint8_t buff[VISION_LENGTH];
+    uint8_t  buffRead[100];
+    uint8_t curBuf;
+    int readCount;
+    int maxReadTime;
+    ByteToFloat trans;
     static int set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop);
 public:
 
@@ -77,7 +88,7 @@ public:
     void pack(float yaw, float pitch, float dist, uint8_t shoot, uint8_t find, uint8_t CmdID, long long timeStamp);
     bool InitPort(int nSpeed = 115200, char  nEvent = 'N', int nBits = 8, int nStop = 1);
     bool WriteData();
-    bool ReadData(ReceiveData* buffer);
+    bool ReadData(struct ReceiveData& buffer);
 };
 
 

@@ -71,10 +71,6 @@ namespace rm
         */
         void Produce();
 
-        /*
-        * @Brief: run task
-        */
-        void Control();
 
         /*
          * @Brief: detect
@@ -144,7 +140,7 @@ namespace rm
         condition_variable energyCon;
         condition_variable receiveCon;
 
-        ReceiveData receiveData;
+        struct ReceiveData receiveData;
         int armorType;
 
         float curYaw;

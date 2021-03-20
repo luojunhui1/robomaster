@@ -49,7 +49,7 @@ namespace V4L2KAS
         struct v4l2_requestbuffers req;
         struct v4l2_buffer buf;
         enum v4l2_buf_type type;
-        unsigned char frame_buffer[IMAGEWIDTH*IMAGEHEIGHT*3];
+        //unsigned char frame_buffer[FRAMEHEIGHT*FRAMEWIDTH*3];
         struct buffer *buffers;
 
     public:

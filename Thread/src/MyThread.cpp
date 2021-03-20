@@ -4,6 +4,7 @@
 
 #include <csignal>
 #include <opencv2/opencv.hpp>
+#include <fstream>
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -26,9 +27,19 @@ namespace rm
 
     uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
 
-    FILE *fp;
 
-    auto startTime_ = chrono::high_resolution_clock::now();
+    double time;
+
+    static void sleep_ms(unsigned int secs)
+    {
+        struct timeval tval;
+
+        tval.tv_sec=secs/1000;
+
+        tval.tv_usec=(secs*1000)%1000000;
+
+        select(0,NULL,NULL,NULL,&tval);
+    }
 
     void ImgProdCons::SignalHandler(int)
     {
@@ -94,8 +105,11 @@ namespace rm
         driver->InitCam();
         driver->SetCam();
         driver->StartGrab();
+
+        //serialPtr->InitPort();
         do
         {
+	    //cout<<"Init FRAME FORMAT"<<endl;
             if(driver->Grab(curImage))
             {
                 FRAMEWIDTH = curImage.cols;
@@ -106,27 +120,25 @@ namespace rm
             }
         }while(true);
 
+
         //Protect process
-        pid_t pid;
-        int i;
-        pid=fork();        //创建第一子进程
-        if(pid<0) exit(1);//创建失败退出
-        if(pid>0) exit(0);//父进程退出
-        setsid();         //第一子进程成为领头进程，脱离终端
-        pid=fork();   //第一子进程生成第二子进程
-        if(pid<0) exit(1);//创建失败退出
-        if(pid>0) exit(0);//第一子进程退出
-        chdir("/home");//切换目录
-        umask(0);               //改变文件创建掩码
+//        pid_t pid;
+//        int i;
+//        pid=fork();        //创建第一子进程
+//        if(pid<0) exit(1);//创建失败退出
+//        if(pid>0) exit(0);//父进程退出
+//        setsid();         //第一子进程成为领头进程，脱离终端
+//        pid=fork();   //第一子进程生成第二子进程
+//        if(pid<0) exit(1);//创建失败退出
+//        if(pid>0) exit(0);//第一子进程退出
+//        chdir("/home");//切换目录
+//        umask(0);               //改变文件创建掩码
+//
+//        int fdTableSize = getdtablesize();
+//
+//        for(i=0;i<fdTableSize;i++)  //关闭文件流
+//            close(i);
 
-        int fdTableSize = getdtablesize();
-
-        for(i=0;i<fdTableSize;i++)  //关闭文件流
-            close(i);
-
-#ifdef RECORD
-    fp = fopen("log.txt","w");
-#endif
     }
 
     void ImgProdCons::Produce()
@@ -139,7 +151,7 @@ namespace rm
 
         while(!ImgProdCons::quitFlag)
         {
-            startTime_ = chrono::high_resolution_clock::now();
+            time = (double)getTickCount();
             unique_lock<mutex> lock(writeLock);
             //cout<<"Get write Lock"<<endl;
             writeCon.wait(lock,[]{ return !produceMission;});
@@ -261,14 +273,14 @@ namespace rm
                                         15, armorComparePtr->IsSmall());
                 }
 #ifdef RECORD
-    fprintf(fp,"YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d,TIME: %lld\n"
+    printf("YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d,TIME: %lld\n"
             ,solverPtr->yaw,solverPtr->pitch,solverPtr->dist,solverPtr->shoot,AUTO_SHOOT_STATE,frame.timeStamp);
 #endif
                 if(armorDetectorPtr->findState|| armorComparePtr->findState)
-                serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                serialPtr->pack(curYaw + solverPtr->yaw,curPitch + solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
                                 1, AUTO_SHOOT_STATE,frame.timeStamp);
                 else
-                    serialPtr->pack(solverPtr->yaw, solverPtr->pitch, solverPtr->dist, 0,
+                    serialPtr->pack(curYaw + solverPtr->yaw, curPitch + solverPtr->pitch, solverPtr->dist, 0,
                                     0, AUTO_SHOOT_STATE,frame.timeStamp);
                 serialPtr->WriteData();
 
@@ -281,14 +293,15 @@ namespace rm
 
             /*Receive Data*/
             unique_lock<mutex> lock1(receiveLock);
-            curPitch = receiveData.pitchAngle;
-            curYaw = receiveData.pitchAngle;
-            curControlState = receiveData.targetMode;
-
+    	    curPitch = receiveData.pitchAngle;
+            curYaw = receiveData.yawAngle;
+            //curControlState = receiveData.targetMode;
+            
+            
             produceMission = false;
             feedbackMission = true;
-            auto time = (static_cast<chrono::duration<double, std::milli>>(chrono::high_resolution_clock::now() -startTime_)).count();
-            //cout<<"FREQUENCY: "<< 1000.0/time<<endl;
+            time =  ((double)getTickCount() - time)/getTickFrequency();
+            //cout<<"FREQUENCY: "<< 1.0/time<<endl;
 
             writeCon.notify_all();
         }while(!ImgProdCons::quitFlag);
@@ -299,8 +312,9 @@ namespace rm
         do
         {
             /*Receive Data*/
+            sleep_ms(100);
             unique_lock<mutex> lock1(receiveLock);
-            serialPtr->ReadData(&receiveData);
+            serialPtr->ReadData(receiveData);
         }while(!ImgProdCons::quitFlag);
     }
 } // namespace rm

@@ -46,38 +46,45 @@ void Serial::pack(float yaw, float pitch, float dist, uint8_t shoot, uint8_t fin
 {
     unsigned char *p;
     buff[0] = VISION_SOF;
-    buff[1] = CmdID;
+//    buff[1] = CmdID;
+    memcpy(buff + 1, &CmdID, 1);
+    memcpy(buff + 2, &yaw, 4);
+    memcpy(buff + 6, &pitch, 4);
+    memcpy(buff + 10, &dist, 4);
+    memcpy(buff + 14, &shoot, 4);
+    memcpy(buff + 15, &find, 4);
+    memcpy(buff + 16, &timeStamp, 8);
 
-    p = (unsigned char*)&yaw;
-    buff[2] = static_cast<unsigned char>(*p);
-    buff[3] = static_cast<char>(*(p+1));
-    buff[4] = static_cast<char>(*(p+2));
-    buff[5] = static_cast<char>(*(p+3));
-
-    p = (unsigned char*)&pitch;
-    buff[6] = static_cast<unsigned char>(*p);
-    buff[7] = static_cast<char>(*(p+1));
-    buff[8] = static_cast<char>(*(p+2));
-    buff[9] = static_cast<char>(*(p+3));
-
-    p = (unsigned char*)&dist;
-    buff[10] = static_cast<unsigned char>(*p);
-    buff[11] = static_cast<char>(*(p+1));
-    buff[12] = static_cast<char>(*(p+2));
-    buff[13] = static_cast<char>(*(p+3));
-
-    buff[14] = static_cast<char>(shoot);
-    buff[15] = static_cast<unsigned char>(find);
-
-    p = (unsigned char*)&timeStamp;
-    buff[16] = static_cast<unsigned char>(*p);
-    buff[17] = static_cast<char>(*(p + 1));
-    buff[18] = static_cast<char>(*(p + 2));
-    buff[19] = static_cast<char>(*(p + 3));
-    buff[20] = static_cast<char>(*(p + 4));
-    buff[21] = static_cast<char>(*(p + 5));
-    buff[22] = static_cast<char>(*(p + 6));
-    buff[23] = static_cast<char>(*(p + 7));
+//    p = (unsigned char*)&yaw;
+//    buff[2] = static_cast<unsigned char>(*p);
+//    buff[3] = static_cast<char>(*(p+1));
+//    buff[4] = static_cast<char>(*(p+2));
+//    buff[5] = static_cast<char>(*(p+3));
+//
+//    p = (unsigned char*)&pitch;
+//    buff[6] = static_cast<unsigned char>(*p);
+//    buff[7] = static_cast<char>(*(p+1));
+//    buff[8] = static_cast<char>(*(p+2));
+//    buff[9] = static_cast<char>(*(p+3));
+//
+//    p = (unsigned char*)&dist;
+//    buff[10] = static_cast<unsigned char>(*p);
+//    buff[11] = static_cast<char>(*(p+1));
+//    buff[12] = static_cast<char>(*(p+2));
+//    buff[13] = static_cast<char>(*(p+3));
+//
+//    buff[14] = static_cast<char>(shoot);
+//    buff[15] = static_cast<unsigned char>(find);
+//
+//    p = (unsigned char*)&timeStamp;
+//    buff[16] = static_cast<unsigned char>(*p);
+//    buff[17] = static_cast<char>(*(p + 1));
+//    buff[18] = static_cast<char>(*(p + 2));
+//    buff[19] = static_cast<char>(*(p + 3));
+//    buff[20] = static_cast<char>(*(p + 4));
+//    buff[21] = static_cast<char>(*(p + 5));
+//    buff[22] = static_cast<char>(*(p + 6));
+//    buff[23] = static_cast<char>(*(p + 7));
     buff[24] = static_cast<char>(VISION_TOF);
 }
 
@@ -89,9 +96,11 @@ bool Serial::WriteData() {
         }
         return false;
     }
+    //cout<<"Write Begin to USB!!!!!!!!!!!!!!!!!"<<endl;
     curr = write(fd, buff, VISION_LENGTH);
+    //cout<<"Write Over to USB!!!!!!!!!!!!!!!!!"<<endl;
     if (curr < 0) {
-        cout<<("Serial offline!")<<endl;
+        cout<<("Write Serial offline!")<<endl;
         close(fd);
         if (wait_uart) {
             InitPort(nSpeed, nEvent, nBits, nStop);
@@ -101,17 +110,27 @@ bool Serial::WriteData() {
     return true;
 }
 
-bool Serial::ReadData(ReceiveData* buffer) {
-    int cnt = 0, curr = 0;
-    memset(buffer,0,sizeof(ReceiveData));
-    int readCount = 0;
+bool Serial::ReadData(struct ReceiveData &buffer_) {
+    memset(buffRead,0,VISION_LENGTH);
+    maxReadTime = VISION_LENGTH;
+    static int onceReadCount = 0;
 
-    while (readCount < int(sizeof(ReceiveData)))
+    tcflush(fd, TCIFLUSH);
+    
+    while(maxReadTime--)
     {
-        int onceReadCount;
+        read(fd, &buffRead[0], 1);
+        if(buffRead[0] == 0xA5)break;
+    }
+
+    if(maxReadTime == 0)return false;
+
+    readCount = 1;
+    while (readCount < VISION_LENGTH - 1)
+    {
         try
         {
-            onceReadCount = read(fd, ((unsigned char *)(buffer)) + readCount, sizeof(ReceiveData) - readCount);
+            onceReadCount = read(fd, (buffRead + readCount), VISION_LENGTH - readCount);
         }
         catch(exception e)
         {
@@ -119,33 +138,30 @@ bool Serial::ReadData(ReceiveData* buffer) {
             return false;
         }
 
-        if (onceReadCount == -1)
+        if (onceReadCount < 1)
         {
-            if (errno == EAGAIN)
-            {
-                continue;
-            }
-
             return false;
         }
-
         readCount += onceReadCount;
     }
 
-    tcflush(fd, TCIFLUSH);
+//	for(int i = 0; i < VISION_LENGTH; i++)
+//	{
+//		printf("%x\t",buffRead[i]);
+//	}
+//	printf("\n");
 
-    if (buffer->head != VISION_SOF || buffer->end != VISION_TOF)
+    if (buffRead[0] != VISION_SOF || buffRead[VISION_LENGTH - 1] != VISION_TOF)
     {
-        cout<<("Serial offline!")<<endl;
-        close(fd);
-        if (wait_uart) {
-            InitPort(nSpeed, nEvent, nBits, nStop);
-        }
-
         return false;
     }
     else
     {
+        memcpy(&buffer_.yawAngle,buffRead + 1,4);
+        memcpy(&buffer_.pitchAngle,buffRead + 5,4);
+        memcpy(&buffer_.yawSpeed,buffRead + 9,4);
+        memcpy(&buffer_.pitchSpeed,buffRead + 13,4);
+        memcpy(&buffer_.targetMode,buffRead + 17,1);
         return true;
     }
 
@@ -219,9 +235,10 @@ int Serial::set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop) {
     } else if (nStop == 2) {
         newtio.c_cflag |= CSTOPB;
     }
-
-    newtio.c_cc[VTIME] = 0;
-    newtio.c_cc[VMIN] = 0;
+    newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+ 
+    newtio.c_cc[VTIME] = 1;
+    newtio.c_cc[VMIN] = 1;
     tcflush(fd, TCIFLUSH);
     if ((tcsetattr(fd, TCSANOW, &newtio)) != 0) {
         perror("com set error");
@@ -230,14 +247,4 @@ int Serial::set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop) {
     printf("set done!\n");
 
     return 0;
-}
-static void sleep_ms(unsigned int secs)
-{
-    struct timeval tval;
-
-    tval.tv_sec=secs/1000;
-
-    tval.tv_usec=(secs*1000)%1000000;
-
-    select(0,NULL,NULL,NULL,&tval);
 }

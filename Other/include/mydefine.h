@@ -55,6 +55,15 @@
 #define  USEROI 1
 #endif
 
+/*IMAGEHEIGHT AND IMAGEWIDTH just for initialize the camera, maybe not the real frame format*/
+#ifndef IMAGEWIDTH
+#define  IMAGEWIDTH 640
+#endif
+
+#ifndef IMAGEHEIGHT
+#define  IMAGEHEIGHT 480
+#endif
+
 #ifndef CARNAME_
     #define CARNAME_
     enum CARNAME {HERO, INFANTRY, SENTRY, UAV, VIDEO,NOTDEFINED};
