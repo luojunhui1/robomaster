@@ -140,11 +140,22 @@ namespace V4L2KAS
             buf.memory = V4L2_MEMORY_MMAP;
             buf.index = n_buffers;
             //query buffers
-            if (ioctl (fd, VIDIOC_QUERYBUF, &buf) == -1)
-            {
-                printf("query buffer error\n");
-                return (false);
+            try {
+                if(ioctl (fd, VIDIOC_QUERYBUF, &buf) == -1)
+                {
+                    throw exception();
+                }
+
+            } catch (exception e) {
+                printf("QUERY BUFFER ERROR: %s\n",to_string(errno).c_str());
+                close(fd);
+                InitCam();
             }
+//            if (ioctl (fd, VIDIOC_QUERYBUF, &buf) == -1)
+//            {
+//                printf("query buffer error\n");
+//                return (false);
+//            }
 
             buffers[n_buffers].length = buf.length;
             //map
