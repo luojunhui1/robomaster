@@ -19,6 +19,8 @@ namespace V4L2KAS
             printf("Error opening V4L interface\n");
             return false;
         }
+        SetCam();
+        b_Buffer =  (uchar*)malloc(IMAGEWIDTH * IMAGEHEIGHT * 2);
         return true;
     }
 
@@ -109,7 +111,7 @@ namespace V4L2KAS
         /**
          * Require for image buffer
          */
-        req.count=1;
+        req.count=3;
         req.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
         req.memory=V4L2_MEMORY_MMAP;
         if(ioctl(fd,VIDIOC_REQBUFS,&req)==-1)
@@ -158,7 +160,6 @@ namespace V4L2KAS
         {
             buf.index = n_buffers;
             ioctl(fd, VIDIOC_QBUF, &buf);
-
         }
 
 
@@ -166,13 +167,18 @@ namespace V4L2KAS
         ioctl (fd, VIDIOC_STREAMON, &type);
         ioctl(fd, VIDIOC_DQBUF, &buf);
 
-        cv::Size szSize(IMAGEWIDTH,IMAGEHEIGHT);
-        uchar *b_Buffer = new uchar[szSize.width * szSize.height * 2];
-        cv::Mat mSrc(szSize,CV_8UC2, b_Buffer);
+        //cv::Size szSize(IMAGEWIDTH,IMAGEHEIGHT);
+        cv::Mat mSrc(IMAGEHEIGHT,IMAGEWIDTH,CV_8UC2, b_Buffer);
 
-        memcpy((char*)b_Buffer,buffers[0].start, sizeof(uchar)*szSize.width*szSize.height*2);
+        memcpy((char*)b_Buffer,buffers[0].start, sizeof(uchar)*IMAGEHEIGHT*IMAGEWIDTH*2);
 
         cvtColor(mSrc, src, COLOR_YUV2BGR_YUYV);
+
+        //muanmp,  release memory, https://blog.csdn.net/wenrenhua08/article/details/40044495
+        for (int n_buffers = 0; n_buffers < req.count; n_buffers++)
+        {
+            munmap(buffers[n_buffers].start,buffers[n_buffers].length);
+        }
 
         return true;
     }

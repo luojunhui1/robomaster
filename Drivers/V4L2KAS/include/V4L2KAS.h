@@ -51,7 +51,7 @@ namespace V4L2KAS
         enum v4l2_buf_type type;
         //unsigned char frame_buffer[FRAMEHEIGHT*FRAMEWIDTH*3];
         struct buffer *buffers;
-
+        uchar *b_Buffer;
     public:
         bool InitCam();
         bool StartGrab();
