@@ -145,6 +145,8 @@ namespace rm
 
         float curYaw;
         float curPitch;
+        float yawSpeed;
+        float pitchSpeed;
     };
 
 }

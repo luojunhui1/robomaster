@@ -134,6 +134,14 @@ namespace rm
         return DetectArmor(img);
     }
 
+    bool ArmorDetector::ArmorDetectTaskGPU(Mat &img)
+    {
+#ifdef USEROI
+        GetRoi(img); //get roi
+#endif
+        return DetectArmorGPU(img);
+    }
+
     /**
     * @brief: detect possible armors
     * @param [img]  the image from camera or video that to be processed
@@ -145,29 +153,18 @@ namespace rm
         findState = false;
 
         vector<LEDStick> lights;
-/**
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * For test the detection accuracy of your detector, you need to close roi selector
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ATTENTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * */
+
         imgRoi = img(roiRect);
+
+        gpuRoiImg.upload(imgRoi);
 
         Preprocess(imgRoi);
 
         if (showBianryImg)
         {
-//		        Mat wh;
-//		        pyrDown(thresholdMap,wh);
             imshow("binary_brightness_img", thresholdMap);
         }
 
-//        if(saveTrackingImage)
-//        {
-//            imwrite("image.jpg",img);
-//            imwrite("roi.jpg",imgRoi);
-//            imwrite("binary.jpg",thresholdMap);
-//            cout<<"FINISHED IMAGE WRITTING!"<<endl;
-//        }
         lights = LightDetection(thresholdMap);
 
         if (showLamps)
@@ -182,7 +179,7 @@ namespace rm
         }
 
         MaxMatch(lights);
-REBACK:
+
         if (findState)
         {
             detectCnt++;
@@ -199,10 +196,6 @@ REBACK:
             {
                 targetArmor.pts[i] = targetArmor.pts[i] + Point2f(roiRect.x, roiRect.y);
             }
-            //cout<<"targetArmor: "<<"("<<targetArmor.rect.x<<","<<targetArmor.rect.y<<")"<<" w:"<<targetArmor.rect.width
-            // <<" h:"<<targetArmor.rect.height<<endl;
-            //cout<<"roiRect"<<"("<<roiRect.x<<","<<roiRect.y<<")"<<" w:"<<roiRect.width<<" h:"<<roiRect.height<<endl;
-
 
             if (showArmorBoxes)
             {
@@ -230,20 +223,8 @@ REBACK:
         }
         else
         {
-//            if(chance)
-//            {
-//                Preprocess(img,true);
-//                lights = LightDetection(dBright);
-//                MaxMatch(lights);
-//
-//                chance = false;
-//                roiRect = Rect(0,0,IMAGEWIDTH,IMAGEHEIGHT );
-//
-//                goto REBACK;
-//            }
             detectCnt = 0;
             lostCnt++;
-
 
             possibleArmors.clear();
 
@@ -251,6 +232,92 @@ REBACK:
         }
     }
 
+    bool ArmorDetector::DetectArmorGPU(Mat &img)
+    {
+        findState = false;
+
+        vector<LEDStick> lights;
+
+        gpuImg.upload(img);
+
+        gpuRoiImg = cuda::GpuMat(gpuImg,roiRect);
+
+        PreprocessGPU(gpuRoiImg);
+
+        gpuRoiImg.download(thresholdMap,stream);
+
+        /*the code below is just using CPU*/
+        lights = LightDetection(thresholdMap);
+
+        if (showBianryImg)
+        {
+            imshow("binary_brightness_img", thresholdMap);
+        }
+
+        if (showLamps)
+        {
+            for(auto & light : lights) {
+                Point2f rect_point[4]; //
+                light.rect.points(rect_point);
+                for (int j = 0; j < 4; j++) {
+                    line(imgRoi, rect_point[j], rect_point[(j + 1) % 4], Scalar(0, 255, 255), 2);
+                }
+            }
+        }
+
+        MaxMatch(lights);
+
+        if (findState)
+        {
+            detectCnt++;
+            lostCnt = 0;
+
+            targetArmor = possibleArmors[0];
+
+            MakeRectSafe(targetArmor.rect, img.size());
+
+            targetArmor.rect  = targetArmor.rect + Point(roiRect.x, roiRect.y);
+            targetArmor.center +=  Point(roiRect.x, roiRect.y);
+
+            for(int i = 0; i< 4;i++)
+            {
+                targetArmor.pts[i] = targetArmor.pts[i] + Point2f(roiRect.x, roiRect.y);
+            }
+
+            if (showArmorBoxes)
+            {
+                for (auto & final_armor : possibleArmors)
+                {
+                    final_armor.rect = final_armor.rect + Point(roiRect.x, roiRect.y);
+                    MakeRectSafe(final_armor.rect, img.size());
+                    //MakeRectSafe(final_armor.rect, imgRoi.size());
+                    rectangle(img, final_armor.rect, Scalar(255, 0, 0), 2);
+                    //circle(img,final_armor.center + Point(roiRect.x, roiRect.y),5,Scalar(255,0,0),-1);
+                    putText(img,std::to_string(final_armor.priority),final_armor.center,FONT_HERSHEY_COMPLEX,0.7,Scalar(121,121,255),1);
+                }
+            }
+
+            if (showArmorBox)
+            {
+                rectangle(img, targetArmor.rect, Scalar(0, 0, 255), 5);
+            }
+
+            roiRect = targetArmor.rect;
+
+            possibleArmors.clear();
+
+            return true;
+        }
+        else
+        {
+            detectCnt = 0;
+            lostCnt++;
+
+            possibleArmors.clear();
+
+            return false;
+        }
+    }
     /**
     * @brief get the Rect instance that describe the target armor's geometry information
     * @param none
@@ -450,23 +517,25 @@ REBACK:
         GaussianBlur(bright,bright,Size(5,5),3);
         threshold(bright, thresholdMap, 180, 255, CV_MINMAX);
 
-//        if(type)
-//        {
-//            cvtColor(lastImg,lastBright,CV_BGR2GRAY);//0,2,1
-//            cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
-//
-//            dBright = bright - lastBright;
-//            normalize(dBright,dBright,0,255,NORM_MINMAX);
-//            GaussianBlur(dBright,dBright,Size(5,5),3);
-//            threshold(dBright, dBright, 160, 255, CV_MINMAX);
-//        }
-
-        //imshow("dBright",dBright);
-
         colorMap = rSubB - bSubR ;
+   }
 
+    void ArmorDetector::PreprocessGPU(cuda::GpuMat& img)
+    {
+        img.convertTo(gpuRoiImgFloat,CV_32F,stream);
+
+        cuda::split(gpuRoiImgFloat,gpuRoiImgVector,stream);
+
+        cuda::cvtColor(gpuRoiImgFloat,gpuGray,CV_BGR2GRAY,0,stream);
+
+        cuda::subtract(gpuRoiImgVector[0],gpuRoiImgVector[2],gpuBSubR,noArray(),-1,stream);
+
+        cuda::subtract(gpuRoiImgVector[2],gpuRoiImgVector[0],gpuRSubB,noArray(),-1,stream);
+
+        gauss->apply(gpuGray,gpuBlur);
+
+        cuda::threshold(gpuBlur,gpuBright,180,255,CV_32F,stream);
     }
-
     /**
     * @brief detect and filter lights in img
     * @param img
@@ -483,7 +552,12 @@ REBACK:
 
         vector<vector<Point>> contours_light;
 
-
+        /*
+         * =============================================================================================================
+         * There are not any OpenCV cuda function that is similar to findContours(), but someone suggest us to feed
+         * the function with the data from GPU Image's canny or Sobel edge. We can try and debug this!
+         * =============================================================================================================
+         * */
         findContours(img, contours_light, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
         for (auto & i : contours_light)
@@ -495,7 +569,6 @@ REBACK:
 
             if (length > 10 && length < 4000)
             {
-                //cout<<"contours_brightness: "<<contours_brightness[ii].size()<<endl;
                 RotatedRect Likely_stick = fitEllipse(i);
                 stick_area = Likely_stick.size.width * Likely_stick.size.height;
                 if((stick_area > param.maxLightArea) || (stick_area < param.minLightArea))continue;
@@ -513,7 +586,6 @@ REBACK:
                 /*Add this to make sure numbers on armors will not be recognized as lamps*/
                 lampImage = img(rectLamp);
                 avgBrghtness = mean(lampImage,mask);
-                //if(avgBrghtness[0] < 255*0.4)continue;
 
                 lampImage = colorMap(rectLamp);
                 avg = mean(lampImage, mask);
@@ -558,7 +630,6 @@ REBACK:
             }
         }
     }
-
     /**
     * @brief make the rect safe
     * @param [rect] a rect may be not safe

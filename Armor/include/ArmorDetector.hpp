@@ -19,6 +19,10 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/tracking.hpp>
+#include <opencv2/cudaarithm.hpp>
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudafilters.hpp>
+
 #include <iostream>
 #include <cmath>
 #include <ctime>
@@ -26,6 +30,7 @@
 #include <vector>
 #include <cstring>
 
+#include "log.h"
 #include "mydefine.h"
 
 using namespace std;
@@ -159,12 +164,15 @@ namespace rm
         void Init();
 
         bool ArmorDetectTask(Mat &img);
+        bool ArmorDetectTaskGPU(Mat &img);
 
         void GetRoi(Mat &img);
 
         virtual bool DetectArmor(Mat &img);
+        virtual bool DetectArmorGPU(Mat &img);
 
         virtual void Preprocess(Mat &img);
+        virtual void PreprocessGPU(cuda::GpuMat& img);
 
         void MaxMatch(vector<LEDStick> lights);
 
@@ -240,6 +248,17 @@ namespace rm
 
         /*if the tracer found the target, return true, otherwise return false*/
         bool trackingTarget(Mat &src, Rect2d target);
+
+    private:
+        cuda::Stream stream;
+        cuda::GpuMat gpuImg,gpuRoiImg,gpuRoiImgFloat;
+        vector<cuda::GpuMat> gpuRoiImgVector;
+
+        cuda::GpuMat gpuGray,gpuBlur,gpuBright;
+        cuda::GpuMat gpuBSubR;
+        cuda::GpuMat gpuRSubB;
+
+        Ptr<cuda::Filter> gauss = cuda::createGaussianFilter(CV_32F, -1, Size(5, 5), 3);
     };
 
     class ArmorCompare: public ArmorDetector

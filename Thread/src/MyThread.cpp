@@ -69,7 +69,9 @@ namespace rm
             armorType(BIG_ARMOR),
             driver(),
             curYaw(0),
-            curPitch(0)
+            curPitch(0),
+            yawSpeed(0),
+            pitchSpeed(0)
     {
     }
 
@@ -295,7 +297,7 @@ namespace rm
             unique_lock<mutex> lock1(receiveLock);
     	    curPitch = receiveData.pitchAngle;
             curYaw = receiveData.yawAngle;
-            //curControlState = receiveData.targetMode;
+            curControlState = receiveData.targetMode;
             
             
             produceMission = false;

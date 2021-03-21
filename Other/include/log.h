@@ -1,31 +1,31 @@
 //
 // Created by xinyang on 19-2-19.
 //
-// ���ļ��ṩһ�����ӷ���ĵ�����Ϣ�����ʽ
-// ���������Ϣ��Ϊ����LEVEL:MSG,WARNING,ERROR
-// ��ʹ�ú�LOG_LEVEL���嵱ǰ�ļ�ʹ�õ����LEVEL
-// ���ڸ�LEVEL����������ᱻ��ʾ
+// 该文件提供一个更加方便的调试信息输出方式
+// 所有输出信息分为三个LEVEL:MSG,WARNING,ERROR
+// 可使用宏LOG_LEVEL定义当前文件使用的输出LEVEL
+// 高于该LEVEL的输出讲不会被显示
 // ============================================================
-// ���API��
+// 输出API：
 // LOG(level, format, ...)
-// arguments: level:��ǰ�����level
-//            format:��׼printf��ʽ���ַ���
-// LOGM(format, ...) ʹ��MSG level�������
-// LOGW(format, ...) ʹ��WARNING level�������
-// LOGE(format, ...) ʹ��ERROR level�������
+// arguments: level:当前输出的level
+//            format:标准printf格式化字符串
+// LOGM(format, ...) 使用MSG level进行输出
+// LOGW(format, ...) 使用WARNING level进行输出
+// LOGE(format, ...) 使用ERROR level进行输出
 // ============================================================
-// �����ɫAPI��(���Բ����ն���Ч)
+// 输出颜色API：(仅对部分终端生效)
 // STR_CTR(ctrs, str)
-// arguments: ctrs:���ַ�����Ӧ����ɫ(������WORD��ͷ�ĺ�)
-//��������������str:��Ҫ��ɫ���ַ���
+// arguments: ctrs:该字符串对应的颜色(所有以WORD开头的宏)
+//　　　　　　　str:需要上色的字符串
 // ============================================================
-// ʱ�����API��(��Ҫ���systime.hʹ��)
+// 时间计算API：(需要配合systime.h使用)
 // CNT_TIME(tag, codes, ...)
-// arguments: tag:��ʾ�����ִ��ʱ��ǰ���û���Ϣ��֧��printf��ʽ���ַ���
-//            codes:��Ҫ��ͳ��ʱ��Ĵ����
-// attention: ������ڶ���ľֲ���������������ڸô����
-//            ������ڲ�֧��ʹ��break,continue���,���޷��ﵽԤ��Ч��
-//            ֧�ֶ�����뿪����鶼����ʾ�����ִ��ʱ��
+// arguments: tag:显示代码块执行时间前的用户信息，支持printf格式化字符串
+//            codes:需要被统计时间的代码块
+// attention: 代码块内定义的局部变量作用域仅限于该代码块
+//            代码块内不支持使用break,continue语句,将无法达到预想效果
+//            支持多出口离开代码块都能显示代码块执行时间
 //
 #ifndef _LOG_H_
 #define _LOG_H_
