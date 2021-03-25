@@ -15,21 +15,21 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 		"enemy is blue.",[]()
 		{
             blueTarget = true;
-			LOGM("Chose blue armor enemy.");
+			LOGM("Choose blue armor enemy.");
 		}
 	}},
 		{"-red",{
 		"enemy is blue.",[]()
 		{
             redTarget = true;
-			LOGM("Chose red armor enemy.");
+			LOGM("Choose red armor enemy.");
 		}
 	}},
     {"-hsv",{
       "use HSV color mode",[]()
        {
            hsvMode = true;
-           LOGM("chose HSV mode ");
+           LOGM("Choose HSV mode ");
        }
     }},
 	{"-help",{
@@ -120,6 +120,7 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
                   }},
 	{"-debug", {
 		"show armors,energy and video.", []() {
+		        showOrigin = true;
                 showArmorBox = true;
 			LOGM("Enable show armor box");
                 showArmorBoxes = true;
@@ -136,23 +137,29 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 
 void PreOptions(int argc, char** argv) {
 	if (argc >= 2) {
-        char* token;
+        char *token;
         string str;
 
         for (int i = 1; i < argc; i++)
         {
-            token = strtok(argv[i],"= ");
+            token = strtok(argv[i],"=");
 			if(!strcmp(token,"-path"))
             {
-                token = strtok(NULL,"= ");
+                token = strtok(NULL,"=");
                 LOGM("Set Video Path as %s",token);
                 videoPath = std::string(token);
                 continue;
-            }else if(!strcmp(token,"-cameraIndex"))
+            }else if(!strcmp(token,"-index"))
             {
-                token = strtok(NULL,"= ");
+                token = strtok(NULL,"=");
                 LOGM("Set Camera Index as %s",token);
-                stoi(token,&cameraIndex,10);
+                cameraIndex = stoi(token, nullptr,10);
+                continue;
+            }else if(!strcmp(token,"-delta"))
+            {
+                token = strtok(NULL,"=");
+                LOGM("Set feedback delta as %f",feedbackDelta);
+                feedbackDelta = stof(token);
                 continue;
             }
             auto key = options.find(std::string(argv[i])); //argv[i]是运行程序时的选项

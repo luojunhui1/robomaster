@@ -44,3 +44,10 @@ bool RealSenseDriver::Grab(Mat& src)
 
     return true;
 }
+
+bool RealSenseDriver::StopGrab()
+{
+       config->disable_all_streams();
+       pipe.stop();
+       return true;
+}

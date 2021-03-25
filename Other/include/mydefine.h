@@ -52,7 +52,7 @@
 #endif
 
 #ifndef USEROI
-#define  USEROI 1
+#define  USEROI 0
 #endif
 
 /*IMAGEHEIGHT AND IMAGEWIDTH just for initialize the camera, maybe not the real frame format*/
@@ -70,7 +70,11 @@
 #endif
 
 #ifndef RECORD
-#define  RECORD 1
+#define  RECORD 0
+#endif
+
+#ifndef GPUMODE
+#define  GPUMODE 1
 #endif
 
 extern bool showArmorBox;
@@ -91,6 +95,7 @@ extern int FRAMEWIDTH;
 extern int FRAMEHEIGHT;
 extern CARNAME carName;
 extern std::string videoPath;
-extern size_t cameraIndex;
+extern int cameraIndex;
+extern float feedbackDelta;
 
 #endif //ROBOMASTER_MYDEFINE_H

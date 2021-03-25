@@ -7,7 +7,7 @@
 bool showArmorBox = false;
 bool showArmorBoxes = false;
 bool showLightBlobs = false;
-bool showOrigin = false;
+bool showOrigin = true;
 bool runWithCamera = false;
 bool showLamps = false;
 bool saveVideo = false;
@@ -21,7 +21,9 @@ bool hsvMode = false;
 int FRAMEWIDTH;
 int FRAMEHEIGHT;
 
-CARNAME carName = VIDEO;
-size_t cameraIndex = 0;
+CARNAME carName = SENTRY;
+int cameraIndex = 0;
 std::string videoPath = "/home/ljh/视频/Videos/Xavier_12_19.avi";
+
+float feedbackDelta  = 0.3;
 bool saveTrackingImage;

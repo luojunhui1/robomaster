@@ -166,7 +166,7 @@ namespace rm
         bool ArmorDetectTask(Mat &img);
         bool ArmorDetectTaskGPU(Mat &img);
 
-        void GetRoi(Mat &img);
+        void GetRoi();
 
         virtual bool DetectArmor(Mat &img);
         virtual bool DetectArmorGPU(Mat &img);
@@ -258,7 +258,10 @@ namespace rm
         cuda::GpuMat gpuBSubR;
         cuda::GpuMat gpuRSubB;
 
+        cuda::GpuMat gpuEdge;
+
         Ptr<cuda::Filter> gauss = cuda::createGaussianFilter(CV_32F, -1, Size(5, 5), 3);
+        cv::Ptr<cv::cuda::CannyEdgeDetector> canny_edg = cv::cuda::createCannyEdgeDetector(100.0, 200.0, 3, false);
     };
 
     class ArmorCompare: public ArmorDetector

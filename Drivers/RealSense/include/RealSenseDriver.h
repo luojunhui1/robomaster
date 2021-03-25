@@ -38,6 +38,7 @@ public:
     bool StartGrab() override;
     bool SetCam() override;
     bool Grab(Mat& src) override;
+    bool StopGrab() override;
 private:
     rs2::config *config;
     context ctx;
@@ -47,5 +48,4 @@ private:
     cv::Mat src_;
     rs2::frameset data;
 };
-
 #endif //INFANTRY_REALSENSEDRIVER_H

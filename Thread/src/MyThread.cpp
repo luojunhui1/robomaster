@@ -27,6 +27,7 @@ namespace rm
 
     uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
 
+    FILE *fp;
 
     double time;
 
@@ -45,6 +46,7 @@ namespace rm
     {
         perror("sigaction error:");
         ImgProdCons::quitFlag = true;
+        exit(-1);
     }
 
 
@@ -105,13 +107,18 @@ namespace rm
 
         Mat curImage;
         driver->InitCam();
+        printf("Camera Initialized\n");
         driver->SetCam();
+        printf("Camera Set\n");
         driver->StartGrab();
+        printf("Camera Start to Grab\n");
 
-        //serialPtr->InitPort();
+#if RECORD == 1
+        fp = fopen("log.txt","w");
+#endif
         do
         {
-	    //cout<<"Init FRAME FORMAT"<<endl;
+	        //cout<<"Init FRAME FORMAT"<<endl;
             if(driver->Grab(curImage))
             {
                 FRAMEWIDTH = curImage.cols;
@@ -121,7 +128,7 @@ namespace rm
                 break;
             }
         }while(true);
-
+        //cout<<"Process Intialized"<<endl;
 
         //Protect process
 //        pid_t pid;
@@ -151,17 +158,32 @@ namespace rm
         long long timeStamp;
         struct timeb curTime{};
 
+        int Misscount = 0;
+        time = (double)getTickCount();
+
         while(!ImgProdCons::quitFlag)
         {
-            time = (double)getTickCount();
+            //time = (double)getTickCount();
             unique_lock<mutex> lock(writeLock);
             //cout<<"Get write Lock"<<endl;
             writeCon.wait(lock,[]{ return !produceMission;});
 
             //cout<<"Enter Produce Main Loop"<<endl;
             if (!driver->Grab(newImg))
+            {
+                Misscount++;
+                if(Misscount > 50)
+                {
+                    quitFlag = true;
+                    driver->StopGrab();
+                    readCon.notify_all();
+                    exit(-1);
+                }
                 continue;
+            }
             //cout<<"Produce Captured Image"<<endl;
+
+            Misscount = 0;
 
             ftime(&curTime);
             timeStamp = (curTime.time*1000 + curTime.millitm - 1610812848148);
@@ -205,7 +227,11 @@ namespace rm
             {
                 case SEARCH_MODE:
                 {
+#if GPUMODE == 1
+                    if (armorDetectorPtr->ArmorDetectTaskGPU(detectFrame.img))
+#elif GPUMODE == 0
                     if (armorDetectorPtr->ArmorDetectTask(detectFrame.img))
+#endif
                     {
                         armorDetectorPtr->tracker = TrackerKCF::create();
                         armorDetectorPtr->tracker->init(detectFrame.img, armorDetectorPtr->targetArmor.rect);
@@ -239,8 +265,14 @@ namespace rm
                 waitKey(30);
             }
             //cout<<"DETECT MISSION! ============"<<endl;
+
             detectMission = true;
+
+            produceMission = false;
+            writeCon.notify_all();
+
             feedbackCon.notify_all();
+
         } while (!ImgProdCons::quitFlag);
     }
     void ImgProdCons::Energy()
@@ -274,16 +306,16 @@ namespace rm
                                         armorComparePtr->targetArmor.pts,
                                         15, armorComparePtr->IsSmall());
                 }
-#ifdef RECORD
-    printf("YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d,TIME: %lld\n"
+#if RECORD == 1
+    fprintf(fp,"YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d,TIME: %lld\n"
             ,solverPtr->yaw,solverPtr->pitch,solverPtr->dist,solverPtr->shoot,AUTO_SHOOT_STATE,frame.timeStamp);
 #endif
                 if(armorDetectorPtr->findState|| armorComparePtr->findState)
-                serialPtr->pack(curYaw + solverPtr->yaw,curPitch + solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
-                                1, AUTO_SHOOT_STATE,frame.timeStamp);
+                serialPtr->pack(curYaw + feedbackDelta*solverPtr->yaw,curPitch + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                                1, AUTO_SHOOT_STATE,0);
                 else
-                    serialPtr->pack(curYaw + solverPtr->yaw, curPitch + solverPtr->pitch, solverPtr->dist, 0,
-                                    0, AUTO_SHOOT_STATE,frame.timeStamp);
+                    serialPtr->pack(curYaw + feedbackDelta*solverPtr->yaw, curPitch + feedbackDelta*solverPtr->pitch, solverPtr->dist, 0,
+                                    0, AUTO_SHOOT_STATE,0);
                 serialPtr->WriteData();
 
                 //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
@@ -295,14 +327,14 @@ namespace rm
 
             /*Receive Data*/
             unique_lock<mutex> lock1(receiveLock);
+            serialPtr->ReadData(receiveData);
     	    curPitch = receiveData.pitchAngle;
             curYaw = receiveData.yawAngle;
             curControlState = receiveData.targetMode;
-            
-            
+
             produceMission = false;
             feedbackMission = true;
-            time =  ((double)getTickCount() - time)/getTickFrequency();
+            //time =  ((double)getTickCount() - time)/getTickFrequency();
             //cout<<"FREQUENCY: "<< 1.0/time<<endl;
 
             writeCon.notify_all();
@@ -314,7 +346,7 @@ namespace rm
         do
         {
             /*Receive Data*/
-            sleep_ms(100);
+            sleep_ms(30);
             unique_lock<mutex> lock1(receiveLock);
             serialPtr->ReadData(receiveData);
         }while(!ImgProdCons::quitFlag);

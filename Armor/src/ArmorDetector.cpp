@@ -114,7 +114,7 @@ namespace rm
         possibleArmors.clear();
 
         targetArmor.init();
-        roiRect = Rect(0, 0, 0, 0);
+        roiRect = Rect(0, 0, FRAMEWIDTH, FRAMEHEIGHT);
         findState = false;
         detectCnt = 0;
         lostCnt = 120;
@@ -128,16 +128,16 @@ namespace rm
     */
     bool ArmorDetector::ArmorDetectTask(Mat &img)
     {
-#ifdef USEROI
-        GetRoi(img); //get roi
+#if USEROI == 1
+        GetRoi(); //get roi
 #endif
         return DetectArmor(img);
     }
 
     bool ArmorDetector::ArmorDetectTaskGPU(Mat &img)
     {
-#ifdef USEROI
-        GetRoi(img); //get roi
+#if USEROI == 1
+        GetRoi(); //get roi
 #endif
         return DetectArmorGPU(img);
     }
@@ -206,7 +206,7 @@ namespace rm
                     //MakeRectSafe(final_armor.rect, imgRoi.size());
                     rectangle(img, final_armor.rect, Scalar(255, 0, 0), 2);
                     //circle(img,final_armor.center + Point(roiRect.x, roiRect.y),5,Scalar(255,0,0),-1);
-                    putText(img,std::to_string(final_armor.priority),final_armor.center,FONT_HERSHEY_COMPLEX,0.7,Scalar(121,121,255),1);
+                    //putText(img,std::to_string(final_armor.priority),final_armor.center,FONT_HERSHEY_COMPLEX,0.7,Scalar(121,121,255),1);
                 }
             }
 
@@ -214,9 +214,9 @@ namespace rm
             {
                 rectangle(img, targetArmor.rect, Scalar(0, 0, 255), 5);
             }
-
+#if USEROI == 1
             roiRect = targetArmor.rect;
-
+#endif
             possibleArmors.clear();
 
             return true;
@@ -238,13 +238,13 @@ namespace rm
 
         vector<LEDStick> lights;
 
-        gpuImg.upload(img);
+        gpuImg.upload(img,stream);
 
         gpuRoiImg = cuda::GpuMat(gpuImg,roiRect);
 
         PreprocessGPU(gpuRoiImg);
 
-        gpuRoiImg.download(thresholdMap,stream);
+        gpuEdge.download(thresholdMap,stream);
 
         /*the code below is just using CPU*/
         lights = LightDetection(thresholdMap);
@@ -301,9 +301,9 @@ namespace rm
             {
                 rectangle(img, targetArmor.rect, Scalar(0, 0, 255), 5);
             }
-
+#if USEROI == 1
             roiRect = targetArmor.rect;
-
+#endif
             possibleArmors.clear();
 
             return true;
@@ -534,8 +534,14 @@ namespace rm
 
         gauss->apply(gpuGray,gpuBlur);
 
-        cuda::threshold(gpuBlur,gpuBright,180,255,CV_32F,stream);
+        cuda::threshold(gpuBlur,gpuBright,180,255,THRESH_BINARY,stream);
+
+        gpuBright.convertTo(gpuEdge,CV_8UC1,stream);
+
+        canny_edg->detect(gpuEdge, gpuEdge,stream);
+
     }
+
     /**
     * @brief detect and filter lights in img
     * @param img
@@ -587,8 +593,10 @@ namespace rm
                 lampImage = img(rectLamp);
                 avgBrghtness = mean(lampImage,mask);
 
-                lampImage = colorMap(rectLamp);
-                avg = mean(lampImage, mask);
+//                lampImage = colorMap(rectLamp);
+//                avg = mean(lampImage, mask);
+
+                avg = Scalar_<double>(1);
 
                 if((blueTarget && avg[0] < 0) || (!blueTarget && avg[0] > 0))
                 {
@@ -606,9 +614,8 @@ namespace rm
     * @return none
     * @details none
     */
-    void ArmorDetector::GetRoi(Mat &img)
+    void ArmorDetector::GetRoi()
     {
-        Size img_size = img.size();
         Rect rect_tmp = roiRect;
         if (lostCnt>3||rect_tmp.width == 0|| rect_tmp.height == 0)
         {
@@ -626,7 +633,7 @@ namespace rm
             //MakeRectSafe(roiRect, img.size());
             if (!MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT)))
             {
-                roiRect = Rect(0, 0, img_size.width, img_size.height);
+                roiRect = Rect(0, 0, FRAMEHEIGHT, FRAMEWIDTH);
             }
         }
     }
@@ -671,11 +678,11 @@ namespace rm
             detectCnt = 0;
             return false;
         }
-
+#if USEROI == 1
         roiRect = Rect(pos.x - pos.width , pos.y - pos.height , 3*pos.width, 3*pos.height); //tracker
 
         MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT));
-
+#endif
         if (DetectArmor(src))
         {
             detectCnt++;

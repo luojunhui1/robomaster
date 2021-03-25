@@ -164,11 +164,11 @@ bool Serial::ReadData(struct ReceiveData &buffer_) {
     }
     else
     {
-        memcpy(&buffer_.yawAngle,buffRead + 1,4);
-        memcpy(&buffer_.pitchAngle,buffRead + 5,4);
-        memcpy(&buffer_.yawSpeed,buffRead + 9,4);
-        memcpy(&buffer_.pitchSpeed,buffRead + 13,4);
-        memcpy(&buffer_.targetMode,buffRead + 17,1);
+        memcpy(&buffer_.yawAngle,buffRead + 2,4);
+        memcpy(&buffer_.pitchAngle,buffRead + 6,4);
+        memcpy(&buffer_.yawSpeed,buffRead + 10,4);
+        memcpy(&buffer_.pitchSpeed,buffRead + 14,4);
+        memcpy(&buffer_.targetMode,buffRead + 18,1);
         return true;
     }
 

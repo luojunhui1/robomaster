@@ -234,6 +234,5 @@ public:
     bool StartGrab() override;
     bool SetCam() override;
     bool Grab(Mat& src) override;
-
-    bool StopGrab();
+    bool StopGrab() override;
 };

@@ -3,7 +3,9 @@
 
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o
  ../Armor/include/ArmorDetector.hpp
+ ../Other/include/log.h
  ../Other/include/mydefine.h
+ ../Other/include/systime.h
  /home/ljh/文档/A_RM/hero/Armor/src/ArmorDetector.cpp
  /usr/local/include/opencv4/opencv2/calib3d.hpp
  /usr/local/include/opencv4/opencv2/core.hpp
@@ -43,6 +45,9 @@ CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o
  /usr/local/include/opencv4/opencv2/core/utils/tls.hpp
  /usr/local/include/opencv4/opencv2/core/version.hpp
  /usr/local/include/opencv4/opencv2/core/vsx_utils.hpp
+ /usr/local/include/opencv4/opencv2/cudaarithm.hpp
+ /usr/local/include/opencv4/opencv2/cudafilters.hpp
+ /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
  /usr/local/include/opencv4/opencv2/dnn.hpp
  /usr/local/include/opencv4/opencv2/dnn/dict.hpp
  /usr/local/include/opencv4/opencv2/dnn/dnn.hpp
@@ -1440,8 +1445,10 @@ CMakeFiles/run.dir/Thread/src/MyThread.cpp.o
  ../Drivers/VideoDriver/include/VideoDriver.hpp
  ../Filter/include/Filter.h
  ../Other/include/RMTools.hpp
+ ../Other/include/log.h
  ../Other/include/mydefine.h
  ../Other/include/preoptions.h
+ ../Other/include/systime.h
  ../Pose/include/SolveAngle.hpp
  ../Serials/include/SerialPort.hpp
  ../Thread/include/MyThread.hpp
@@ -1692,6 +1699,9 @@ CMakeFiles/run.dir/Thread/src/MyThread.cpp.o
  /usr/local/include/opencv4/opencv2/core/utils/tls.hpp
  /usr/local/include/opencv4/opencv2/core/version.hpp
  /usr/local/include/opencv4/opencv2/core/vsx_utils.hpp
+ /usr/local/include/opencv4/opencv2/cudaarithm.hpp
+ /usr/local/include/opencv4/opencv2/cudafilters.hpp
+ /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
  /usr/local/include/opencv4/opencv2/dnn.hpp
  /usr/local/include/opencv4/opencv2/dnn/dict.hpp
  /usr/local/include/opencv4/opencv2/dnn/dnn.hpp
@@ -1845,8 +1855,10 @@ CMakeFiles/run.dir/main.cpp.o
  ../Drivers/VideoDriver/include/VideoDriver.hpp
  ../Filter/include/Filter.h
  ../Other/include/RMTools.hpp
+ ../Other/include/log.h
  ../Other/include/mydefine.h
  ../Other/include/preoptions.h
+ ../Other/include/systime.h
  ../Pose/include/SolveAngle.hpp
  ../Serials/include/SerialPort.hpp
  ../Thread/include/MyThread.hpp
@@ -2097,6 +2109,9 @@ CMakeFiles/run.dir/main.cpp.o
  /usr/local/include/opencv4/opencv2/core/utils/tls.hpp
  /usr/local/include/opencv4/opencv2/core/version.hpp
  /usr/local/include/opencv4/opencv2/core/vsx_utils.hpp
+ /usr/local/include/opencv4/opencv2/cudaarithm.hpp
+ /usr/local/include/opencv4/opencv2/cudafilters.hpp
+ /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
  /usr/local/include/opencv4/opencv2/dnn.hpp
  /usr/local/include/opencv4/opencv2/dnn/dict.hpp
  /usr/local/include/opencv4/opencv2/dnn/dnn.hpp

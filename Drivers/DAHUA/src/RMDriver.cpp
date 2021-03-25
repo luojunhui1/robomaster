@@ -1497,6 +1497,7 @@ static int selectDevice(int cameraCnt)
     {
         // 发现设备
         // discovery device
+        printf("DAHUA Get Instance!\n");
         CSystem &systemObj = CSystem::getInstance();
         isDiscoverySuccess = systemObj.discovery(vCameraPtrList);
         if (!isDiscoverySuccess)
@@ -1511,7 +1512,7 @@ static int selectDevice(int cameraCnt)
             return false;
         }
         // 打印相机基本信息（序号,类型,制造商信息,型号,序列号,用户自定义ID,IP地址）
-        // print camera info (index,Type,vendor name, model,serial number,DeviceUserID,IP Address)
+        //printcamerainfo (index,Type,vendor name, model,serial number,DeviceUserID,IP Address)
         if (vCameraPtrList.size() > 1)
         {
 //            displayDeviceInfo(vCameraPtrList);
@@ -1525,6 +1526,7 @@ static int selectDevice(int cameraCnt)
 
         // 连接相机
         // connect camera
+        printf("DAHUA Begin Connected!\n");
         if (!cameraSptr->connect())
         {
             perror("connect cameral failed.\n");
@@ -1539,6 +1541,8 @@ static int selectDevice(int cameraCnt)
             perror("create stream obj  fail.\r\n");
             return false;
         }
+
+        printf("DAHUA Connected!\n");
         return true;
     }
 

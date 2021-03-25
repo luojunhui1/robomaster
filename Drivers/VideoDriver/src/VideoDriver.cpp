@@ -17,7 +17,7 @@ bool VideoDriver::StartGrab()
 {
     return true;
 }
-int VideoDriver::SetCam()
+bool VideoDriver::SetCam()
 {
     return true;
 }
@@ -28,3 +28,7 @@ bool VideoDriver::Grab(Mat& src)
     return !src.empty();
 }
 
+bool VideoDriver::StopGrab()
+{
+
+}

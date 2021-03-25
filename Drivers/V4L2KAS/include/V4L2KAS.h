@@ -56,13 +56,13 @@ namespace V4L2KAS
         struct buffer *buffers;
         uchar *b_Buffer;
     public:
-        bool InitCam();
-        bool StartGrab();
+        bool InitCam() override;
+        bool StartGrab() override;
         bool Info();
-        bool  SetCam();
+        bool  SetCam() override;
         bool RequireBuffer();
-        bool Grab(Mat& src);
-
+        bool Grab(Mat& src) override;
+        bool StopGrab() override;
     };
 }
 #endif //CAMERANEW_V4L2KAS_H

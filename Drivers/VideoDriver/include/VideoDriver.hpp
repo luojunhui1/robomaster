@@ -20,7 +20,8 @@ private:
 public:
     bool InitCam() override;
     bool StartGrab() override;
-    int SetCam() override;
+    bool SetCam() override;
     bool Grab(Mat& src) override;
+    bool StopGrab() override;
 };
 #endif //HERO_VIDEODRIVER_H

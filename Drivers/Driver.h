@@ -16,7 +16,8 @@ public:
     virtual bool StartGrab() = 0;
     virtual bool SetCam() = 0;
     virtual bool Grab(Mat& src) = 0;
-    virtual ~Driver(){};
+    virtual bool StopGrab() = 0;
+    virtual ~Driver() = default;;
 };
 
 #endif //HERO_DRIVER_H

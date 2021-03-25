@@ -27,11 +27,11 @@ using namespace cv;
 class StreamRetrieve : public CThread
 {
 public:
-	StreamRetrieve(IStreamSourcePtr& streamSptr);
+	explicit StreamRetrieve(IStreamSourcePtr& streamSptr);
 	bool start();
 	bool stop();
 private:
-	void threadProc();
+	void threadProc() override;
 	bool m_isLoop;
 	IStreamSourcePtr m_streamSptr;
 	bool m_bThreadFinished;

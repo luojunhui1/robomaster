@@ -18,17 +18,12 @@ int main(int argc, char** argv)
     std::thread compareThread(&rm::ImgProdCons::Compare, &pro);
     std::thread energyThread(&rm::ImgProdCons::Energy, &pro);
     std::thread feedbackThread(&rm::ImgProdCons::Feedback, &pro);
-    std::thread receiveThread(&rm::ImgProdCons::Receive, &pro);
-    //std::thread senseThread(&rm::ImgProdCons::feedback, &pro);
 
     produceThread.join();
     detectThread.join();
     compareThread.join();
     energyThread.join();
     feedbackThread.join();
-    receiveThread.join();
-
-    //senseThread.join();
 
     return 0;
 }

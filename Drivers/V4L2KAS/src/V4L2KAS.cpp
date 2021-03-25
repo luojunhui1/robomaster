@@ -14,6 +14,8 @@ namespace V4L2KAS
         strcpy(devicePath,"/dev/video");
         strcat(devicePath,(to_string(cameraIndex)).c_str());
 
+        printf("device path: %s\n",devicePath);
+
         if ((fd = open(devicePath, O_RDWR)) == -1)
         {
             printf("Error opening V4L interface\n");
@@ -196,4 +198,11 @@ namespace V4L2KAS
     {
 
     }
+
+    bool V4L2Driver::StopGrab()
+    {
+        delete b_Buffer;
+        delete buffers;
+    }
+
 }
