@@ -11,6 +11,7 @@ namespace rm
     * @return none
     * @details none
     */
+
     Armor::Armor(const LEDStick &L1, const LEDStick &L2, double priority_)
     {
         errorAngle = fabs(L1.lightAngle - L2.lightAngle);
@@ -155,8 +156,6 @@ namespace rm
         vector<LEDStick> lights;
 
         imgRoi = img(roiRect);
-
-        gpuRoiImg.upload(imgRoi);
 
         Preprocess(imgRoi);
 
@@ -366,7 +365,7 @@ namespace rm
 //        matchParams.clear();
 //        MatchParam matchParam;
 
-        MatchLight matchLight;
+        static MatchLight matchLight;
         int matchCount = 0;
         float match_factor_;
 
@@ -423,7 +422,7 @@ namespace rm
 
                 /*the match factor is still rough now, but it can help filter  the most possible target from  the detected armors*/
                 /*Of course, we need to find a formula that is more reasonable*/
-                match_factor_ =sizeRatio +contourLen1  + dAvgB + exp(dAngle + yDiff + MIN(fabs(ratio - 1.5), fabs(ratio - 3.5)));
+                match_factor_ = sizeRatio +contourLen1  + dAvgB + exp(dAngle + yDiff + MIN(fabs(ratio - 1.5), fabs(ratio - 3.5)));
 
                 if (!findState)
                     findState = true;
@@ -516,9 +515,10 @@ namespace rm
 
         GaussianBlur(bright,bright,Size(5,5),3);
         threshold(bright, thresholdMap, 180, 255, CV_MINMAX);
-
+        //Canny(thresholdMap,thresholdMap,100,200);
         colorMap = rSubB - bSubR ;
-   }
+
+    }
 
     void ArmorDetector::PreprocessGPU(cuda::GpuMat& img)
     {
@@ -541,7 +541,6 @@ namespace rm
         canny_edg->detect(gpuEdge, gpuEdge,stream);
 
     }
-
     /**
     * @brief detect and filter lights in img
     * @param img
@@ -703,8 +702,11 @@ namespace rm
     void ArmorCompare::InitCompare()
     {
         Init();
-        lastBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
-        dBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_8UC1,Scalar(0));
+        Mat lastBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_32F,Scalar(0));
+        Mat dBright = Mat(FRAMEHEIGHT,FRAMEWIDTH,CV_32F,Scalar(0));
+        dBrightGPU.upload(dBright,stream2);
+        lastBrightGPU.upload(lastBright,stream2);
+        //alg_farn = cv::cuda::FarnebackOpticalFlow::create();
     }
 
     /**
@@ -715,25 +717,46 @@ namespace rm
      * of the time, and we still keep the attention in our code because it reminds us: never change your code casually,
      * because you may feel very painful when you try to analysis and decoupling your code.
      */
-    void ArmorCompare::Preprocess(Mat &img)
+    void ArmorCompare::PreprocessGPU(cuda::GpuMat &img)
     {
-        Mat bright;
-        vector<Mat> channels;
-        split(img,channels);
-        cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
+        img.convertTo(imgFloatGPU,CV_32F,stream2);
+        cuda::cvtColor(imgFloatGPU,dBrightGPU,CV_BGR2GRAY,0,stream2);
+        cuda::subtract(dBrightGPU,lastBrightGPU,opfFloatGpu);
+        opfFloatGpu.convertTo(opfGpuX,CV_8UC1,stream2);
+        cuda::threshold(opfGpuX,opfGpuX,140,255,THRESH_BINARY,stream2);
+//
+//        alg_farn->calc(lastBrightGPU,dBrightGPU,opfFloatGpu,stream2);
+//        cuda::split(opfFloatGpu,opfVector,stream2);
+//
+//        cuda::normalize(opfVector[0],opfVector[0],0,255,NORM_MINMAX,-1,noArray(),stream2);
+//
+//        cuda::normalize(opfVector[1],opfVector[1],0,255,NORM_MINMAX,-1,noArray(),stream2);
+//
+//        gauss->apply(opfVector[0],opfVector[0]);
+//
+//        opfVector[0].convertTo(opfGpuX,CV_8UC1,stream2);
+//        //opfVector[1].convertTo(opfGpuY,CV_8UC1,stream2);
+//
+//        cuda::threshold(opfGpuX,opfGpuX,180,255,THRESH_BINARY,stream2);
+        //cuda::equalizeHist(opfGpuX,opfGpuX,stream2);
 
-        //Attention!!!if the caculate result is small than 0, because the mat format is CV_UC3, it will be set as 0.
-        bSubR = Mat(channels[0] - channels[2]);
-        rSubB = Mat(channels[2] - channels[0]);
-        colorMap = rSubB - bSubR ;
+//        Mat bright;
+//        vector<Mat> channels;
+//        split(img,channels);
+//        cvtColor(img,bright,CV_BGR2GRAY);//0,2,1
+//
+//        //Attention!!!if the caculate result is small than 0, because the mat format is CV_UC3, it will be set as 0.
+//        bSubR = Mat(channels[0] - channels[2]);
+//        rSubB = Mat(channels[2] - channels[0]);
+//        colorMap = rSubB - bSubR ;
+//
+//        dBright = bright - lastBright;
+//        normalize(dBright,dBright,0,255,NORM_MINMAX);
+//
+//        GaussianBlur(dBright,dBright,Size(5,5),3);
+//        threshold(dBright, thresholdMap, 180, 255, CV_MINMAX);
 
-        dBright = bright - lastBright;
-        normalize(dBright,dBright,0,255,NORM_MINMAX);
-
-        GaussianBlur(dBright,dBright,Size(5,5),3);
-        threshold(dBright, thresholdMap, 180, 255, CV_MINMAX);
-
-        lastBright = bright.clone();
+        lastBrightGPU = dBrightGPU.clone();
     }
 
     /**
@@ -747,15 +770,50 @@ namespace rm
 
         vector<LEDStick> lights;
 
-        Preprocess(img);
+        imgGPU.upload(img,stream2);
 
-        lights = LightDetection(thresholdMap);
+        PreprocessGPU(imgGPU);
+
+        opfGpuX.download(optImgX,stream2);
+
+        lights = LightDetection(optImgX);
+
+        if (showBianryImg)
+        {
+            imshow("optical flow X", optImgX);
+            //imshow("optical flow Y", optImgY);
+
+        }
+
+        if (showLamps)
+        {
+            for(auto & light : lights) {
+                Point2f rect_point[4]; //
+                light.rect.points(rect_point);
+                for (int j = 0; j < 4; j++) {
+                    line(img, rect_point[j], rect_point[(j + 1) % 4], Scalar(0, 255, 255), 2);
+                }
+            }
+        }
 
         MaxMatch(lights);
 
         if(findState)
         {
             targetArmor = possibleArmors[0];
+
+            if (showArmorBoxes)
+            {
+                for (auto & final_armor : possibleArmors)
+                {
+                    final_armor.rect = final_armor.rect + Point(roiRect.x, roiRect.y);
+                    MakeRectSafe(final_armor.rect, img.size());
+                    //MakeRectSafe(final_armor.rect, imgRoi.size());
+                    rectangle(img, final_armor.rect, Scalar(255, 0, 0), 2);
+                    //circle(img,final_armor.center + Point(roiRect.x, roiRect.y),5,Scalar(255,0,0),-1);
+                    //putText(img,std::to_string(final_armor.priority),final_armor.center,FONT_HERSHEY_COMPLEX,0.7,Scalar(121,121,255),1);
+                }
+            }
 
             possibleArmors.clear();
 

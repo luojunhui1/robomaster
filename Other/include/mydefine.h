@@ -52,7 +52,7 @@
 #endif
 
 #ifndef USEROI
-#define  USEROI 0
+#define  USEROI 1
 #endif
 
 /*IMAGEHEIGHT AND IMAGEWIDTH just for initialize the camera, maybe not the real frame format*/

@@ -69,11 +69,7 @@ namespace rm
             armorComparePtr(unique_ptr<ArmorCompare>(new ArmorCompare())),
             kalman(unique_ptr<Kalman>(new Kalman())),
             armorType(BIG_ARMOR),
-            driver(),
-            curYaw(0),
-            curPitch(0),
-            yawSpeed(0),
-            pitchSpeed(0)
+            driver()
     {
     }
 
@@ -169,7 +165,7 @@ namespace rm
             writeCon.wait(lock,[]{ return !produceMission;});
 
             //cout<<"Enter Produce Main Loop"<<endl;
-            if (!driver->Grab(newImg))
+            if (!driver->Grab(newImg) || newImg.empty())
             {
                 Misscount++;
                 if(Misscount > 50)
@@ -207,6 +203,11 @@ namespace rm
             readCon.wait(lock,[]{ return !compareMission&&produceMission;});
 
             armorComparePtr->DetectArmor(compareFrame.img);
+
+            if(showOrigin)
+            {
+                imshow("compare",compareFrame.img);
+            }
 
             //cout<<"COMPARE MISSION! ===="<<endl;
 
@@ -261,7 +262,7 @@ namespace rm
 
             if(showOrigin)
             {
-                imshow("src",detectFrame.img);
+                imshow("detect",detectFrame.img);
                 waitKey(30);
             }
             //cout<<"DETECT MISSION! ============"<<endl;
@@ -311,11 +312,20 @@ namespace rm
             ,solverPtr->yaw,solverPtr->pitch,solverPtr->dist,solverPtr->shoot,AUTO_SHOOT_STATE,frame.timeStamp);
 #endif
                 if(armorDetectorPtr->findState|| armorComparePtr->findState)
-                serialPtr->pack(curYaw + feedbackDelta*solverPtr->yaw,curPitch + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
                                 1, AUTO_SHOOT_STATE,0);
                 else
-                    serialPtr->pack(curYaw + feedbackDelta*solverPtr->yaw, curPitch + feedbackDelta*solverPtr->pitch, solverPtr->dist, 0,
-                                    0, AUTO_SHOOT_STATE,0);
+                {
+                    solverPtr->yaw /= 2;
+                    solverPtr->pitch /= 2;
+                    /*The sending Angle drops twice each time until the offset angle are both small than 1*/
+                    if(solverPtr->yaw < 1 && solverPtr->pitch < 1)
+                        serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw, receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, 0,
+                                        0, AUTO_SHOOT_STATE,0);
+                    else
+                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw, receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, 0,
+                                    1, AUTO_SHOOT_STATE,0);
+                }
                 serialPtr->WriteData();
 
                 //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
@@ -328,14 +338,12 @@ namespace rm
             /*Receive Data*/
             unique_lock<mutex> lock1(receiveLock);
             serialPtr->ReadData(receiveData);
-    	    curPitch = receiveData.pitchAngle;
-            curYaw = receiveData.yawAngle;
+
+
             curControlState = receiveData.targetMode;
 
             produceMission = false;
             feedbackMission = true;
-            //time =  ((double)getTickCount() - time)/getTickFrequency();
-            //cout<<"FREQUENCY: "<< 1.0/time<<endl;
 
             writeCon.notify_all();
         }while(!ImgProdCons::quitFlag);

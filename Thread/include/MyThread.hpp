@@ -142,11 +142,6 @@ namespace rm
 
         struct ReceiveData receiveData;
         int armorType;
-
-        float curYaw;
-        float curPitch;
-        float yawSpeed;
-        float pitchSpeed;
     };
 
 }

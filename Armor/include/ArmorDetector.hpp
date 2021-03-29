@@ -22,6 +22,7 @@
 #include <opencv2/cudaarithm.hpp>
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudafilters.hpp>
+#include <opencv2/cudaoptflow.hpp>
 
 #include <iostream>
 #include <cmath>
@@ -49,7 +50,7 @@ namespace rm
         int   maxAngleError = 60;
         float maxLengthError = 0.70;
         float maxYDiff = 2;
-        float maxRatio = 66;
+        float maxRatio = 30;
         float minRatio = 0.6;
 
         float minLightArea = 10;
@@ -205,7 +206,7 @@ namespace rm
         Rect roiRect;
 
         /* variables would be used in functions*/
-    public:
+    private:
 
         /*a gray image, the difference between rSubB and bSubR*/
         Mat_<int> colorMap;
@@ -267,11 +268,18 @@ namespace rm
     class ArmorCompare: public ArmorDetector
     {
     private:
-        Mat lastBright;
-        Mat dBright;
+        Mat optImgX,optImgY;
+        cuda::GpuMat lastBrightGPU;
+        cuda::GpuMat dBrightGPU;
+        cuda::GpuMat imgGPU;
+        cuda::GpuMat imgFloatGPU;
+        cuda::GpuMat opfGpuX;
+        cuda::GpuMat opfFloatGpu;
+
+        cuda::Stream stream2;
     public:
         void InitCompare();
-        void Preprocess(Mat &img) override;
+        void PreprocessGPU(cuda::GpuMat &img) override;
         bool DetectArmor(Mat &img) override;
     };
 
