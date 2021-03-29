@@ -18,7 +18,6 @@ namespace rm
     bool ImgProdCons::quitFlag = false;
 
     bool produceMission = false;
-    bool compareMission = false;
     bool detectMission = false;
     bool energyMission = false;
     bool feedbackMission = false;
@@ -28,8 +27,6 @@ namespace rm
     uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
 
     FILE *fp;
-
-    double time;
 
     static void sleep_ms(unsigned int secs)
     {
@@ -66,7 +63,6 @@ namespace rm
             serialPtr(unique_ptr<Serial>(new Serial())),
             solverPtr(unique_ptr<SolveAngle>(new SolveAngle())),
             armorDetectorPtr(unique_ptr<ArmorDetector>(new ArmorDetector())),
-            armorComparePtr(unique_ptr<ArmorCompare>(new ArmorCompare())),
             kalman(unique_ptr<Kalman>(new Kalman())),
             armorType(BIG_ARMOR),
             driver()
@@ -114,57 +110,31 @@ namespace rm
 #endif
         do
         {
-	        //cout<<"Init FRAME FORMAT"<<endl;
             if(driver->Grab(curImage))
             {
                 FRAMEWIDTH = curImage.cols;
                 FRAMEHEIGHT = curImage.rows;
                 armorDetectorPtr->Init();
-                armorComparePtr->InitCompare();
                 break;
             }
         }while(true);
-        //cout<<"Process Intialized"<<endl;
 
-        //Protect process
-//        pid_t pid;
-//        int i;
-//        pid=fork();        //创建第一子进程
-//        if(pid<0) exit(1);//创建失败退出
-//        if(pid>0) exit(0);//父进程退出
-//        setsid();         //第一子进程成为领头进程，脱离终端
-//        pid=fork();   //第一子进程生成第二子进程
-//        if(pid<0) exit(1);//创建失败退出
-//        if(pid>0) exit(0);//第一子进程退出
-//        chdir("/home");//切换目录
-//        umask(0);               //改变文件创建掩码
-//
-//        int fdTableSize = getdtablesize();
-//
-//        for(i=0;i<fdTableSize;i++)  //关闭文件流
-//            close(i);
-
+        printf("Initialization Completed\n");
     }
 
     void ImgProdCons::Produce()
     {
-        //auto startTime = chrono::high_resolution_clock::now();
         static uint32_t seq = 0;
         Mat newImg;
-        long long timeStamp;
-        struct timeb curTime{};
 
         int Misscount = 0;
-        time = (double)getTickCount();
 
         while(!ImgProdCons::quitFlag)
         {
-            //time = (double)getTickCount();
             unique_lock<mutex> lock(writeLock);
-            //cout<<"Get write Lock"<<endl;
+
             writeCon.wait(lock,[]{ return !produceMission;});
 
-            //cout<<"Enter Produce Main Loop"<<endl;
             if (!driver->Grab(newImg) || newImg.empty())
             {
                 Misscount++;
@@ -177,43 +147,17 @@ namespace rm
                 }
                 continue;
             }
-            //cout<<"Produce Captured Image"<<endl;
 
             Misscount = 0;
 
-            ftime(&curTime);
-            timeStamp = (curTime.time*1000 + curTime.millitm - 1610812848148);
-
-            frame = Frame{newImg, seq, timeStamp};
+            frame = Frame{newImg, seq};
 
             detectFrame = frame.clone();
-            compareFrame = frame.clone();
 
-            //cout<<"PRODUCE MISSION!"<<endl;
-            detectMission = compareMission = energyMission = feedbackMission = false;
+            detectMission  = energyMission = feedbackMission = false;
             produceMission = true;
             readCon.notify_all();
         }
-    }
-
-    void ImgProdCons::Compare()
-    {
-        do {
-            unique_lock<mutex> lock(compareLock);
-            readCon.wait(lock,[]{ return !compareMission&&produceMission;});
-
-            armorComparePtr->DetectArmor(compareFrame.img);
-
-            if(showOrigin)
-            {
-                imshow("compare",compareFrame.img);
-            }
-
-            //cout<<"COMPARE MISSION! ===="<<endl;
-
-            compareMission = true;
-            feedbackCon.notify_all();
-        }while(!ImgProdCons::quitFlag);
     }
 
     void ImgProdCons::Detect()
@@ -228,11 +172,7 @@ namespace rm
             {
                 case SEARCH_MODE:
                 {
-#if GPUMODE == 1
-                    if (armorDetectorPtr->ArmorDetectTaskGPU(detectFrame.img))
-#elif GPUMODE == 0
                     if (armorDetectorPtr->ArmorDetectTask(detectFrame.img))
-#endif
                     {
                         armorDetectorPtr->tracker = TrackerKCF::create();
                         armorDetectorPtr->tracker->init(detectFrame.img, armorDetectorPtr->targetArmor.rect);
@@ -262,10 +202,15 @@ namespace rm
 
             if(showOrigin)
             {
+                if(FRAMEHEIGHT > 1000)
+                {
+                    pyrDown(detectFrame.img,detectFrame.img);
+                }
+
                 imshow("detect",detectFrame.img);
+
                 waitKey(30);
             }
-            //cout<<"DETECT MISSION! ============"<<endl;
 
             detectMission = true;
 
@@ -276,6 +221,7 @@ namespace rm
 
         } while (!ImgProdCons::quitFlag);
     }
+
     void ImgProdCons::Energy()
     {
         do {
@@ -286,7 +232,7 @@ namespace rm
             {
                 /*do energy detection*/
             }
-            //cout<<"ENERGY MISSION ======"<<endl;
+
             energyMission = true;
             feedbackCon.notify_all();
         }while(!ImgProdCons::quitFlag);
@@ -294,24 +240,22 @@ namespace rm
 
     void ImgProdCons::Feedback()
     {
+        int count_test = 0;
         do {
             unique_lock<mutex> lock(feedbackLock);
-            feedbackCon.wait(lock,[]{ return !feedbackMission&&detectMission&&compareMission&&energyMission;});
+            feedbackCon.wait(lock,[]{ return !feedbackMission&&detectMission&&energyMission;});
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
+                    cout<<count_test++<<endl;
                     solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
-                } else if (armorComparePtr->findState) {
-                    solverPtr->GetPoseV(kalman->SetKF(armorComparePtr->targetArmor.center),
-                                        armorComparePtr->targetArmor.pts,
-                                        15, armorComparePtr->IsSmall());
                 }
 #if RECORD == 1
-    fprintf(fp,"YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d,TIME: %lld\n"
-            ,solverPtr->yaw,solverPtr->pitch,solverPtr->dist,solverPtr->shoot,AUTO_SHOOT_STATE,frame.timeStamp);
+    fprintf(fp,"YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d\n"
+            ,solverPtr->yaw,solverPtr->pitch,solverPtr->dist,solverPtr->shoot,AUTO_SHOOT_STATE);
 #endif
-                if(armorDetectorPtr->findState|| armorComparePtr->findState)
+                if(armorDetectorPtr->findState)
                 serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
                                 1, AUTO_SHOOT_STATE,0);
                 else
@@ -327,18 +271,14 @@ namespace rm
                                     1, AUTO_SHOOT_STATE,0);
                 }
                 serialPtr->WriteData();
-
-                //cout<<"YAW: "<<solverPtr->yaw<<"PITCH: "<<solverPtr->pitch<<"DIS: "<<solverPtr->dist<<endl;
             }else
             {
                 /*do energy things*/
             }
-            //cout<<"FEEDBACK MISSION ================"<<endl;
 
             /*Receive Data*/
             unique_lock<mutex> lock1(receiveLock);
-            serialPtr->ReadData(receiveData);
-
+            //serialPtr->ReadData(receiveData);
 
             curControlState = receiveData.targetMode;
 
@@ -359,4 +299,4 @@ namespace rm
             serialPtr->ReadData(receiveData);
         }while(!ImgProdCons::quitFlag);
     }
-} // namespace rm
+}

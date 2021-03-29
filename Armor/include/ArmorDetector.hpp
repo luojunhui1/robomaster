@@ -14,6 +14,7 @@
  * and process you can see at https://github.com/luojunhui1/robomaster, for more detail, you can contact with the active
  * team members of Robomaster in SWJTU.
 **********************************************************************************************************************/
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -37,28 +38,27 @@
 using namespace std;
 using namespace cv;
 
-
 namespace rm
 {
     /**
-     * define the paramters for lamp recognizing and lamp matching.
+     * define the parameters for lamp recognizing and lamp matching.
      */
     struct ArmorParam
     {
-
-        float maxArmorAngle = 40;
-        int   maxAngleError = 60;
+        float maxArmorAngle = 45;
+        float maxAngleError = 6;
         float maxLengthError = 0.70;
-        float maxYDiff = 2;
-        float maxRatio = 30;
+        float maxDeviationAngle = 50;
+        float maxRatio = 20;
         float minRatio = 0.6;
 
-        float minLightArea = 10;
+        float minLightArea = 20;
         float maxLightArea = 2500;
         float maxLightAngle = 60;
         float minLightW2H = 0.2;
         float maxLightW2H = 40;
     };
+
     /**
      * the structure to describe the matched lamps
      */
@@ -79,7 +79,7 @@ namespace rm
     /**
      * define a structure to describe parameters for matching lamps
      */
-    typedef struct MatchParam
+    typedef struct MatchParam_Tag
     {
         double dAngle{};
         double conLen1{};
@@ -90,8 +90,8 @@ namespace rm
         double dBright{};
         double sizeRatio{};
 
-        MatchParam(){};
-        MatchParam(double dAngle_, double conLen1_, double conLen2_, double ratio_, double nAngle_, double yDiff_
+        MatchParam_Tag()= default;;
+        MatchParam_Tag(double dAngle_, double conLen1_, double conLen2_, double ratio_, double nAngle_, double yDiff_
                 , double dBright_, double sizeRatio_)
         {
             dAngle = dAngle_;
@@ -110,14 +110,16 @@ namespace rm
      * angle value of the lamp that is more intuitive than the angle member variable in RotateRect. For detail, you can
      * see it at https://blog.csdn.net/xueluowutong/article/details/86069814?utm_medium=distribute.pc_relevant.none-task-blog-title-2&spm=1001.2101.3001.4242
      */
-    class LEDStick {
+    class Lamp {
     public:
-        LEDStick() : lightAngle(0),avgBrightness(0), size(0)
+        Lamp() : lightAngle(0), avgBrightness(0), size(0)
         {
         }
 
-        LEDStick(RotatedRect bar, float angle, float avgB, float size_) : rect(std::move(bar)), lightAngle(angle),
-                                                                          avgBrightness(avgB),size(size_) {
+        Lamp(RotatedRect bar, float angle, float avgB) :lightAngle(angle),avgBrightness(avgB)
+        {
+            cv::Size exLSize(int(bar.size.width), int(bar.size.height * 2));
+            rect = cv::RotatedRect(bar.center, exLSize, bar.angle);
         }
 
         RotatedRect rect;
@@ -137,7 +139,7 @@ namespace rm
         Armor() : errorAngle(0), armorWidth(0), armorHeight(0), armorType(BIG_ARMOR), priority(10000) {
         }
 
-        Armor(const LEDStick &L1, const LEDStick &L2, double priority_);
+        Armor(const Lamp &L1, const Lamp &L2, double priority_);
 
         void init();
 
@@ -165,19 +167,17 @@ namespace rm
         void Init();
 
         bool ArmorDetectTask(Mat &img);
-        bool ArmorDetectTaskGPU(Mat &img);
 
         void GetRoi();
 
-        virtual bool DetectArmor(Mat &img);
-        virtual bool DetectArmorGPU(Mat &img);
+        bool DetectArmor(Mat &img);
 
-        virtual void Preprocess(Mat &img);
-        virtual void PreprocessGPU(cuda::GpuMat& img);
+        void Preprocess(Mat &img);
 
-        void MaxMatch(vector<LEDStick> lights);
+        void MaxMatch(vector<Lamp> lights);
 
-        vector<LEDStick> LightDetection(Mat& img);
+        vector<Lamp> LightDetection(Mat& img);
+
 
         /*tool functions*/
         static bool MakeRectSafe(cv::Rect &rect, const cv::Size &size);
@@ -190,8 +190,6 @@ namespace rm
 
         /*state member variables*/
     public:
-        /*possible armors*/
-        vector<Armor> possibleArmors;
 
         /*the final armor selected to be attacked*/
         Armor targetArmor;
@@ -243,12 +241,21 @@ namespace rm
 
         /*tracking member variables */
     public:
-
         /*an instance of tracker*/
         cv::Ptr<cv::Tracker> tracker;
 
         /*if the tracer found the target, return true, otherwise return false*/
         bool trackingTarget(Mat &src, Rect2d target);
+    };
+
+    class ArmorDetectorGPU
+    {
+        bool ArmorDetectTaskGPU(Mat &img);
+
+        bool DetectArmorGPU(Mat &img);
+
+        void PreprocessGPU(cuda::GpuMat& img);
+
 
     private:
         cuda::Stream stream;
@@ -258,31 +265,13 @@ namespace rm
         cuda::GpuMat gpuGray,gpuBlur,gpuBright;
         cuda::GpuMat gpuBSubR;
         cuda::GpuMat gpuRSubB;
+        cuda::GpuMat gpuColorMap;
 
         cuda::GpuMat gpuEdge;
 
         Ptr<cuda::Filter> gauss = cuda::createGaussianFilter(CV_32F, -1, Size(5, 5), 3);
         cv::Ptr<cv::cuda::CannyEdgeDetector> canny_edg = cv::cuda::createCannyEdgeDetector(100.0, 200.0, 3, false);
     };
-
-    class ArmorCompare: public ArmorDetector
-    {
-    private:
-        Mat optImgX,optImgY;
-        cuda::GpuMat lastBrightGPU;
-        cuda::GpuMat dBrightGPU;
-        cuda::GpuMat imgGPU;
-        cuda::GpuMat imgFloatGPU;
-        cuda::GpuMat opfGpuX;
-        cuda::GpuMat opfFloatGpu;
-
-        cuda::Stream stream2;
-    public:
-        void InitCompare();
-        void PreprocessGPU(cuda::GpuMat &img) override;
-        bool DetectArmor(Mat &img) override;
-    };
-
     /**
      * @param a an instance of a pair of matched lamps
      * @param b another instance of a pair of matched lamps

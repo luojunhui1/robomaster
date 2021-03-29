@@ -66,7 +66,7 @@
 
 #ifndef CARNAME_
     #define CARNAME_
-    enum CARNAME {HERO, INFANTRY, SENTRY, UAV, VIDEO,NOTDEFINED};
+    enum CARNAME {HERO, INFANTRY, SENTRY, UAV, VIDEO, NOTDEFINED};
 #endif
 
 #ifndef RECORD
@@ -74,23 +74,16 @@
 #endif
 
 #ifndef GPUMODE
-#define  GPUMODE 1
+#define  GPUMODE 0
 #endif
 
 extern bool showArmorBox;
-extern bool showArmorBoxes;
-extern bool showLightBlobs;
 extern bool showOrigin;
-extern bool runWithCamera;
 extern bool showLamps;
-extern bool saveVideo;
-extern bool saveLabelledBoxes;
 extern bool showBianryImg;
 extern bool showEnergy;
 extern bool blueTarget;
 extern bool redTarget;
-extern bool hsvMode;
-extern bool saveTrackingImage;
 extern int FRAMEWIDTH;
 extern int FRAMEHEIGHT;
 extern CARNAME carName;

@@ -15,13 +15,11 @@ int main(int argc, char** argv)
 
     std::thread produceThread(&rm::ImgProdCons::Produce, &pro);
     std::thread detectThread(&rm::ImgProdCons::Detect, &pro);
-    std::thread compareThread(&rm::ImgProdCons::Compare, &pro);
     std::thread energyThread(&rm::ImgProdCons::Energy, &pro);
     std::thread feedbackThread(&rm::ImgProdCons::Feedback, &pro);
 
     produceThread.join();
     detectThread.join();
-    compareThread.join();
     energyThread.join();
     feedbackThread.join();
 

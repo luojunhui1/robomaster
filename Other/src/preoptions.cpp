@@ -25,13 +25,6 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 			LOGM("Choose red armor enemy.");
 		}
 	}},
-    {"-hsv",{
-      "use HSV color mode",[]()
-       {
-           hsvMode = true;
-           LOGM("Choose HSV mode ");
-       }
-    }},
 	{"-help",{
 		"show the help information.", []() {
 			LOG(LOG_MSG, "<HELP>: " STR_CTR(WORD_BLUE, "All options below are for debug use."));
@@ -52,18 +45,6 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 			LOGM("Enable show armor box");
 		}
 	}},
-	{"-boxes",{
-		"show the candidate aim boxes.", []() {
-                showArmorBoxes = true;
-			LOGM("Enable show armor boxes");
-		}
-	}},
-	{"-blobs",{
-		"show the candidate light blobs.", []() {
-                showLightBlobs = true;
-			LOGM("Enable show light blobs");
-		}
-	}},
 	{"-origin", {
 		"show the origin image.", []() {
                 showOrigin = true;
@@ -74,18 +55,6 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 		"start the program with reading video directly without asking.", []() {
                 carName = VIDEO;
 			LOGM("Run with Video!");
-		}
-	}},
-	{"-save", {
-		"save the video.", []() {
-                saveVideo = true;
-			LOGM("Enable save video!");
-		}
-	}},
-	{"-save2",{
-		"save the candidate boxes with their id labels.", []() {
-                saveLabelledBoxes = true;
-			LOGM("labelled armor boxes will be saved!");
 		}
 	}},
 	{"-energy", {
@@ -122,8 +91,6 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 		"show armors,energy and video.", []() {
 		        showOrigin = true;
                 showArmorBox = true;
-			LOGM("Enable show armor box");
-                showArmorBoxes = true;
 			LOGM("Enable show armor boxes");
                 showBianryImg = true;
 			LOGM("Enable show binary image");

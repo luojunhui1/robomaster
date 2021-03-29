@@ -33,20 +33,18 @@ namespace rm
     {
         cv::Mat img;
         uint32_t seq;         //count from 0
-        long long timeStamp;	//time in ms, from initialization to now
 
         Frame()=default;
 
-        Frame(const Mat& img_, uint32_t seq_, long long timeStamp_)
+        Frame(const Mat& img_, uint32_t seq_)
         {
             img = img_.clone();
             seq = seq_;
-            timeStamp = timeStamp_;
         }
 
         Frame clone() const
         {
-            return Frame(img,seq,timeStamp);
+            return Frame(img,seq);
         }
 
     };
@@ -116,17 +114,12 @@ namespace rm
         /* Armor detector */
         std::unique_ptr<ArmorDetector> armorDetectorPtr;
 
-        /*Armor Compare*/
-        std::unique_ptr<ArmorCompare> armorComparePtr;
-
         std::unique_ptr<Kalman> kalman;
 
         Frame frame;
         Frame detectFrame;
-        Frame compareFrame;
 
         mutex detectLock;
-        mutex compareLock;
         mutex writeLock;
         mutex energyLock;
         mutex feedbackLock;
@@ -135,10 +128,8 @@ namespace rm
 
         condition_variable writeCon;
         condition_variable readCon;
-        condition_variable compareCon;
         condition_variable feedbackCon;
         condition_variable energyCon;
-        condition_variable receiveCon;
 
         struct ReceiveData receiveData;
         int armorType;
