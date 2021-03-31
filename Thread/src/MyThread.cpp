@@ -127,7 +127,7 @@ namespace rm
         static uint32_t seq = 0;
         Mat newImg;
 
-        int Misscount = 0;
+        int missCount = 0;
 
         while(!ImgProdCons::quitFlag)
         {
@@ -135,10 +135,10 @@ namespace rm
 
             writeCon.wait(lock,[]{ return !produceMission;});
 
-            if (!driver->Grab(newImg) || newImg.empty())
+            if (!driver->Grab(newImg) || newImg.rows != FRAMEHEIGHT || newImg.cols != FRAMEWIDTH)
             {
-                Misscount++;
-                if(Misscount > 50)
+                missCount++;
+                if(missCount > 50)
                 {
                     quitFlag = true;
                     driver->StopGrab();
@@ -148,7 +148,7 @@ namespace rm
                 continue;
             }
 
-            Misscount = 0;
+            missCount = 0;
 
             frame = Frame{newImg, seq};
 
@@ -205,6 +205,7 @@ namespace rm
                 if(FRAMEHEIGHT > 1000)
                 {
                     pyrDown(detectFrame.img,detectFrame.img);
+                    pyrDown(detectFrame.img,detectFrame.img);
                 }
 
                 imshow("detect",detectFrame.img);
@@ -214,7 +215,7 @@ namespace rm
 
             detectMission = true;
 
-            produceMission = false;
+            //produceMission = false;
             writeCon.notify_all();
 
             feedbackCon.notify_all();
@@ -246,7 +247,6 @@ namespace rm
             feedbackCon.wait(lock,[]{ return !feedbackMission&&detectMission&&energyMission;});
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
-                    cout<<count_test++<<endl;
                     solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
@@ -294,7 +294,7 @@ namespace rm
         do
         {
             /*Receive Data*/
-            sleep_ms(30);
+            sleep_ms(2);
             unique_lock<mutex> lock1(receiveLock);
             serialPtr->ReadData(receiveData);
         }while(!ImgProdCons::quitFlag);

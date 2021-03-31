@@ -1615,7 +1615,7 @@ static int selectDevice(int cameraCnt)
         if (ConvertImage(frame, displayFrame))
         {
             src = Mat(Size(displayFrame->Width(), displayFrame->Height()),\
-                                               CV_8UC3, displayFrame->bufPtr()).clone();
+                                               CV_8UC3, displayFrame->bufPtr());
             return true;
         }else
         {

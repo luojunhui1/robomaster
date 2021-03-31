@@ -175,7 +175,6 @@ void SolveAngle::Generate3DPoints(bool mode)
 	{
         targetHeight3D = 57;
         targetWidth3D = 135;
-
 	}
 	else
 	{

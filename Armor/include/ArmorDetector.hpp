@@ -49,6 +49,7 @@ namespace rm
         float maxAngleError = 6;
         float maxLengthError = 0.70;
         float maxDeviationAngle = 50;
+        float maxYDiff = 2;
         float maxRatio = 20;
         float minRatio = 0.6;
 

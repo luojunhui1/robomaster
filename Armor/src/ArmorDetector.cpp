@@ -246,7 +246,7 @@ namespace rm
     */
     void ArmorDetector::MaxMatch(vector<Lamp> lights)
     {
-        static float deviationAngle, xDiff;
+        static float deviationAngle, xDiff,yDiff;
         static float nL,nW;
         static float dAngle;
         static float contourLen1;
@@ -296,6 +296,10 @@ namespace rm
                 deviationAngle = fabs(atan((lights[i].rect.center.y - lights[j].rect.center.y)
                                                 / (lights[i].rect.center.x - lights[j].rect.center.x))) * 180 / CV_PI;
                 if(deviationAngle > param.maxDeviationAngle)continue;
+
+                /*the difference of the y coordinate of the two center points*/
+                yDiff = abs(lights[i].rect.center.y - lights[j].rect.center.y) / nW;
+                if(yDiff > param.maxYDiff)continue;
 
                 /*difference of average brightness*/
                 dAvgB = abs(lights[i].avgBrightness - lights[j].avgBrightness);
@@ -445,24 +449,24 @@ namespace rm
     */
     void ArmorDetector::GetRoi()
     {
-        Rect rect_tmp = roiRect;
-        if (lostCnt>3||rect_tmp.width == 0|| rect_tmp.height == 0)
+        Rect rectTemp = roiRect;
+        if (lostCnt>3 || rectTemp.width == 0 || rectTemp.height == 0)
         {
             roiRect = Rect(0, 0,FRAMEWIDTH, FRAMEHEIGHT);
         }
         else if(detectCnt>0)
         {
             float scale = 3;
-            int w = int(rect_tmp.width * scale);
-            int h = int(rect_tmp.height * scale);
-            int x = int(rect_tmp.x - (w - rect_tmp.width) * 0.5);
-            int y = int(rect_tmp.y - (h - rect_tmp.height) * 0.5);
+            int w = int(rectTemp.width * scale);
+            int h = int(rectTemp.height * scale);
+            int x = int(rectTemp.x - (w - rectTemp.width) * 0.5);
+            int y = int(rectTemp.y - (h - rectTemp.height) * 0.5);
 
             roiRect = Rect(x, y, w, h);
             //MakeRectSafe(roiRect, img.size());
             if (!MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT)))
             {
-                roiRect = Rect(0, 0, FRAMEHEIGHT, FRAMEWIDTH);
+                roiRect = Rect(0, 0, FRAMEWIDTH, FRAMEHEIGHT);
             }
         }
     }
