@@ -80,7 +80,10 @@ namespace rm
             case HERO:
                 driver = &intelCapture;
                 break;
-            case INFANTRY:
+            case INFANTRY_MELEE:
+                driver = &v4l2Capture;
+                break;
+            case INFANTRY_TRACK:
                 driver = &v4l2Capture;
                 break;
             case SENTRY:
@@ -96,8 +99,7 @@ namespace rm
                 driver = &videoCapture;
                 break;
         }
-
-        Mat curImage;
+ Mat curImage;
         driver->InitCam();
         printf("Camera Initialized\n");
         driver->SetCam();

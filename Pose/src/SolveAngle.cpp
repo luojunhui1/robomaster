@@ -16,8 +16,27 @@ SolveAngle::SolveAngle()
 		cout << "no such file" << endl;
 		return;
 	}
-	fs["Distortion_Coefficients"] >> distortionCoefficients;
-	fs["Camera_Matrix"] >> cameraMatrix;
+	switch(carName)
+    {
+        case HERO:
+            break;
+        case INFANTRY_MELEE:
+            fs["Distortion_Coefficients_INFANTRY_1"] >> distortionCoefficients;
+            fs["Camera_Matrix_INFANTRY_1"] >> cameraMatrix;
+            break;
+        case INFANTRY_TRACK:
+            fs["Distortion_Coefficients_INFANTRY_NONE_1"] >> distortionCoefficients;
+            fs["Camera_Matrix_INFANTRY_NONE_1"] >> cameraMatrix;
+            break;
+        case SENTRY:
+            fs["Distortion_Coefficients_DAHUA_1"] >> distortionCoefficients;
+            fs["Camera_Matrix_DAHUA_1"] >> cameraMatrix;
+            break;
+        case UAV:
+            break;
+        case NOTDEFINED:
+            break;
+    }
 	fs.release();
 
 //    curAngleCount = 0;
@@ -175,6 +194,7 @@ void SolveAngle::Generate3DPoints(bool mode)
 	{
         targetHeight3D = 57;
         targetWidth3D = 135;
+
 	}
 	else
 	{
