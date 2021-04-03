@@ -4,50 +4,149 @@
 
 #include "RealSenseDriver.h"
 
+/* Function calls to librealsense may raise errors of type rs_error*/
+void check_error(rs2_error* e)
+{
+    if (e)
+    {
+        printf("rs_error was raised when calling %s(%s):\n", rs2_get_failed_function(e), rs2_get_failed_args(e));
+        printf("    %s\n", rs2_get_error_message(e));
+        exit(EXIT_FAILURE);
+    }
+}
+
+void print_device_info(rs2_device* dev)
+{
+    rs2_error* e = 0;
+    printf("\nUsing device 0, an %s\n", rs2_get_device_info(dev, RS2_CAMERA_INFO_NAME, &e));
+    check_error(e);
+    printf("    Serial number: %s\n", rs2_get_device_info(dev, RS2_CAMERA_INFO_SERIAL_NUMBER, &e));
+    check_error(e);
+    printf("    Firmware version: %s\n\n", rs2_get_device_info(dev, RS2_CAMERA_INFO_FIRMWARE_VERSION, &e));
+    check_error(e);
+}
+
+
 bool RealSenseDriver::InitCam()
 {
-    auto list = ctx.query_devices(); // Get a snapshot of currently connected devices
-    if (list.size() == 0)
-        perror("No device detected. Stopped!");
-    device dev = list.front();
+    // Create a context object. This object owns the handles to all connected realsense devices.
+    // The returned object should be released with rs2_delete_context(...)
+    ctx = rs2_create_context(RS2_API_VERSION, &e);
+    check_error(e);
 
-    config = new rs2::config();
-    //Add desired streams to configuration
-    config->enable_stream(RS2_STREAM_COLOR,IMAGEWIDTH,IMAGEHEIGHT,RS2_FORMAT_BGR8,FPS);
-    config->enable_stream(RS2_STREAM_DEPTH, IMAGEWIDTH, IMAGEHEIGHT, RS2_FORMAT_Z16,FPS);
-    config->enable_stream(RS2_STREAM_INFRARED, 1, IMAGEWIDTH, IMAGEHEIGHT, RS2_FORMAT_Y8, FPS);
-    config->enable_stream(RS2_STREAM_INFRARED, 2, IMAGEWIDTH, IMAGEHEIGHT, RS2_FORMAT_Y8, FPS);
+    /* Get a list of all the connected devices. */
+    // The returned object should be released with rs2_delete_device_list(...)
+    rs2_device_list* device_list = rs2_query_devices(ctx, &e);
+    check_error(e);
+
+    int dev_count = rs2_get_device_count(device_list, &e);
+    check_error(e);
+    printf("There are %d connected RealSense devices.\n", dev_count);
+    if (0 == dev_count)
+        return EXIT_FAILURE;
+    // Get the first connected device
+    // The returned object should be released with rs2_delete_device(...)
+    dev = rs2_create_device(device_list, 0, &e);
+    check_error(e);
+
+    print_device_info(dev);
 
     return true;
 }
 
 bool RealSenseDriver::StartGrab()
 {
-    pipe.start(*config);
-
+    pipeline_profile = rs2_pipeline_start_with_config(pipeline, config, &e);
     return true;
 }
 
 bool RealSenseDriver::SetCam()
 {
-    return false;
-}
+    // Create a pipeline to configure, start and stop camera streaming
+    // The returned object should be released with rs2_delete_pipeline(...)
+    pipeline =  rs2_create_pipeline(ctx, &e);
+    check_error(e);
 
-bool RealSenseDriver::Grab(Mat& src)
-{
-    data = pipe.wait_for_frames(); // Wait for next set of frames from the camera
-    frame_ = data.get_color_frame();
+    config = rs2_create_config(&e);
+    check_error(e);
 
-    src_ =  Mat(Size(IMAGEWIDTH,IMAGEHEIGHT), CV_8UC3,(void*)frame_.get_data(),Mat::AUTO_STEP);
-
-    flip(src_,src,-1);
+    // Request a specific configuration
+    rs2_config_enable_stream(config, RS2_STREAM_COLOR, STREAM_INDEX, FRAMEWIDTH, FRAMEHEIGHT, COLOR_FORMAT, FPS, &e);
+    rs2_config_enable_stream(config, RS2_STREAM_DEPTH, STREAM_INDEX, FRAMEWIDTH, FRAMEHEIGHT, DEPTH_FORMAT, FPS, &e);
+    check_error(e);
 
     return true;
 }
 
+bool RealSenseDriver::Grab(Mat& src)
+{
+    frames = rs2_pipeline_wait_for_frames(pipeline, RS2_DEFAULT_TIMEOUT, &e);
+
+    // Returns the number of frames embedded within the composite frame
+    if((num_of_frames = rs2_embedded_frames_count(frames, &e)) == 0)
+    {
+        return false;
+    }
+
+
+    int i;
+    for (i = 0; i < num_of_frames; ++i)
+    {
+        // The retunred object should be released with rs2_release_frame(...)
+        rs2_frame* frame = rs2_extract_frame(frames, i, &e);
+        check_error(e);
+
+        // Check if the given frame can be extended to depth frame interface
+        // Accept only depth frames and skip other frames
+        if (0 != rs2_is_frame_extendable_to(frame, RS2_EXTENSION_DEPTH_FRAME, &e))
+        {
+            //depthFrame can Not be released until GetArmorDepth function completed
+            depthFrame = frame;
+            check_error(e);
+            continue;
+        }
+
+        src = Mat(Size(FRAMEWIDTH,FRAMEHEIGHT), CV_8UC3, (void*)rs2_get_frame_data(frame, &e),Mat::AUTO_STEP);
+
+        flip(src,src,-1);
+
+        rs2_release_frame(frame);
+    }
+    rs2_release_frame(frames);
+    return true;
+}
+
+float RealSenseDriver::GetArmorDepth(Rect& rect)
+{
+    if(depthFrame == nullptr)
+        return 0;
+    float sum = 0,count = 0;
+    for(int i = rect.x; i < rect.x + rect.width; i++)
+    {
+        for(int j = rect.y; j < rect.y + rect.height;j++)
+        {
+            dist2Armor = rs2_depth_frame_get_distance(depthFrame, i,j, &e);
+            sum += (dist2Armor != 0)?(count++,dist2Armor):(0);
+        }
+    }
+
+    rs2_release_frame(depthFrame);
+
+    dist2Armor = (count > 0)?(sum/count):(0);
+    return dist2Armor;
+}
 bool RealSenseDriver::StopGrab()
 {
-       config->disable_all_streams();
-       pipe.stop();
-       return true;
+    rs2_pipeline_stop(pipeline, &e);
+    check_error(e);
+
+    // Release resources
+    rs2_delete_pipeline_profile(pipeline_profile);
+    rs2_delete_config(config);
+    rs2_delete_pipeline(pipeline);
+    rs2_delete_device(dev);
+    rs2_delete_context(ctx);
+
+    return EXIT_SUCCESS;
+
 }
