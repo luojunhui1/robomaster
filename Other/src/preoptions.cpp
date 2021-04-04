@@ -31,6 +31,7 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 			for (const auto& option : options) {
 				LOG(LOG_MSG, "<HELP>: " STR_CTR(WORD_GREEN, "%s: %s"), option.first.data(), option.second.first.data());
 			}
+			exit(0);
 		}
 	}},
     {"-l", {
@@ -64,7 +65,7 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 		}
 	}},
     {"-hero", {
-                        "",[]() {
+                        "HERO SET SAIL! COMMANDER!",[]() {
                 carName = HERO;
                 LOGM("HERO SET SAIL! COMMANDER!");
             }
@@ -76,25 +77,25 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
             }
                 }},
     {"-melee", {
-                        "",[]() {
+                        "MELEE INFANTRY SET SAIL! COMMANDER!",[]() {
                 carName = INFANTRY_MELEE;
                 LOGM("INFANTRY MELEE SET SAIL! COMMANDER!");
             }
                 }},
     {"-track", {
-                       "",[]() {
+                       "TRACK INFANTRY SET SAIL! COMMANDER!",[]() {
                 carName = INFANTRY_TRACK;
-                LOGM("INFANTRY SET SAIL! COMMANDER!");
+                LOGM("Track INFANTRY SET SAIL! COMMANDER!");
             }
                }},
     {"-sentry", {
-                          "",[]() {
+                          "SENTRY SET SAIL! COMMANDER!",[]() {
                 carName = SENTRY;
                 LOGM("SENTRY SET SAIL! COMMANDER!");
             }
                   }},
     {"-binary", {
-                        "",[]() {
+                        "Show Binary Image",[]() {
                 showBianryImg = true;
                 LOGM("Show Binary Image!");
             }
@@ -152,7 +153,7 @@ void PreOptions(int argc, char** argv) {
 
 		if(carName == NOTDEFINED)
         {
-		    LOGW("HAAVE NOT DEFINED CAR NAME! LITTLE FULL!");
+		    LOGW("HAVE NOT DEFINED CAR NAME! LITTLE FULL!");
 		    exit(0);
         }
 	}

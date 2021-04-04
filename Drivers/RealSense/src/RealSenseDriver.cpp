@@ -26,7 +26,6 @@ void print_device_info(rs2_device* dev)
     check_error(e);
 }
 
-
 bool RealSenseDriver::InitCam()
 {
     // Create a context object. This object owns the handles to all connected realsense devices.
@@ -101,6 +100,8 @@ bool RealSenseDriver::Grab(Mat& src)
         if (0 != rs2_is_frame_extendable_to(frame, RS2_EXTENSION_DEPTH_FRAME, &e))
         {
             //depthFrame can Not be released until GetArmorDepth function completed
+            if(depthFrame != nullptr)
+                rs2_release_frame(depthFrame);
             depthFrame = frame;
             check_error(e);
             continue;
@@ -108,11 +109,19 @@ bool RealSenseDriver::Grab(Mat& src)
 
         src = Mat(Size(FRAMEWIDTH,FRAMEHEIGHT), CV_8UC3, (void*)rs2_get_frame_data(frame, &e),Mat::AUTO_STEP);
 
+        if(src.empty())
+        {
+            rs2_release_frame(frames);
+            return false;
+        }
+
         flip(src,src,-1);
 
         rs2_release_frame(frame);
     }
+
     rs2_release_frame(frames);
+
     return true;
 }
 

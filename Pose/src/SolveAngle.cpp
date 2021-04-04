@@ -19,6 +19,8 @@ SolveAngle::SolveAngle()
 	switch(carName)
     {
         case HERO:
+            fs["Distortion_Coefficients4_Realsense"] >> distortionCoefficients;
+            fs["Camera_Matrix_Realsense"] >> cameraMatrix;
             break;
         case INFANTRY_MELEE:
             fs["Distortion_Coefficients_INFANTRY_1"] >> distortionCoefficients;
@@ -39,8 +41,6 @@ SolveAngle::SolveAngle()
             break;
     }
 	fs.release();
-
-//    curAngleCount = 0;
 }
 
 void SolveAngle::Generate2DPoints(Rect rect)

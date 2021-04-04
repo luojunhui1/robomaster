@@ -17,6 +17,7 @@ public:
     virtual bool SetCam() = 0;
     virtual bool Grab(Mat& src) = 0;
     virtual bool StopGrab() = 0;
+
     virtual ~Driver() = default;;
 };
 

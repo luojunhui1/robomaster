@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(HERO)
 SET(CMAKE_BUILE_TYPE DEBUG)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++14 -pthread -lv4l1 -lv4l2 -lrealsense2")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -g -std=c++14 -pthread -lv4l1 -lv4l2 -lrealsense2")
 SET(BIN_NAME "run")
 
 FIND_PACKAGE(OpenCV 4.4.0 REQUIRED)

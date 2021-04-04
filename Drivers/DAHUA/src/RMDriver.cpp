@@ -1571,12 +1571,12 @@ static int selectDevice(int cameraCnt)
     {
         setGrabMode(cameraSptr,true);
         setAcquisitionFrameRate(cameraSptr,100);
-        setExposureTime(cameraSptr,8000);
-//        if(setResolution(cameraSptr,640,480) != 0)
-//        {
-//                return -1;
-//        }
-//        setROI(cameraSptr,0,0,6400,480);
+        setExposureTime(cameraSptr,20000);
+        if(setResolution(cameraSptr,640,480) != 0)
+        {
+                return -1;
+        }
+        setROI(cameraSptr,0,0,640,480);
         return true;
     }
 

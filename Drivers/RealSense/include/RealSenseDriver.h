@@ -38,6 +38,7 @@ using namespace cv;
  * @param none
  * @details the api provided by intel is simple and easy to use, which forms a sharp contrast with dahua's api
  */
+
 class RealSenseDriver: public Driver
 {
 public:
@@ -63,6 +64,8 @@ private:
     int num_of_frames;
 
     rs2_frame* depthFrame;
+
+public:
     float dist2Armor;
 };
 #endif //INFANTRY_REALSENSEDRIVER_H

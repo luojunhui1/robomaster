@@ -95,9 +95,9 @@ namespace rm
         static void InitSignals(void);
 
         /*Camera Driver Instances*/
+        RealSenseDriver intelCapture;
         RMDriver dahuaCapture;
         V4L2Driver v4l2Capture;
-        RealSenseDriver intelCapture;
         VideoDriver videoCapture;
 
         /* Camera */
@@ -122,7 +122,6 @@ namespace rm
         mutex energyLock;
         mutex feedbackLock;
         mutex receiveLock;
-
 
         condition_variable writeCon;
         condition_variable readCon;

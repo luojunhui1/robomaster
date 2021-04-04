@@ -27,7 +27,7 @@ namespace rm
     uint8_t direction = false;
     u_int8_t clearFilter = false;
 
-
+    RealSenseDriver intelCapture;
 #if DEBUG == 1
     double time;
     int frequency;
@@ -105,13 +105,14 @@ namespace rm
                 driver = &videoCapture;
                 break;
         }
- Mat curImage;
+
+        Mat curImage;
         driver->InitCam();
-        printf("Camera Initialized\n");
+        LOGM("Camera Initialized\n");
         driver->SetCam();
-        printf("Camera Set\n");
+        LOGM("Camera Set\n");
         driver->StartGrab();
-        printf("Camera Start to Grab\n");
+        LOGM("Camera Start to Grab\n");
 
         do
         {
@@ -124,7 +125,7 @@ namespace rm
             }
         }while(true);
 
-        printf("Initialization Completed\n");
+        LOGM("Initialization Completed\n");
     }
 
     void ImgProdCons::Produce()
@@ -141,10 +142,10 @@ namespace rm
 #if DEBUG == 1
             debugWindowCanvas.zeros(Size(300,500),CV_8UC1);
             line(debugWindowCanvas,Point(300,0),Point(300,299),Scalar(255),2,LINE_4);
-            putText(debugWindowCanvas,"Produce Thread",Point(310,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"Produce  Thread",Point(310,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-            putText(debugWindowCanvas,"SEARSH  MODE",Point(310,230),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-            putText(debugWindowCanvas,"TRACKINGMODE",Point(310,260),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"SEARCH   MODE",Point(310,230),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"TRACKING MODE",Point(310,260),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
             time = (double)getTickCount();
 #endif
             if (!driver->Grab(frame) || frame.rows != FRAMEHEIGHT || frame.cols != FRAMEWIDTH)
@@ -154,7 +155,8 @@ namespace rm
                 {
                     quitFlag = true;
                     driver->StopGrab();
-                    readCon.notify_all();
+                    //readCon.notify_all();
+                    LOGM("Process Exited");
                     exit(-1);
                 }
                 continue;
@@ -178,7 +180,7 @@ namespace rm
 
             readCon.wait(lock,[]{ return !detectMission&&produceMission;});
 #if DEBUG == 1
-            putText(debugWindowCanvas,"Detect  Thread",Point(310,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"Detect   Thread",Point(310,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
             line(debugWindowCanvas,Point(000,200),Point(499,200),Scalar(255),2,LINE_4);
 #endif
             switch (curDetectMode)
@@ -234,7 +236,7 @@ namespace rm
             unique_lock<mutex> lock(energyLock);
             readCon.wait(lock,[]{ return !energyMission&&produceMission;});
 #if DEBUG == 1
-            putText(debugWindowCanvas,"Energy  Thread",Point(310,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"Energy   Thread",Point(310,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 #endif
             if(curControlState == BIG_ENERGY_STATE || curControlState == SMALL_ENERGY_STATE)
             {
@@ -253,7 +255,7 @@ namespace rm
             unique_lock<mutex> lock(feedbackLock);
             feedbackCon.wait(lock,[]{ return !feedbackMission&&detectMission&&energyMission;});
 #if DEBUG == 1
-            putText(debugWindowCanvas,"FeedBackThread",Point(310,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"FeedBack Thread",Point(310,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 #endif
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
@@ -262,10 +264,6 @@ namespace rm
                                         15, armorDetectorPtr->IsSmall());
                 }
 #if DEBUG == 1
-
-//    printf("YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d, SMALL: %d\n"\
-//            ,solverPtr->yaw + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch,solverPtr->dist,\
-//            solverPtr->shoot,AUTO_SHOOT_STATE,armorDetectorPtr->IsSmall());
     frequency = getTickFrequency()/((double)getTickCount() - time);
 
     debugWindowCanvas.colRange(0,299).setTo(0);
@@ -276,8 +274,10 @@ namespace rm
     putText(debugWindowCanvas,to_string(receiveData.pitchAngle).substr(0,5),Point(100,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
     putText(debugWindowCanvas,"Dist: ",Point(10,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    putText(debugWindowCanvas,to_string(solverPtr->dist).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-
+    if(carName != HERO)
+        putText(debugWindowCanvas,to_string(solverPtr->dist).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    else
+        putText(debugWindowCanvas,to_string(dynamic_cast<RealSenseDriver*>(driver)->dist2Armor).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
     putText(debugWindowCanvas,"Shoot: ",Point(10,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
     if(solverPtr->shoot)
         circle(debugWindowCanvas,Point(100,115),8,Scalar(255),-1);
@@ -288,7 +288,7 @@ namespace rm
     putText(debugWindowCanvas,"Fre: ",Point(10,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
     putText(debugWindowCanvas,to_string(frequency),Point(100,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-                if(armorDetectorPtr->findState)
+    if(armorDetectorPtr->findState)
         rectangle(debugWindowCanvas,Rect(10,225,50,50),Scalar(255),-1);
 
     if(armorDetectorPtr->IsSmall())
@@ -324,9 +324,16 @@ namespace rm
 
                     waitKey(30);
                 }
-
-                serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                if(carName != HERO)
+                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
                                 armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
+                else
+                {
+                    dynamic_cast<RealSenseDriver*>(driver)->GetArmorDepth(armorDetectorPtr->targetArmor.rect);
+                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch,1000*static_cast<RealSenseDriver*>(driver)->dist2Armor, solverPtr->shoot,
+                                    armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
+                }
+
                 serialPtr->WriteData();
             }
             else
@@ -338,6 +345,7 @@ namespace rm
             serialPtr->ReadData(receiveData);
 
             /*update states*/
+            /**if receive data failed, the most reasonable decision may be just keep the status as the last time**/
             curControlState = receiveData.targetMode;
             blueTarget = receiveData.targetColor;
             clearFilter  = direction ^ receiveData.direction;

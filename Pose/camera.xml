@@ -107,4 +107,23 @@
     <data>-0.1111 -0.1567 0.0000 0.0000 1.3324
     </data>
   </Distortion_Coefficients5_DAHUA_2>
+
+  <Camera_Matrix_Realsense type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      604.589599609375 0.0000000000000 0.0000000000000
+      0.0000000000000 603.44315234375 0.0000000000000
+      316.714904785156 232.319900512695 1.0000000000000
+    </data>
+  </Camera_Matrix_Realsense>
+
+  <Distortion_Coefficients4_Realsense type_id="opencv-matrix">
+    <rows>4</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>0 0 0 0
+    </data>
+  </Distortion_Coefficients4_Realsense>
 </opencv_storage>
