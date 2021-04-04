@@ -1,6 +1,7 @@
 #include "ArmorDetector.hpp"
 #include <sstream>
 #include <algorithm>
+#include <thread>
 
 namespace rm
 {
@@ -20,12 +21,13 @@ namespace rm
         center.x = static_cast<int>((L1.rect.center.x + L2.rect.center.x) / 2);
         center.y = static_cast<int>((L1.rect.center.y + L2.rect.center.y) / 2);
         rect = Rect(center - Point2i(armorWidth / 2, armorHeight / 2), Size(armorWidth, armorHeight));
-        armorType = (armorWidth / armorHeight > 3.5) ? (BIG_ARMOR) : (SMALL_ARMOR);
+        armorType = (armorWidth / armorHeight > 1.5) ? (BIG_ARMOR) : (SMALL_ARMOR);
         priority = priority_;
 
         //need to make sure how to set values to the points
         pts.resize(4);
         Point2f pts_[4];
+
         if(L1.rect.center.x < L2.rect.center.x)
         {
             L1.rect.points(pts_);
@@ -112,12 +114,13 @@ namespace rm
     */
     void ArmorDetector::Init()
     {
-
         targetArmor.init();
         roiRect = Rect(0, 0, FRAMEWIDTH, FRAMEHEIGHT);
         findState = false;
         detectCnt = 0;
         lostCnt = 120;
+        armorNumber = -1;
+        LoadSvmModel(SVM_PARAM_PATH,Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE));
     }
 
     /**
@@ -126,12 +129,37 @@ namespace rm
     * @return: if ever found armors in this image, return true, otherwise return false
     * @details: none
     */
-    bool ArmorDetector::ArmorDetectTask(Mat &img)
+    bool ArmorDetector::ArmorDetectTask(Mat &img_)
     {
+        this->img = img_.clone();
 #if USEROI == 1
+        srcPoints[0] = Point2f(0, 0);
+        srcPoints[1] = Point2f(roiRect.width, 0);
+        srcPoints[2] = Point2f(roiRect.width, roiRect.height);
+        srcPoints[3] = Point2f(0, roiRect.height);
+
         GetRoi(); //get roi
 #endif
-        return DetectArmor(img);
+
+        imgRoi = img(roiRect);
+
+        Preprocess(imgRoi);
+
+        /*open two threads to recogniztion number and finding target armor*/
+
+        std::thread detectArmorThread(&ArmorDetector::DetectArmor, this);
+        detectArmorThread.join();
+
+        std::thread getArmorNumberThread(&ArmorDetector::GetArmorNumber,this);
+        getArmorNumberThread.join();
+
+//        DetectArmor(img);
+//
+//        GetArmorNumber();
+
+        img_ = img.clone();
+
+        return findState;
     }
 
     bool ArmorDetectorGPU::ArmorDetectTaskGPU(Mat &img)
@@ -145,15 +173,11 @@ namespace rm
     * @return: if ever found armors in this image, return true, otherwise return false
     * @details: none
     */
-    bool ArmorDetector::DetectArmor(Mat &img)
+    bool ArmorDetector::DetectArmor()
     {
         findState = false;
 
         vector<Lamp> lights;
-
-        imgRoi = img(roiRect);
-
-        Preprocess(imgRoi);
 
         if (showBianryImg)
         {
@@ -168,6 +192,7 @@ namespace rm
                 Point2f rect_point[4]; //
                 light.rect.points(rect_point);
                 for (int j = 0; j < 4; j++) {
+                    //imgRoi is not a bug here, because imgRoi share the same memory with img
                     line(imgRoi, rect_point[j], rect_point[(j + 1) % 4], Scalar(0, 255, 255), 2);
                 }
             }
@@ -192,6 +217,8 @@ namespace rm
 
             if (showArmorBox)
             {
+                rectangle(img,roiRect,Scalar(255,255,255),2);
+
                 for (int j = 0; j < 4; j++) {
                     line(img, targetArmor.pts[j], targetArmor.pts[(j + 1) % 4], Scalar(255, 0, 255), 2);
                 }
@@ -357,6 +384,8 @@ namespace rm
         threshold(bright, thresholdMap, 140, 255, CV_MINMAX);
 
         colorMap = rSubB - bSubR;
+
+        svmBinaryImage = thresholdMap.clone();
     }
 
     void ArmorDetectorGPU::PreprocessGPU(cuda::GpuMat& img)
@@ -401,7 +430,7 @@ namespace rm
         vector<vector<Point>> contoursLight;
 
         findContours(img, contoursLight, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-
+#pragma omp parallel for
         for (auto & i : contoursLight)
         {
             if (i.size() < 5)
@@ -501,6 +530,10 @@ namespace rm
     */
     bool ArmorDetector::trackingTarget(Mat &src, Rect2d target)
     {
+        findState = false;
+
+        Preprocess(src);
+
         auto pos = target;
         if (!tracker->update(src, target))
         {
@@ -517,8 +550,19 @@ namespace rm
 
         MakeRectSafe(roiRect, Size(FRAMEWIDTH, FRAMEHEIGHT));
 #endif
-        if (DetectArmor(src))
+        imgRoi = src(roiRect);
+
+        Preprocess(imgRoi);
+
+        img = src.clone();
+
+        if (DetectArmor())
         {
+            if(showArmorBox)
+            {
+                rectangle(src,roiRect,Scalar(255,255,255),2);
+            }
+
             detectCnt++;
             return true;
         }
@@ -527,8 +571,52 @@ namespace rm
             detectCnt = 0;
             return false;
         }
+
+        src = img.clone();
     }
 
+    /**
+     * @brief load SVM parameters
+     * @param model_path file path
+     * @param armorImgSize size of armor
+     * @return none
+     */
+    void ArmorDetector::LoadSvmModel(const char *model_path, Size armorImgSize)
+    {
+        svm = StatModel::load<SVM>(model_path);
+        if(svm.empty())
+        {
+            cout<<"Svm load error! Please check the path!"<<endl;
+            exit(0);
+        }
+        svmArmorSize = armorImgSize;
+
+        //set dstPoints (the same to armorImgSize, as it can avoid resize armorImg)
+        dstPoints[0] = Point2f(0, 0);
+        dstPoints[1] = Point2f(armorImgSize.width, 0);
+        dstPoints[2] = Point2f(armorImgSize.width, armorImgSize.height);
+        dstPoints[3] = Point2f(0, armorImgSize.height);
+    }
+    /**
+     * @brief recognize the number of target armor, only works when USEROI == 1
+     * @return if USEROI == 1 and recognizing number successfully, return the number of target armor, or return -1
+     */
+    int ArmorDetector::GetArmorNumber()
+    {
+    #if USEROI == 1
+            warpPerspective_mat = getPerspectiveTransform(srcPoints, dstPoints);
+            warpPerspective(svmBinaryImage, warpPerspective_dst, warpPerspective_mat, Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE), INTER_NEAREST, BORDER_CONSTANT, Scalar(0)); //warpPerspective to get armorImage
+
+            svmParamMatrix = warpPerspective_dst.reshape(1, 1);
+            svmParamMatrix.convertTo(svmParamMatrix, CV_32FC1);
+
+            armorNumber = (int)svm->predict(svmParamMatrix);
+
+            return armorNumber;
+    #else
+            return -1;
+    #endif
+    }
     /**
      * @brief this function shall to serve for building our own database, unfortunately the database built by this way is
      * not good.

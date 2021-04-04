@@ -363,12 +363,6 @@ HERO_BINARY_DIR:STATIC=/home/ljh/文档/A_RM/hero/build
 //Value Computed by CMake
 HERO_SOURCE_DIR:STATIC=/home/ljh/文档/A_RM/hero
 
-//Value Computed by CMake
-INFANTRY_BINARY_DIR:STATIC=/home/ljh/文档/A_RM/hero/build
-
-//Value Computed by CMake
-INFANTRY_SOURCE_DIR:STATIC=/home/ljh/文档/A_RM/hero
-
 //The directory containing a CMake configuration file for OpenCV.
 OpenCV_DIR:PATH=/usr/local/lib/cmake/opencv4
 

@@ -60,7 +60,7 @@ namespace rm
         void Init();
 
         /*
-        * @Brief: Receive self state from the serail port, update task mode if commanded
+        * @Brief: Receive self state from the serial port, update task mode if commanded
         */
         void Feedback();
 
@@ -77,10 +77,8 @@ namespace rm
         void Detect();
 
         /*
-         * @Brief: operations need two image
+         * @Brief: energy
          */
-        void Compare();
-
         void Energy();
 
         /*
@@ -116,8 +114,8 @@ namespace rm
 
         std::unique_ptr<Kalman> kalman;
 
-        Frame frame;
-        Frame detectFrame;
+        Mat frame;
+        Mat detectFrame;
 
         mutex detectLock;
         mutex writeLock;

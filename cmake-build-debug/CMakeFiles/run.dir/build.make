@@ -220,18 +220,18 @@ CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp -o CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s
 
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o: CMakeFiles/run.dir/flags.make
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o: ../Serials/src/SericalPort.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o -c /home/ljh/文档/A_RM/hero/Serials/src/SericalPort.cpp
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: CMakeFiles/run.dir/flags.make
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/src/SerialPort.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o -c /home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp
 
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Serials/src/SericalPort.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Serials/src/SericalPort.cpp > CMakeFiles/run.dir/Serials/src/SericalPort.cpp.i
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp > CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i
 
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Serials/src/SericalPort.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Serials/src/SericalPort.cpp -o CMakeFiles/run.dir/Serials/src/SericalPort.cpp.s
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp -o CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s
 
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: ../Thread/src/MyThread.cpp
@@ -298,7 +298,7 @@ run_OBJECTS = \
 "CMakeFiles/run.dir/Other/src/systime.cpp.o" \
 "CMakeFiles/run.dir/Pose/src/Kalman.cpp.o" \
 "CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o" \
-"CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o" \
+"CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o" \
 "CMakeFiles/run.dir/Thread/src/MyThread.cpp.o" \
 "CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o" \
 "CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o" \
@@ -318,7 +318,7 @@ run: CMakeFiles/run.dir/Other/src/preoptions.cpp.o
 run: CMakeFiles/run.dir/Other/src/systime.cpp.o
 run: CMakeFiles/run.dir/Pose/src/Kalman.cpp.o
 run: CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o
-run: CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o
+run: CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o
 run: CMakeFiles/run.dir/Thread/src/MyThread.cpp.o
 run: CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o
 run: CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o

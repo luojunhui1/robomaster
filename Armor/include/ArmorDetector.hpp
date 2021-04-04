@@ -24,6 +24,7 @@
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudafilters.hpp>
 #include <opencv2/cudaoptflow.hpp>
+#include <opencv2/ml.hpp>
 
 #include <iostream>
 #include <cmath>
@@ -31,12 +32,13 @@
 #include <utility>
 #include <vector>
 #include <cstring>
-
+#include <omp.h>
 #include "log.h"
 #include "mydefine.h"
 
 using namespace std;
 using namespace cv;
+using namespace ml;
 
 namespace rm
 {
@@ -119,7 +121,7 @@ namespace rm
 
         Lamp(RotatedRect bar, float angle, float avgB) :lightAngle(angle),avgBrightness(avgB)
         {
-            cv::Size exLSize(int(bar.size.width), int(bar.size.height * 2));
+            cv::Size exLSize(int(bar.size.width), int(bar.size.height * 1.5));
             rect = cv::RotatedRect(bar.center, exLSize, bar.angle);
         }
 
@@ -171,7 +173,7 @@ namespace rm
 
         void GetRoi();
 
-        bool DetectArmor(Mat &img);
+        bool DetectArmor();
 
         void Preprocess(Mat &img);
 
@@ -179,6 +181,8 @@ namespace rm
 
         vector<Lamp> LightDetection(Mat& img);
 
+        void LoadSvmModel(const char *model_path, Size armorImgSize = Size(40, 40));
+        int GetArmorNumber();
 
         /*tool functions*/
         static bool MakeRectSafe(cv::Rect &rect, const cv::Size &size);
@@ -204,6 +208,11 @@ namespace rm
         /*ROI rect in image*/
         Rect roiRect;
 
+        /*target armor number*/
+        int armorNumber;
+
+        /*clone of image passed in*/
+        Mat img;
         /* variables would be used in functions*/
     private:
 
@@ -226,7 +235,7 @@ namespace rm
         Mat thresholdMap;
 
         /*the frequency information*/
-    public:
+    private:
         /*the number of frames that program don't get a target armor constantly*/
         int lostCnt = 130;
 
@@ -234,7 +243,7 @@ namespace rm
         int detectCnt = 0;
 
         /*parameters used for lamps recognizing and lamps matching*/
-    public:
+    private:
 
         /*parameters used for lamps recognizing and lamps matching*/
         struct ArmorParam param;
@@ -247,6 +256,17 @@ namespace rm
 
         /*if the tracer found the target, return true, otherwise return false*/
         bool trackingTarget(Mat &src, Rect2d target);
+
+    /*armor number recogniztion*/
+    private:
+        Ptr<SVM>svm;  //svm model svm模型
+        Size svmArmorSize;
+        Mat svmBinaryImage;
+        Mat svmParamMatrix;		//preRecoginze matrix for svm 载入到SVM中识别的矩阵
+        Mat warpPerspective_dst;//warpPerspective dstImage   透射变换生成的目标图
+        Mat warpPerspective_mat; //warpPerspective transform matrix 透射变换的变换矩阵
+        Point2f srcPoints[4];   //warpPerspective srcPoints		透射变换的原图上的目标点 tl->tr->br->bl  左上 右上 右下 左下
+        Point2f dstPoints[4];	//warpPerspective dstPoints     透射变换的目标图中的点   tl->tr->br->bl  左上 右上 右下 左下
     };
 
     class ArmorDetectorGPU
@@ -256,7 +276,6 @@ namespace rm
         bool DetectArmorGPU(Mat &img);
 
         void PreprocessGPU(cuda::GpuMat& img);
-
 
     private:
         cuda::Stream stream;
@@ -273,18 +292,12 @@ namespace rm
         Ptr<cuda::Filter> gauss = cuda::createGaussianFilter(CV_32F, -1, Size(5, 5), 3);
         cv::Ptr<cv::cuda::CannyEdgeDetector> canny_edg = cv::cuda::createCannyEdgeDetector(100.0, 200.0, 3, false);
     };
+
+
     /**
      * @param a an instance of a pair of matched lamps
      * @param b another instance of a pair of matched lamps
      * @return if the match factor of b is larger than a, return true, otherwise return false.
      */
     bool compMatchFactor(const MatchLight a, const MatchLight b);
-
-    /**
-     * @param a an instance of armor
-     * @param b another instance of armor
-     * @return if the priority of b is larger than a, return true, otherwise return false.
-     * @note not used anymore
-     */
-    bool CompArmorPriority(const Armor &a, const Armor &b);
 }

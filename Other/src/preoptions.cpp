@@ -21,7 +21,7 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 		{"-red",{
 		"enemy is blue.",[]()
 		{
-            redTarget = true;
+            blueTarget = false;
 			LOGM("Choose red armor enemy.");
 		}
 	}},
@@ -75,18 +75,30 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
                 LOGM("UAV SET SAIL! COMMANDER!");
             }
                 }},
-    {"-infantry", {
+    {"-melee", {
                         "",[]() {
-                carName = INFANTRY;
-                LOGM("INFANTRY SET SAIL! COMMANDER!");
+                carName = INFANTRY_MELEE;
+                LOGM("INFANTRY MELEE SET SAIL! COMMANDER!");
             }
                 }},
+    {"-track", {
+                       "",[]() {
+                carName = INFANTRY_TRACK;
+                LOGM("INFANTRY SET SAIL! COMMANDER!");
+            }
+               }},
     {"-sentry", {
                           "",[]() {
                 carName = SENTRY;
                 LOGM("SENTRY SET SAIL! COMMANDER!");
             }
                   }},
+    {"-binary", {
+                        "",[]() {
+                showBianryImg = true;
+                LOGM("Show Binary Image!");
+            }
+                }},
 	{"-debug", {
 		"show armors,energy and video.", []() {
 		        showOrigin = true;
@@ -137,11 +149,7 @@ void PreOptions(int argc, char** argv) {
 				LOGW("Unknown option: %s. Use --help to see options.", argv[i]);
 			}
 		}
-		if (!redTarget && !blueTarget)
-		{
-			LOGW("Forget to choose target color!");
-			exit(0);
-		}
+
 		if(carName == NOTDEFINED)
         {
 		    LOGW("HAAVE NOT DEFINED CAR NAME! LITTLE FULL!");

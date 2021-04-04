@@ -12,7 +12,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/run.dir/Other/src/systime.cpp.o"
   "CMakeFiles/run.dir/Pose/src/Kalman.cpp.o"
   "CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o"
-  "CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o"
+  "CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o"
   "CMakeFiles/run.dir/Thread/src/MyThread.cpp.o"
   "CMakeFiles/run.dir/main.cpp.o"
   "run"

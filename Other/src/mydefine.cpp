@@ -10,7 +10,6 @@ bool showLamps = false;
 bool showEnergy = false;
 bool showBianryImg = false;
 bool blueTarget = false;
-bool redTarget = true;
 
 int FRAMEWIDTH;
 int FRAMEHEIGHT;

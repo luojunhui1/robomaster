@@ -17,7 +17,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/ljh/文档/A_RM/hero/Other/src/systime.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Other/src/systime.cpp.o"
   "/home/ljh/文档/A_RM/hero/Pose/src/Kalman.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Pose/src/Kalman.cpp.o"
   "/home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o"
-  "/home/ljh/文档/A_RM/hero/Serials/src/SericalPort.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o"
+  "/home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o"
   "/home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/Thread/src/MyThread.cpp.o"
   "/home/ljh/文档/A_RM/hero/main.cpp" "/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/run.dir/main.cpp.o"
   )

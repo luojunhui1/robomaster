@@ -28,6 +28,7 @@ SolveAngle::SolveAngle()
             fs["Distortion_Coefficients_INFANTRY_NONE_1"] >> distortionCoefficients;
             fs["Camera_Matrix_INFANTRY_NONE_1"] >> cameraMatrix;
             break;
+        case VIDEO:
         case SENTRY:
             fs["Distortion_Coefficients_DAHUA_1"] >> distortionCoefficients;
             fs["Camera_Matrix_DAHUA_1"] >> cameraMatrix;
@@ -61,26 +62,6 @@ void SolveAngle::Generate2DPoints(Rect rect)
 	pt.y = rect.y + rect.height;
     rectPoint2D.push_back(pt);
 }
-
-//inline float SolveAngle::averagePitch()
-//{
-//    float sumPitch = 0;
-//    for(auto &pitch:historyPitch)
-//    {
-//        sumPitch += pitch;
-//    }
-//    return sumPitch/4;
-//}
-//
-//inline float SolveAngle::averageYaw()
-//{
-//    float sumYaw = 0;
-//    for(auto &yaw:historyYaw)
-//    {
-//        sumYaw += yaw;
-//    }
-//    return sumYaw/4;
-//}
 
 void SolveAngle::GetPose(const Rect& rect, float ballet_speed, bool small)
 {
@@ -162,9 +143,6 @@ void SolveAngle::GetPoseV(Point2f predictOffset, const vector<Point2f>& pts, flo
     pitch = -1.0*atan(tvecs.at<double>(1, 0) / tvecs.at<double>(2, 0)) / 2 / CV_PI * 360;
     dist = sqrt(tvecs.at<double>(0, 0)*tvecs.at<double>(0, 0) + tvecs.at<double>(1, 0)*tvecs.at<double>(1, 0) + tvecs.at<double>(2, 0)* tvecs.at<double>(2, 0));
 
-    pitch += pitchOffset;
-    yaw += (yawOffset);
-
     averageX = 0;
     averageY = 0;
 
@@ -181,8 +159,6 @@ void SolveAngle::GetPoseV(Point2f predictOffset, const vector<Point2f>& pts, flo
     shootPriority = (shootPriority<0)?(0):((shootPriority > 1000)?(1000):(shootPriority));
     shoot = (shootPriority > 0);
 
-//    value = yaw*10 + 100;
-//    wave->DisplayWave();
     rectPoint2D.clear();
     targetPoints3D.clear();
 }

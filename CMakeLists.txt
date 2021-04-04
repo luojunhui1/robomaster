@@ -25,7 +25,7 @@ include_directories(${PROJECT_SOURCE_DIR}/Drivers)
 include_directories(/usr/include/eigen3)
 include_directories(${realsense2_INCLUDE_DIR})
 
-MESSAGE(STATUS "Project:INFANTRY")
+MESSAGE(STATUS "Project:MASTER")
 MESSAGE(STATUS "Project Directory: ${PROJECT_SOURCE_DIR}")
 MESSAGE(STATUS "OpenCVlibrarystatus:")
 MESSAGE(STATUS "version: ${OpenCV_VERSION}")

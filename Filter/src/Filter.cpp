@@ -1,20 +1,4 @@
-﻿/*********************************************************************************
-  *Copyright(C),2018-2020,华北理工大学Horizon战队All Rights Reserved
-  *FileName:  Filter.cpp
-  *Author:  解佳朋
-  *Version: 1.3.1.200312_RC
-  *Date:  2020.03.12
-  *Description: 卡尔曼滤波工具类
-  *Function List:
-     1.KF_two   构造函数包含有参构造和无参构造
-     2.Prediction   传入状态矩阵,进行预测部分计算
-     3.GetPrediction    包含有参和无参重载,无参代表直接使用类内状态向量和状态矩阵相乘,有参代表与传入状态矩阵相乘
-     4.set_x    状态向量初始化
-     5.update   状态更新
-**********************************************************************************/
-//#include "Filter.h"
-//#include "Filter"
-#include "Filter.h"
+﻿#include "Filter.h"
 
 namespace rm {
     KF_two::KF_two() {
@@ -76,13 +60,10 @@ namespace rm {
     void KF_two::set_x(Eigen::VectorXd x, Eigen::MatrixXd _F) {
         F = _F;
         x_ = x;
-
-        is_set_x = true;
     }
 
     void KF_two::set_x(Eigen::VectorXd x) {
         x_ = x;
-        is_set_x = true;
     }
 
 /**
@@ -202,16 +183,6 @@ namespace rm {
         }
     }
 
-    void Kalman::FirstFind(const Point2f& targetPoint) {
-        //cout << "FIRST FOUND" << endl;
-        //状态保留
-        p_tx_old = targetPoint.x;
-        p_ty_old = targetPoint.y;
-
-        v_tx_old = 0;
-        v_ty_old = 0;
-    }
-
     /**
      * @brief Judge current input point is an armor or not through the compare the current velocity with local velocity
      * parameter, update px to make sure px[flag] stores the most possible x coordinate index of the current armor.
@@ -303,17 +274,67 @@ namespace rm {
     }
 
 
-    void Kalman::ContinueSetFilter(const Point2f&  targetPoint) {
-        //cout << "连续滤波" << endl;
+    bool Kalman::UpdateFilter(const Point2f&  targetPoint) {
 
-        p_tx_now = targetPoint.x;// px,py in this pf
+        p_tx_now = targetPoint.x;
         p_ty_now = targetPoint.y;
 
-        //todo judge if it is reasonable
-        px_flag++;
-        //vx_flag++;
+        //first update x coordination and y coordination
+        if(p_tx_old == 0 && p_ty_old == 0)
+        {
+            p_tx_old = p_tx_now;
+            p_ty_old = p_ty_now;
 
-        /*judge if px have been updated 20 times or not*/
+            return false;
+        }
+
+        //first time detected target armor continuously, update velocity parameters
+        if(v_tx_old == 0 && v_ty_old == 0)
+        {
+            v_tx_now = (targetPoint.x - p_tx_old) / t;
+
+            v_ty_now = (targetPoint.y - p_ty_old) / t;
+
+            p_tx_now = targetPoint.x;
+            p_ty_now = targetPoint.y;
+
+            px_flag = 0;
+            vx_flag = 0;
+
+            px[px_flag] = p_tx_now;
+
+            vx[px_flag] = v_tx_now;
+
+            set_px = false;
+            set_vx = false;
+
+            Vmean = 0.08;//how to init Vmean?
+            Amean = 0.08;
+
+            fx = 0;
+
+            //传参
+            Eigen::VectorXd x(4, 1);
+
+            /*velocity multiplied with 1000?*/
+            x << targetPoint.x, targetPoint.y, v_tx_now * 1000, v_ty_now * 1000;
+            KF_forecast.set_x(x);
+
+            //update p & v
+            p_tx_old = targetPoint.x;
+            p_ty_old = targetPoint.y;
+
+            v_tx_old = v_tx_now;
+            v_ty_old = v_ty_now;
+
+            return true;
+        }
+
+        //todo judge if it is reasonable
+        /**predict coordinate**/
+        px_flag++;
+
+        /**judge if px have been updated 20 times or not**/
         if (!set_px) {
             if (px_flag == 19) {
                 set_px = true;
@@ -322,10 +343,10 @@ namespace rm {
         }
         JudgeArmor(px_flag);
 
-
+        /**predict velocity**/
         v_tx_now = (px[(px_flag + 20) % 20] - px[(px_flag + 19) % 20]) / t;
-
         vx_flag++;
+
         if (!set_vx) {
             if (vx_flag == 19) {
                 set_vx = true;
@@ -334,21 +355,13 @@ namespace rm {
         }
         JudgeArmor_v(vx_flag);
 
-
-//        float v_tx_now = (BestArmor.center.x - p_tx_old)/t;
-//        float v_ty_now =( BestArmor.center.y - p_ty_old)/t;
         v_tx_now = vx[vx_flag];
-        //float v_tx_now = (px[(px_flag+20)%20] - px[(px_flag+19)%20])/t;
-        float v_ty_now = (targetPoint.y - p_ty_old) / t;
+        v_ty_now = (targetPoint.y - p_ty_old) / t;
 
         float v_sum = 0;
-        for (int t = 0; t < 19; t++) {
-            v_sum = v_sum + vx[t];
+        for (int i = 0; i < 19; i++) {
+            v_sum = v_sum + vx[i];
         }
-//        if(abs(v_sum)>1.7){
-//            v_tx_old = v_tx_now;
-//            v_ty_old = v_ty_now;
-//        }
 
         if (abs(v_tx_now) > 0.15 && (abs(v_sum) > 1.6)) {
             v_tx_old = v_tx_now;
@@ -358,47 +371,10 @@ namespace rm {
             else
                 fx = -1;
         }
-        //todo calculate errors
-        p_tx_old = targetPoint.x;
-        p_ty_old = targetPoint.y;
-
-//        if((abs(v_tx_now)>0.3)&&(abs(v_tx_now)<0.6)) {
-//            v_tx_old = (v_tx_now)*50;
-//            v_ty_old = v_ty_now;
-//        }
-//        else if(abs(v_tx_now)>=0.6)
-//        {
-//            v_tx_old = (v_tx_now)*10;
-//            v_ty_old = v_ty_now;
-//        }
-
-        //todo record vx
-//        px_flag++;
-//        if(px_flag<20){
-//            //px[px_flag] = (p_tx_old-px[0])/px_flag;
-//            px[px_flag] = p_tx_old;
-//            Vmean = 0.4*Vmean + 0.6*(p_tx_old-px[0])/px_flag;
-//        }//not enought for 20 fp
-//        else if(px_flag == 20){
-//            px_flag = px_flag - 20;
-//            if(abs(px[px_flag]-px[px_flag-19])<=abs(20*((Vmean*(1.1-w0))/w1)))   //judge
-//                //px[px_flag] = (p_tx_old-px[px_flag-19])/20;
-//                px[px_flag] = p_tx_old;
-//            else
-//                px[px_flag] = px[px_flag-1];
-//            Vmean = Vmean*w1+((px[px_flag]-px[px_flag-19])/20)*w0;
-//        }
-
-
-//        delta_x =+ abs(p_tx_old - p_predictx);
-//        delta_y =+ abs(p_ty_old - p_predicty);
-
-        //cout<<'x'<<delta_x<<'y'<<delta_y<<endl;
 
         Eigen::VectorXd z(4, 1);
-        //z<<BestArmor.center.x,BestArmor.center.y,v_tx_now*1000,v_ty_now*1000;
-        //z<<BestArmor.center.x,BestArmor.center.y,v_tx_now*1000,v_ty_now*1000;
         z << px[px_flag], targetPoint.y, v_tx_now * 1000, v_ty_now * 1000;
+
         //得到状态转移矩阵
         Eigen::MatrixXd F_in(4, 4);
         F_in << 1.0, 0.0, t / 1000, 0.0,
@@ -406,59 +382,34 @@ namespace rm {
                 0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0;
 
-//预测上一最佳状态值
+        //预测上一最佳状态值
         KF_forecast.Prediction(F_in);
 
-//更新状态量
+        //更新状态量
         KF_forecast.update(z, F_in);
 
-        //todo 是否需要这一步 传参
-//        p_tx_old = KF_forecast.x_(0);
-//        p_ty_old = KF_forecast.x_(1);
-//        if((abs(v_tx_now)>0.25)&&(abs(v_tx_now)<0.5)) {
-//            v_tx_old = (v_tx_now)*50;
-//            v_ty_old = v_ty_now;
-//        }
-//        else if(abs(v_tx_now)>=0.5)
-//        {
-//            v_tx_old = (v_tx_now)*15;
-//            v_ty_old = v_ty_now;
-//        }
-//        if((p_ty_old<70)&&(abs(v_tx_now)>0.15)){
-//            v_tx_old = (v_tx_now)*50;
-//            v_ty_old = v_ty_now;
-//        }
+        p_tx_old = p_tx_now;
+        p_ty_old = p_ty_now;
 
-//        if((v_ty_now>-0.1)&&(abs(v_tx_now)>0.3)&&(abs(v_tx_now)<0.6)) {
-//            v_tx_old = (v_tx_now)*50;
-//            v_ty_old = v_ty_now;
-//        }
-//        else if((abs(v_ty_now)<=0.5)&&abs(v_tx_now)>=0.6)
-//        {
-//            v_tx_old = (v_tx_now)*10;
-//            v_ty_old = v_ty_now;
-//        }
+        v_tx_old = v_tx_now;
+        v_ty_old = v_ty_now;
 
-        //todo
-//        v_tx_old = v_tx_now*50;
-//        v_ty_old = v_ty_now;
-
+        return true;
     }
 
 //todo 测量误差
-    Point2f Kalman::SetKF(const Point2f& targetPoint) {
+    Point2f Kalman::SetKF(const Point2f& targetPoint, int clear) {
         Point2f position;
         float delta_x = 0;
         float delta_y = 0;
 
-        if((targetPoint.x  - p_tx_old)*(targetPoint.x  - p_tx_old)
-                                            + (targetPoint.y - p_ty_old)*(targetPoint.y - p_ty_old) > 3000)
-            flag = true;
+        //clear filter parameters
+        if (clear > 0) {
+            p_tx_old = 0;
+            p_ty_old = 0;
 
-        if (flag) {
-            FirstFind(targetPoint);
-
-            KF_forecast.is_set_x = false;
+            v_tx_old = 0;
+            v_ty_old = 0;
 
             //状态协方差矩阵重新复位
             Eigen::MatrixXd P_in = Eigen::MatrixXd(4, 4);
@@ -467,41 +418,18 @@ namespace rm {
                     0.0, 0.0, 1.0, 0.0,
                     0.0, 0.0, 0.0, 1.0;
             KF_forecast.P = P_in;//init
-            //cout << "x:" << BestArmor.center.x << "y:" << BestArmor.center.y << endl;
-            flag = false;
             return Point2f(0,0);
         }
 
-        if (!KF_forecast.is_set_x) {
-            //第一次连续射击
-            //cout << "First set Filter" << endl;
-            FirstSetFilter(targetPoint);
-        } else {
-            //cout << "Continue set Filter" << endl;
-            ContinueSetFilter(targetPoint);
-        }
-//        v_tx_old = (BestArmor.center.x - p_tx_old)/t;
-//        v_ty_old = (BestArmor.center.y - p_ty_old)/t;
-        //double ShootTime = t + SHOOT_DELAY_TIME+Recive.getClock() - CarDatas.BeginToNowTime;
-        double ShootTime = t;
+        if(!UpdateFilter(targetPoint))
+            return Point2f(0,0);
 
-
-        double raw_x = KF_forecast.x_(0);
-        double raw_y = KF_forecast.x_(1);
-        //todo predict
-        //v_tx_now*shootTime
         position.x = KF_forecast.x_(0) + v_tx_old * 100;//fx
-        //position.x = KF_forecast.x_(0)+v_tx_old*70;//+Vmean*50;//+KF_forecast.x_(2)/1000*ShootTime;
+
         position.y = KF_forecast.x_(1) + v_ty_old * 50;//*ShootTime;
+
         p_predictx = position.x;
         p_predicty = position.y;
-//        position.x += (0.5*(KF_forecast.x_(2)/1000 - v_tx_old)*10*pow(ShootTime/1000.0,2))*100;
-//        position.y += (0.5*(KF_forecast.x_(3)/1000 - v_ty_old)*10*pow(ShootTime/1000.0,2))*100;
-
-        //update
-//        v_tx_old = KF_forecast.x_(2)/1000;
-//        v_ty_old = KF_forecast.x_(3)/1000;
-//        cout << "x:" << position.x << "y:" << position.y << endl;
 
         return Point2f(position - targetPoint);
     }

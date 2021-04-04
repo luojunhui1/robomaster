@@ -474,32 +474,32 @@ Pose/src/SolveAngle.cpp.s:
 	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s
 .PHONY : Pose/src/SolveAngle.cpp.s
 
-Serials/src/SericalPort.o: Serials/src/SericalPort.cpp.o
+Serials/src/SerialPort.o: Serials/src/SerialPort.cpp.o
 
-.PHONY : Serials/src/SericalPort.o
+.PHONY : Serials/src/SerialPort.o
 
 # target to build an object file
-Serials/src/SericalPort.cpp.o:
-	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o
-.PHONY : Serials/src/SericalPort.cpp.o
+Serials/src/SerialPort.cpp.o:
+	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o
+.PHONY : Serials/src/SerialPort.cpp.o
 
-Serials/src/SericalPort.i: Serials/src/SericalPort.cpp.i
+Serials/src/SerialPort.i: Serials/src/SerialPort.cpp.i
 
-.PHONY : Serials/src/SericalPort.i
+.PHONY : Serials/src/SerialPort.i
 
 # target to preprocess a source file
-Serials/src/SericalPort.cpp.i:
-	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Serials/src/SericalPort.cpp.i
-.PHONY : Serials/src/SericalPort.cpp.i
+Serials/src/SerialPort.cpp.i:
+	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i
+.PHONY : Serials/src/SerialPort.cpp.i
 
-Serials/src/SericalPort.s: Serials/src/SericalPort.cpp.s
+Serials/src/SerialPort.s: Serials/src/SerialPort.cpp.s
 
-.PHONY : Serials/src/SericalPort.s
+.PHONY : Serials/src/SerialPort.s
 
 # target to generate assembly for a file
-Serials/src/SericalPort.cpp.s:
-	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Serials/src/SericalPort.cpp.s
-.PHONY : Serials/src/SericalPort.cpp.s
+Serials/src/SerialPort.cpp.s:
+	$(MAKE) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s
+.PHONY : Serials/src/SerialPort.cpp.s
 
 Thread/src/MyThread.o: Thread/src/MyThread.cpp.o
 
@@ -603,9 +603,9 @@ help:
 	@echo "... Pose/src/SolveAngle.o"
 	@echo "... Pose/src/SolveAngle.i"
 	@echo "... Pose/src/SolveAngle.s"
-	@echo "... Serials/src/SericalPort.o"
-	@echo "... Serials/src/SericalPort.i"
-	@echo "... Serials/src/SericalPort.s"
+	@echo "... Serials/src/SerialPort.o"
+	@echo "... Serials/src/SerialPort.i"
+	@echo "... Serials/src/SerialPort.s"
 	@echo "... Thread/src/MyThread.o"
 	@echo "... Thread/src/MyThread.i"
 	@echo "... Thread/src/MyThread.s"

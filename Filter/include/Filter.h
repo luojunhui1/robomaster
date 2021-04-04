@@ -82,11 +82,11 @@ namespace rm {
     public:
         Kalman();
 
-        Point2f SetKF(const Point2f& BestArmor);
+        Point2f SetKF(const Point2f& BestArmor, int clear);
 
         void FirstFind(const Point2f& BestArmor);                                                                                                                             //首次识别
         void FirstSetFilter(Point2f BestArmor);                            //首次击打相同目标
-        void ContinueSetFilter(const Point2f& BestArmor);                  //连续击打同一目标
+        bool UpdateFilter(const Point2f& BestArmor);                  //连续击打同一目标
         bool JudgeArmor(int &flag);
 
         bool JudgeArmor_v(int &flag);
@@ -99,16 +99,19 @@ namespace rm {
         KF_two KF_tuoluo;
         KF_two KF_SecOrder;        //预测二阶滤波
         bool isSetKF_tz = false;
+
         float v_tx_old;                     //线速度保留量
         float v_ty_old;
-        float v_tz_old;
+
         float p_tx_old;                  //位置保留量
         float p_ty_old;
+
         float p_tx_now;
         float p_ty_now;
-        float p_tz_old;
+
         float p_predictx;       //上一帧预测值
         float p_predicty;
+
         float delta_x = 0;
         float delta_y = 0;
 
@@ -127,6 +130,7 @@ namespace rm {
         float Amean;
         float ax;
         float v_tx_now;
+        float v_ty_now;
 
         int fx;
 
@@ -135,8 +139,6 @@ namespace rm {
         Point2f old_objectP;
 
         double t = 20;      //time between 2 img;
-
-        bool flag = true;
     };
 }
 #endif // FILTER_H

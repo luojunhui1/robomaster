@@ -147,7 +147,7 @@
 		<Unit filename="/home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Serials/src/SericalPort.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp">
 			<Option target="run"/>
 		</Unit>
 		<Unit filename="/home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp">

@@ -23,10 +23,16 @@ namespace rm
     bool feedbackMission = false;
 
     int8_t curControlState = AUTO_SHOOT_STATE; //current control mode
-
     uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
+    uint8_t direction = false;
+    u_int8_t clearFilter = false;
 
-    FILE *fp;
+
+#if DEBUG == 1
+    double time;
+    int frequency;
+    Mat debugWindowCanvas = Mat(300,500,CV_8UC1,Scalar(0));
+#endif
 
     static void sleep_ms(unsigned int secs)
     {
@@ -107,9 +113,6 @@ namespace rm
         driver->StartGrab();
         printf("Camera Start to Grab\n");
 
-#if RECORD == 1
-        fp = fopen("log.txt","w");
-#endif
         do
         {
             if(driver->Grab(curImage))
@@ -127,7 +130,6 @@ namespace rm
     void ImgProdCons::Produce()
     {
         static uint32_t seq = 0;
-        Mat newImg;
 
         int missCount = 0;
 
@@ -136,11 +138,19 @@ namespace rm
             unique_lock<mutex> lock(writeLock);
 
             writeCon.wait(lock,[]{ return !produceMission;});
+#if DEBUG == 1
+            debugWindowCanvas.zeros(Size(300,500),CV_8UC1);
+            line(debugWindowCanvas,Point(300,0),Point(300,299),Scalar(255),2,LINE_4);
+            putText(debugWindowCanvas,"Produce Thread",Point(310,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-            if (!driver->Grab(newImg) || newImg.rows != FRAMEHEIGHT || newImg.cols != FRAMEWIDTH)
+            putText(debugWindowCanvas,"SEARSH  MODE",Point(310,230),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"TRACKINGMODE",Point(310,260),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            time = (double)getTickCount();
+#endif
+            if (!driver->Grab(frame) || frame.rows != FRAMEHEIGHT || frame.cols != FRAMEWIDTH)
             {
                 missCount++;
-                if(missCount > 50)
+                if(missCount > 10)
                 {
                     quitFlag = true;
                     driver->StopGrab();
@@ -151,8 +161,6 @@ namespace rm
             }
 
             missCount = 0;
-
-            frame = Frame{newImg, seq};
 
             detectFrame = frame.clone();
 
@@ -169,16 +177,22 @@ namespace rm
             unique_lock<mutex> lock(detectLock);
 
             readCon.wait(lock,[]{ return !detectMission&&produceMission;});
-
+#if DEBUG == 1
+            putText(debugWindowCanvas,"Detect  Thread",Point(310,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            line(debugWindowCanvas,Point(000,200),Point(499,200),Scalar(255),2,LINE_4);
+#endif
             switch (curDetectMode)
             {
                 case SEARCH_MODE:
                 {
-                    if (armorDetectorPtr->ArmorDetectTask(detectFrame.img))
+#if DEBUG == 1
+                    circle(debugWindowCanvas,Point(480,225),8,Scalar(255),-1);
+#endif
+                    if (armorDetectorPtr->ArmorDetectTask(detectFrame))
                     {
                         armorDetectorPtr->tracker = TrackerKCF::create();
-                        armorDetectorPtr->tracker->init(detectFrame.img, armorDetectorPtr->targetArmor.rect);
-                        curDetectMode = TRACKING_MODE;
+                        armorDetectorPtr->tracker->init(detectFrame, armorDetectorPtr->targetArmor.rect);
+                        curDetectMode = SEARCH_MODE;
                     }
                     else
                     {
@@ -189,8 +203,11 @@ namespace rm
                 break;
                 case TRACKING_MODE:
                 {
+#if DEBUG == 1
+                    circle(debugWindowCanvas,Point(480,255),8,Scalar(255),-1);
+#endif
                     //这里一开始就是trakcking，若追踪到目标，继续，未追踪到，进入searching,进入tracking函数时要判断分类器是否可用
-                    if (armorDetectorPtr->trackingTarget(detectFrame.img, armorDetectorPtr->targetArmor.rect))
+                    if (armorDetectorPtr->trackingTarget(detectFrame, armorDetectorPtr->targetArmor.rect))
                     {
                         curDetectMode = TRACKING_MODE;
                     }
@@ -202,22 +219,8 @@ namespace rm
                 break;
             }
 
-            if(showOrigin)
-            {
-                if(FRAMEHEIGHT > 1000)
-                {
-                    pyrDown(detectFrame.img,detectFrame.img);
-                    pyrDown(detectFrame.img,detectFrame.img);
-                }
-
-                imshow("detect",detectFrame.img);
-
-                waitKey(30);
-            }
-
             detectMission = true;
 
-            //produceMission = false;
             writeCon.notify_all();
 
             feedbackCon.notify_all();
@@ -230,7 +233,9 @@ namespace rm
         do {
             unique_lock<mutex> lock(energyLock);
             readCon.wait(lock,[]{ return !energyMission&&produceMission;});
-
+#if DEBUG == 1
+            putText(debugWindowCanvas,"Energy  Thread",Point(310,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+#endif
             if(curControlState == BIG_ENERGY_STATE || curControlState == SMALL_ENERGY_STATE)
             {
                 /*do energy detection*/
@@ -247,46 +252,101 @@ namespace rm
         do {
             unique_lock<mutex> lock(feedbackLock);
             feedbackCon.wait(lock,[]{ return !feedbackMission&&detectMission&&energyMission;});
+#if DEBUG == 1
+            putText(debugWindowCanvas,"FeedBackThread",Point(310,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+#endif
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
-                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center),
+                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center,clearFilter),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
                 }
-#if RECORD == 1
-    fprintf(fp,"YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d\n"
-            ,solverPtr->yaw,solverPtr->pitch,solverPtr->dist,solverPtr->shoot,AUTO_SHOOT_STATE);
-#endif
+#if DEBUG == 1
+
+//    printf("YAW: %f,PITCH: %f,DIST: %f,SHOOT: %d,SHOOT STATE: %d, SMALL: %d\n"\
+//            ,solverPtr->yaw + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch,solverPtr->dist,\
+//            solverPtr->shoot,AUTO_SHOOT_STATE,armorDetectorPtr->IsSmall());
+    frequency = getTickFrequency()/((double)getTickCount() - time);
+
+    debugWindowCanvas.colRange(0,299).setTo(0);
+    putText(debugWindowCanvas,"Yaw: ",Point(10,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    putText(debugWindowCanvas,to_string(solverPtr->yaw).substr(0,5),Point(100,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+
+    putText(debugWindowCanvas,"Pitch: ",Point(10,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    putText(debugWindowCanvas,to_string(receiveData.pitchAngle).substr(0,5),Point(100,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+
+    putText(debugWindowCanvas,"Dist: ",Point(10,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    putText(debugWindowCanvas,to_string(solverPtr->dist).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+
+    putText(debugWindowCanvas,"Shoot: ",Point(10,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    if(solverPtr->shoot)
+        circle(debugWindowCanvas,Point(100,115),8,Scalar(255),-1);
+
+    putText(debugWindowCanvas,"Num: ",Point(10,150),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    putText(debugWindowCanvas,to_string(armorDetectorPtr->armorNumber),Point(100,150),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+
+    putText(debugWindowCanvas,"Fre: ",Point(10,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    putText(debugWindowCanvas,to_string(frequency),Point(100,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+
                 if(armorDetectorPtr->findState)
-                serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
-                                1, AUTO_SHOOT_STATE,0);
-                else
+        rectangle(debugWindowCanvas,Rect(10,225,50,50),Scalar(255),-1);
+
+    if(armorDetectorPtr->IsSmall())
+        putText(debugWindowCanvas,"S",Point(110,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    else
+        putText(debugWindowCanvas,"B",Point(110,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+
+    if(curControlState)
+        putText(debugWindowCanvas,"B",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    else
+        putText(debugWindowCanvas,"R",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+
+    imshow("DEBUG",debugWindowCanvas);
+#endif
+
+                if(!armorDetectorPtr->findState)
                 {
                     solverPtr->yaw /= 2;
                     solverPtr->pitch /= 2;
-                    /*The sending Angle drops twice each time until the offset angle are both small than 1*/
-                    if(solverPtr->yaw < 1 && solverPtr->pitch < 1)
-                        serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw, receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, 0,
-                                        0, AUTO_SHOOT_STATE,0);
-                    else
-                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw, receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, 0,
-                                    1, AUTO_SHOOT_STATE,0);
+                    kalman->SetKF(Point(0,0),true);
                 }
+
+                if(showOrigin)
+                {
+                    circle(detectFrame,Point(kalman->p_predictx,kalman->p_predicty),5,Scalar(255,255,255),-1);
+
+                    if(FRAMEHEIGHT > 1000)
+                    {
+                        //pyrDown(detectFrame.img,detectFrame.img);
+                        pyrDown(detectFrame,detectFrame);
+                    }
+                    imshow("detect",detectFrame);
+
+                    waitKey(30);
+                }
+
+                serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                                armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 serialPtr->WriteData();
-            }else
+            }
+            else
             {
                 /*do energy things*/
             }
 
             /*Receive Data*/
-            unique_lock<mutex> lock1(receiveLock);
-            //serialPtr->ReadData(receiveData);
+            serialPtr->ReadData(receiveData);
 
+            /*update states*/
             curControlState = receiveData.targetMode;
-
+            blueTarget = receiveData.targetColor;
+            clearFilter  = direction ^ receiveData.direction;
+            direction = receiveData.direction;
+            /*update condition variables*/
             produceMission = false;
             feedbackMission = true;
 
+            /*wake up threads blocked by writeCon*/
             writeCon.notify_all();
         }while(!ImgProdCons::quitFlag);
     }

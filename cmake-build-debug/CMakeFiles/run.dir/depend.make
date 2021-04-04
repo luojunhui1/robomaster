@@ -1365,8 +1365,8 @@ CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2/video/tracking.hpp
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
 
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o: ../Serials/include/SerialPort.hpp
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o: ../Serials/src/SericalPort.cpp
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/include/SerialPort.hpp
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/src/SerialPort.cpp
 
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: ../Armor/include/ArmorDetector.hpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: ../Drivers/DAHUA/include/GenICam/AcquisitionControl.h

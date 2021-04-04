@@ -47,8 +47,8 @@ struct ReceiveData
     float pitchSpeed = 0;
     uint8_t targetMode = 0;
 
-    uint8_t blankA = 0;
-    uint8_t blankB = 0;
+    uint8_t targetColor = 0;// 0 red target, 1 blue target
+    uint8_t direction = 0;
     uint8_t blankC = 0;
     uint8_t blankD = 0;
     uint8_t blankE = 0;

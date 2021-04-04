@@ -47,6 +47,7 @@ CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/ope
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/opencv2/cudaarithm.hpp
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/opencv2/cudafilters.hpp
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
+CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/opencv2/cudaoptflow.hpp
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/opencv2/dnn.hpp
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dict.hpp
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dnn.hpp
@@ -1364,8 +1365,8 @@ CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2/video/tracking.hpp
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
 
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o: ../Serials/include/SerialPort.hpp
-CMakeFiles/run.dir/Serials/src/SericalPort.cpp.o: ../Serials/src/SericalPort.cpp
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/include/SerialPort.hpp
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/src/SerialPort.cpp
 
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: ../Armor/include/ArmorDetector.hpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: ../Drivers/DAHUA/include/GenICam/AcquisitionControl.h
@@ -1701,6 +1702,7 @@ CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2/cudaarithm.hpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2/cudafilters.hpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
+CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2/cudaoptflow.hpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2/dnn.hpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dict.hpp
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dnn.hpp
@@ -2111,6 +2113,7 @@ CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/core/vsx_utils
 CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudaarithm.hpp
 CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudafilters.hpp
 CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
+CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudaoptflow.hpp
 CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/dnn.hpp
 CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dict.hpp
 CMakeFiles/run.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dnn.hpp

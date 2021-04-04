@@ -16,8 +16,6 @@ class SolveAngle
 {
 public:
 	SolveAngle();
-    float pitchOffset = 10;
-    float yawOffset = -11;
 
     float scale = 0.99f;
 	float f_ = 1500;

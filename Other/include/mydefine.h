@@ -69,12 +69,20 @@
     enum CARNAME {HERO, INFANTRY_MELEE, INFANTRY_TRACK, SENTRY, UAV, VIDEO, NOTDEFINED};
 #endif
 
-#ifndef RECORD
-#define  RECORD 0
+#ifndef DEBUG
+#define  DEBUG 1
 #endif
 
 #ifndef GPUMODE
 #define  GPUMODE 0
+#endif
+
+#ifndef SVM_PARAM_PATH
+#define  SVM_PARAM_PATH "../Armor/resource/svm.xml"
+#endif
+
+#ifndef SVM_IMAGE_SIZE
+#define  SVM_IMAGE_SIZE 40
 #endif
 
 extern bool showArmorBox;
@@ -83,7 +91,6 @@ extern bool showLamps;
 extern bool showBianryImg;
 extern bool showEnergy;
 extern bool blueTarget;
-extern bool redTarget;
 extern int FRAMEWIDTH;
 extern int FRAMEHEIGHT;
 extern CARNAME carName;
