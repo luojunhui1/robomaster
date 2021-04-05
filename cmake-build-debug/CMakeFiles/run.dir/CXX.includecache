@@ -878,11 +878,17 @@ V4L2KAS.h
 VideoDriver.hpp
 ../Thread/include/VideoDriver.hpp
 
-/home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp
-RealSenseDriver.h
-/home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.h
+/home/ljh/文档/A_RM/master/Armor/src/ArmorDetector.cpp
+ArmorDetector.hpp
+/home/ljh/文档/A_RM/master/Armor/src/ArmorDetector.hpp
+sstream
+-
+algorithm
+-
+thread
+-
 
-/home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp
+/home/ljh/文档/A_RM/master/Thread/src/MyThread.cpp
 csignal
 -
 opencv2/opencv.hpp
@@ -896,7 +902,15 @@ iostream
 memory
 -
 MyThread.hpp
-/home/ljh/文档/A_RM/hero/Thread/src/MyThread.hpp
+/home/ljh/文档/A_RM/master/Thread/src/MyThread.hpp
+
+/home/ljh/文档/A_RM/master/main.cpp
+thread
+-
+MyThread.hpp
+/home/ljh/文档/A_RM/master/MyThread.hpp
+preoptions.h
+/home/ljh/文档/A_RM/master/preoptions.h
 
 /usr/include/eigen3/Eigen/Cholesky
 Core

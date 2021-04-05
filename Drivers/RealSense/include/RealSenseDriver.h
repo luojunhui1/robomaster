@@ -45,26 +45,29 @@ public:
     bool InitCam() override;
     bool StartGrab() override;
     bool SetCam() override;
-    bool Grab(Mat& src) override;
     bool StopGrab() override;
+    bool Grab(Mat& src) override;
 
-    float GetArmorDepth(Rect& rect);
+    void measure(Rect rect);
+
+    Mat align_Depth2Color(Mat depth,Mat color,rs2::pipeline_profile profile);
+    void measure_distance(Mat &color,Mat depth,rs2::pipeline_profile profile,Rect rect);
+    float get_depth_scale(rs2::device dev);
+
 private:
-    rs2_error* e;
-    rs2_context* ctx;
+    rs2::colorizer c;
+    rs2::config *config;
+    context ctx;
+    rs2::pipeline pipe;
+    rs2::pipeline_profile profile;
 
-    rs2_device* dev;
-
-    rs2_pipeline* pipeline;
-    rs2_config* config;
-
-    rs2_pipeline_profile* pipeline_profile;
-    rs2_frame* frames;
-
-    int num_of_frames;
-
-    rs2_frame* depthFrame;
-
+    rs2::frame frame_color;
+    rs2::frame frame_depth;
+    rs2::frame frame_show;
+    cv::Mat src_color;
+    cv::Mat src_depth;
+    cv::Mat src_4_show;
+    rs2::frameset data;
 public:
     float dist2Armor;
 };

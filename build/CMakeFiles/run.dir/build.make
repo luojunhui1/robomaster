@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ljh/文档/A_RM/hero
+CMAKE_SOURCE_DIR = /home/ljh/文档/A_RM/master
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ljh/文档/A_RM/hero/build
+CMAKE_BINARY_DIR = /home/ljh/文档/A_RM/master/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/run.dir/depend.make
@@ -59,211 +59,211 @@ include CMakeFiles/run.dir/flags.make
 
 CMakeFiles/run.dir/main.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/run.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/main.cpp.o -c /home/ljh/文档/A_RM/hero/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/run.dir/main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/main.cpp.o -c /home/ljh/文档/A_RM/master/main.cpp
 
 CMakeFiles/run.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/main.cpp > CMakeFiles/run.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/main.cpp > CMakeFiles/run.dir/main.cpp.i
 
 CMakeFiles/run.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/main.cpp -o CMakeFiles/run.dir/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/main.cpp -o CMakeFiles/run.dir/main.cpp.s
 
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o: ../Armor/src/ArmorDetector.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o -c /home/ljh/文档/A_RM/hero/Armor/src/ArmorDetector.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.o -c /home/ljh/文档/A_RM/master/Armor/src/ArmorDetector.cpp
 
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Armor/src/ArmorDetector.cpp > CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Armor/src/ArmorDetector.cpp > CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.i
 
 CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Armor/src/ArmorDetector.cpp -o CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Armor/src/ArmorDetector.cpp -o CMakeFiles/run.dir/Armor/src/ArmorDetector.cpp.s
 
 CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o: ../Drivers/RealSense/src/RealSenseDriver.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o -c /home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.o -c /home/ljh/文档/A_RM/master/Drivers/RealSense/src/RealSenseDriver.cpp
 
 CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp > CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Drivers/RealSense/src/RealSenseDriver.cpp > CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.i
 
 CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp -o CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Drivers/RealSense/src/RealSenseDriver.cpp -o CMakeFiles/run.dir/Drivers/RealSense/src/RealSenseDriver.cpp.s
 
 CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o: ../Drivers/V4L2KAS/src/V4L2KAS.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o -c /home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/src/V4L2KAS.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.o -c /home/ljh/文档/A_RM/master/Drivers/V4L2KAS/src/V4L2KAS.cpp
 
 CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/src/V4L2KAS.cpp > CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Drivers/V4L2KAS/src/V4L2KAS.cpp > CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.i
 
 CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/src/V4L2KAS.cpp -o CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Drivers/V4L2KAS/src/V4L2KAS.cpp -o CMakeFiles/run.dir/Drivers/V4L2KAS/src/V4L2KAS.cpp.s
 
 CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o: ../Drivers/VideoDriver/src/VideoDriver.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o -c /home/ljh/文档/A_RM/hero/Drivers/VideoDriver/src/VideoDriver.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.o -c /home/ljh/文档/A_RM/master/Drivers/VideoDriver/src/VideoDriver.cpp
 
 CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Drivers/VideoDriver/src/VideoDriver.cpp > CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Drivers/VideoDriver/src/VideoDriver.cpp > CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.i
 
 CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Drivers/VideoDriver/src/VideoDriver.cpp -o CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Drivers/VideoDriver/src/VideoDriver.cpp -o CMakeFiles/run.dir/Drivers/VideoDriver/src/VideoDriver.cpp.s
 
 CMakeFiles/run.dir/Filter/src/Filter.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Filter/src/Filter.cpp.o: ../Filter/src/Filter.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/run.dir/Filter/src/Filter.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Filter/src/Filter.cpp.o -c /home/ljh/文档/A_RM/hero/Filter/src/Filter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/run.dir/Filter/src/Filter.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Filter/src/Filter.cpp.o -c /home/ljh/文档/A_RM/master/Filter/src/Filter.cpp
 
 CMakeFiles/run.dir/Filter/src/Filter.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Filter/src/Filter.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Filter/src/Filter.cpp > CMakeFiles/run.dir/Filter/src/Filter.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Filter/src/Filter.cpp > CMakeFiles/run.dir/Filter/src/Filter.cpp.i
 
 CMakeFiles/run.dir/Filter/src/Filter.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Filter/src/Filter.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Filter/src/Filter.cpp -o CMakeFiles/run.dir/Filter/src/Filter.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Filter/src/Filter.cpp -o CMakeFiles/run.dir/Filter/src/Filter.cpp.s
 
 CMakeFiles/run.dir/Other/src/mydefine.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Other/src/mydefine.cpp.o: ../Other/src/mydefine.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/run.dir/Other/src/mydefine.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Other/src/mydefine.cpp.o -c /home/ljh/文档/A_RM/hero/Other/src/mydefine.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/run.dir/Other/src/mydefine.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Other/src/mydefine.cpp.o -c /home/ljh/文档/A_RM/master/Other/src/mydefine.cpp
 
 CMakeFiles/run.dir/Other/src/mydefine.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Other/src/mydefine.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Other/src/mydefine.cpp > CMakeFiles/run.dir/Other/src/mydefine.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Other/src/mydefine.cpp > CMakeFiles/run.dir/Other/src/mydefine.cpp.i
 
 CMakeFiles/run.dir/Other/src/mydefine.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Other/src/mydefine.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Other/src/mydefine.cpp -o CMakeFiles/run.dir/Other/src/mydefine.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Other/src/mydefine.cpp -o CMakeFiles/run.dir/Other/src/mydefine.cpp.s
 
 CMakeFiles/run.dir/Other/src/preoptions.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Other/src/preoptions.cpp.o: ../Other/src/preoptions.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/run.dir/Other/src/preoptions.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Other/src/preoptions.cpp.o -c /home/ljh/文档/A_RM/hero/Other/src/preoptions.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/run.dir/Other/src/preoptions.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Other/src/preoptions.cpp.o -c /home/ljh/文档/A_RM/master/Other/src/preoptions.cpp
 
 CMakeFiles/run.dir/Other/src/preoptions.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Other/src/preoptions.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Other/src/preoptions.cpp > CMakeFiles/run.dir/Other/src/preoptions.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Other/src/preoptions.cpp > CMakeFiles/run.dir/Other/src/preoptions.cpp.i
 
 CMakeFiles/run.dir/Other/src/preoptions.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Other/src/preoptions.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Other/src/preoptions.cpp -o CMakeFiles/run.dir/Other/src/preoptions.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Other/src/preoptions.cpp -o CMakeFiles/run.dir/Other/src/preoptions.cpp.s
 
 CMakeFiles/run.dir/Other/src/systime.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Other/src/systime.cpp.o: ../Other/src/systime.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/run.dir/Other/src/systime.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Other/src/systime.cpp.o -c /home/ljh/文档/A_RM/hero/Other/src/systime.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/run.dir/Other/src/systime.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Other/src/systime.cpp.o -c /home/ljh/文档/A_RM/master/Other/src/systime.cpp
 
 CMakeFiles/run.dir/Other/src/systime.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Other/src/systime.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Other/src/systime.cpp > CMakeFiles/run.dir/Other/src/systime.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Other/src/systime.cpp > CMakeFiles/run.dir/Other/src/systime.cpp.i
 
 CMakeFiles/run.dir/Other/src/systime.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Other/src/systime.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Other/src/systime.cpp -o CMakeFiles/run.dir/Other/src/systime.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Other/src/systime.cpp -o CMakeFiles/run.dir/Other/src/systime.cpp.s
 
 CMakeFiles/run.dir/Pose/src/Kalman.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Pose/src/Kalman.cpp.o: ../Pose/src/Kalman.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/run.dir/Pose/src/Kalman.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Pose/src/Kalman.cpp.o -c /home/ljh/文档/A_RM/hero/Pose/src/Kalman.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/run.dir/Pose/src/Kalman.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Pose/src/Kalman.cpp.o -c /home/ljh/文档/A_RM/master/Pose/src/Kalman.cpp
 
 CMakeFiles/run.dir/Pose/src/Kalman.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Pose/src/Kalman.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Pose/src/Kalman.cpp > CMakeFiles/run.dir/Pose/src/Kalman.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Pose/src/Kalman.cpp > CMakeFiles/run.dir/Pose/src/Kalman.cpp.i
 
 CMakeFiles/run.dir/Pose/src/Kalman.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Pose/src/Kalman.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Pose/src/Kalman.cpp -o CMakeFiles/run.dir/Pose/src/Kalman.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Pose/src/Kalman.cpp -o CMakeFiles/run.dir/Pose/src/Kalman.cpp.s
 
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: ../Pose/src/SolveAngle.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o -c /home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o -c /home/ljh/文档/A_RM/master/Pose/src/SolveAngle.cpp
 
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp > CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Pose/src/SolveAngle.cpp > CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.i
 
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp -o CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Pose/src/SolveAngle.cpp -o CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.s
 
 CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/src/SerialPort.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o -c /home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o -c /home/ljh/文档/A_RM/master/Serials/src/SerialPort.cpp
 
 CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp > CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Serials/src/SerialPort.cpp > CMakeFiles/run.dir/Serials/src/SerialPort.cpp.i
 
 CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp -o CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Serials/src/SerialPort.cpp -o CMakeFiles/run.dir/Serials/src/SerialPort.cpp.s
 
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.o: ../Thread/src/MyThread.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/run.dir/Thread/src/MyThread.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Thread/src/MyThread.cpp.o -c /home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/run.dir/Thread/src/MyThread.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Thread/src/MyThread.cpp.o -c /home/ljh/文档/A_RM/master/Thread/src/MyThread.cpp
 
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Thread/src/MyThread.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp > CMakeFiles/run.dir/Thread/src/MyThread.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Thread/src/MyThread.cpp > CMakeFiles/run.dir/Thread/src/MyThread.cpp.i
 
 CMakeFiles/run.dir/Thread/src/MyThread.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Thread/src/MyThread.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp -o CMakeFiles/run.dir/Thread/src/MyThread.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Thread/src/MyThread.cpp -o CMakeFiles/run.dir/Thread/src/MyThread.cpp.s
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o: ../Drivers/DAHUA/src/RMDriver.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o -c /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RMDriver.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.o -c /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RMDriver.cpp
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RMDriver.cpp > CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RMDriver.cpp > CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.i
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RMDriver.cpp -o CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RMDriver.cpp -o CMakeFiles/run.dir/Drivers/DAHUA/src/RMDriver.cpp.s
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o: ../Drivers/DAHUA/src/RGBConvert.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o -c /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RGBConvert.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.o -c /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RGBConvert.cpp
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RGBConvert.cpp > CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RGBConvert.cpp > CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.i
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RGBConvert.cpp -o CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RGBConvert.cpp -o CMakeFiles/run.dir/Drivers/DAHUA/src/RGBConvert.cpp.s
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o: CMakeFiles/run.dir/flags.make
 CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o: ../Drivers/DAHUA/src/StreamRetrieve.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o -c /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/StreamRetrieve.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.o -c /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/StreamRetrieve.cpp
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/StreamRetrieve.cpp > CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/StreamRetrieve.cpp > CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.i
 
 CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/StreamRetrieve.cpp -o CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/文档/A_RM/master/Drivers/DAHUA/src/StreamRetrieve.cpp -o CMakeFiles/run.dir/Drivers/DAHUA/src/StreamRetrieve.cpp.s
 
 # Object files for target run
 run_OBJECTS = \
@@ -370,7 +370,7 @@ run: /usr/local/lib/libopencv_world.so.4.4.0
 run: /usr/lib/x86_64-linux-gnu/librealsense2.so.2.42.0
 run: /usr/local/lib/libopencv_world.so.4.4.0
 run: CMakeFiles/run.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ljh/文档/A_RM/hero/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX executable run"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ljh/文档/A_RM/master/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX executable run"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/run.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -383,6 +383,6 @@ CMakeFiles/run.dir/clean:
 .PHONY : CMakeFiles/run.dir/clean
 
 CMakeFiles/run.dir/depend:
-	cd /home/ljh/文档/A_RM/hero/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ljh/文档/A_RM/hero /home/ljh/文档/A_RM/hero /home/ljh/文档/A_RM/hero/build /home/ljh/文档/A_RM/hero/build /home/ljh/文档/A_RM/hero/build/CMakeFiles/run.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ljh/文档/A_RM/master/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ljh/文档/A_RM/master /home/ljh/文档/A_RM/master /home/ljh/文档/A_RM/master/build /home/ljh/文档/A_RM/master/build /home/ljh/文档/A_RM/master/build/CMakeFiles/run.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/run.dir/depend
 

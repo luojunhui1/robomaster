@@ -1,22 +1,22 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/CMakeTmp
+Change Dir: /home/ljh/文档/A_RM/master/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_2977c/fast && /usr/bin/make  -f CMakeFiles/cmTC_2977c.dir/build.make CMakeFiles/cmTC_2977c.dir/build
-make[1]: 进入目录“/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/CMakeTmp”
-Building C object CMakeFiles/cmTC_2977c.dir/src.c.o
-/usr/bin/cc   -fPIC -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_2977c.dir/src.c.o   -c /home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_2977c
-/home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2977c.dir/link.txt --verbose=1
-/usr/bin/cc -fPIC -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_2977c.dir/src.c.o  -o cmTC_2977c 
-/usr/bin/ld: CMakeFiles/cmTC_2977c.dir/src.c.o: in function `main':
+Run Build Command(s):/usr/bin/make cmTC_a1c16/fast && /usr/bin/make  -f CMakeFiles/cmTC_a1c16.dir/build.make CMakeFiles/cmTC_a1c16.dir/build
+make[1]: 进入目录“/home/ljh/文档/A_RM/master/cmake-build-debug/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_a1c16.dir/src.c.o
+/usr/bin/cc   -fPIC -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_a1c16.dir/src.c.o   -c /home/ljh/文档/A_RM/master/cmake-build-debug/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_a1c16
+/home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a1c16.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_a1c16.dir/src.c.o  -o cmTC_a1c16 
+/usr/bin/ld: CMakeFiles/cmTC_a1c16.dir/src.c.o: in function `main':
 src.c:(.text+0x46): undefined reference to `pthread_create'
 /usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
 /usr/bin/ld: src.c:(.text+0x5e): undefined reference to `pthread_cancel'
 /usr/bin/ld: src.c:(.text+0x6f): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_2977c.dir/build.make:107：cmTC_2977c] 错误 1
-make[1]: 离开目录“/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/CMakeTmp”
-make: *** [Makefile:141：cmTC_2977c/fast] 错误 2
+make[1]: *** [CMakeFiles/cmTC_a1c16.dir/build.make:107：cmTC_a1c16] 错误 1
+make[1]: 离开目录“/home/ljh/文档/A_RM/master/cmake-build-debug/CMakeFiles/CMakeTmp”
+make: *** [Makefile:141：cmTC_a1c16/fast] 错误 2
 
 
 Source file was:
@@ -41,20 +41,20 @@ int main(void)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/CMakeTmp
+Change Dir: /home/ljh/文档/A_RM/master/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_bfc26/fast && /usr/bin/make  -f CMakeFiles/cmTC_bfc26.dir/build.make CMakeFiles/cmTC_bfc26.dir/build
-make[1]: 进入目录“/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/CMakeTmp”
-Building C object CMakeFiles/cmTC_bfc26.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_bfc26.dir/CheckFunctionExists.c.o   -c /home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/share/cmake-3.17/Modules/CheckFunctionExists.c
-Linking C executable cmTC_bfc26
-/home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bfc26.dir/link.txt --verbose=1
-/usr/bin/cc -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_bfc26.dir/CheckFunctionExists.c.o  -o cmTC_bfc26  -lpthreads 
+Run Build Command(s):/usr/bin/make cmTC_de312/fast && /usr/bin/make  -f CMakeFiles/cmTC_de312.dir/build.make CMakeFiles/cmTC_de312.dir/build
+make[1]: 进入目录“/home/ljh/文档/A_RM/master/cmake-build-debug/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_de312.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_de312.dir/CheckFunctionExists.c.o   -c /home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/share/cmake-3.17/Modules/CheckFunctionExists.c
+Linking C executable cmTC_de312
+/home/ljh/文档/IDE/clion-2020.2.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_de312.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_de312.dir/CheckFunctionExists.c.o  -o cmTC_de312  -lpthreads 
 /usr/bin/ld: 找不到 -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_bfc26.dir/build.make:107：cmTC_bfc26] 错误 1
-make[1]: 离开目录“/home/ljh/文档/A_RM/hero/cmake-build-debug/CMakeFiles/CMakeTmp”
-make: *** [Makefile:141：cmTC_bfc26/fast] 错误 2
+make[1]: *** [CMakeFiles/cmTC_de312.dir/build.make:107：cmTC_de312] 错误 1
+make[1]: 离开目录“/home/ljh/文档/A_RM/master/cmake-build-debug/CMakeFiles/CMakeTmp”
+make: *** [Makefile:141：cmTC_de312/fast] 错误 2
 
 
 

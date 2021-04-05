@@ -6,5 +6,5 @@ CXX_FLAGS =   -g -std=c++14 -pthread -lv4l1 -lv4l2 -lrealsense2
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/ljh/文档/A_RM/hero/Thread/include -I/home/ljh/文档/A_RM/hero/Serials/include -I/home/ljh/文档/A_RM/hero/Armor/include -I/home/ljh/文档/A_RM/hero/Other/include -I/home/ljh/文档/A_RM/hero/Pose/include -I/home/ljh/文档/A_RM/hero/Filter/include -I/home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/include -I/home/ljh/文档/A_RM/hero/Drivers/RealSense/include -I/home/ljh/文档/A_RM/hero/Drivers/DAHUA/include -I/home/ljh/文档/A_RM/hero/Drivers/VideoDriver/include -I/home/ljh/文档/A_RM/hero/Drivers -I/usr/include/eigen3 -isystem /usr/local/include/opencv4 
+CXX_INCLUDES = -I/home/ljh/文档/A_RM/master/Thread/include -I/home/ljh/文档/A_RM/master/Serials/include -I/home/ljh/文档/A_RM/master/Armor/include -I/home/ljh/文档/A_RM/master/Other/include -I/home/ljh/文档/A_RM/master/Pose/include -I/home/ljh/文档/A_RM/master/Filter/include -I/home/ljh/文档/A_RM/master/Drivers/V4L2KAS/include -I/home/ljh/文档/A_RM/master/Drivers/RealSense/include -I/home/ljh/文档/A_RM/master/Drivers/DAHUA/include -I/home/ljh/文档/A_RM/master/Drivers/VideoDriver/include -I/home/ljh/文档/A_RM/master/Drivers -I/usr/include/eigen3 -isystem /usr/local/include/opencv4 
 

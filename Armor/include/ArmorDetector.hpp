@@ -115,7 +115,7 @@ namespace rm
      */
     class Lamp {
     public:
-        Lamp() : lightAngle(0), avgBrightness(0), size(0)
+        Lamp() : lightAngle(0), avgBrightness(0)
         {
         }
 
@@ -129,7 +129,6 @@ namespace rm
 
         float lightAngle;
         float avgBrightness;
-        float size;
     };
 
     /**
@@ -142,7 +141,7 @@ namespace rm
         Armor() : errorAngle(0), armorWidth(0), armorHeight(0), armorType(BIG_ARMOR), priority(10000) {
         }
 
-        Armor(const Lamp &L1, const Lamp &L2, double priority_);
+        Armor(Lamp L1, Lamp L2, double priority_);
 
         void init();
 
@@ -220,10 +219,10 @@ namespace rm
         Mat_<int> colorMap;
 
         /*a gray image, the pixel's value is the difference between red channel and blue channel*/
-        Mat_<int> rSubB;
+        Mat rSubB;
 
         /*a gray image, the pixel's value is the difference between blue channel and red channel*/
-        Mat_<int> bSubR;
+        Mat bSubR;
 
         /*a mask image used to calculate the sum of the values in a region*/
         Mat mask;

@@ -8,53 +8,53 @@
 		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\opencv4\;CMake Files\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\realsense2\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/ljh/文档/A_RM/hero/cmake-build-debug"/>
+				<Option working_dir="/home/ljh/文档/A_RM/master/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/ljh/文档/A_RM/hero/cmake-build-debug"/>
+				<Option working_dir="/home/ljh/文档/A_RM/master/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/ljh/文档/A_RM/hero/cmake-build-debug"/>
+				<Option working_dir="/home/ljh/文档/A_RM/master/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="run">
-				<Option output="/home/ljh/文档/A_RM/hero/cmake-build-debug/run" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/ljh/文档/A_RM/hero/cmake-build-debug"/>
+				<Option output="/home/ljh/文档/A_RM/master/cmake-build-debug/run" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ljh/文档/A_RM/master/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/ljh/文档/A_RM/hero/Thread/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Serials/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Armor/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Other/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Pose/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Filter/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/RealSense/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/DAHUA/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/VideoDriver/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Thread/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Serials/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Armor/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Other/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Pose/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Filter/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/V4L2KAS/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/RealSense/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/DAHUA/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/VideoDriver/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers"/>
 					<Add directory="/usr/include/eigen3"/>
 					<Add directory="/usr/local/include/opencv4"/>
 					<Add directory="/usr/include/c++/9"/>
@@ -66,30 +66,30 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 run"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 run"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="run/fast">
-				<Option output="/home/ljh/文档/A_RM/hero/cmake-build-debug/run" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/ljh/文档/A_RM/hero/cmake-build-debug"/>
+				<Option output="/home/ljh/文档/A_RM/master/cmake-build-debug/run" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ljh/文档/A_RM/master/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/ljh/文档/A_RM/hero/Thread/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Serials/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Armor/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Other/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Pose/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Filter/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/RealSense/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/DAHUA/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers/VideoDriver/include"/>
-					<Add directory="/home/ljh/文档/A_RM/hero/Drivers"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Thread/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Serials/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Armor/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Other/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Pose/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Filter/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/V4L2KAS/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/RealSense/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/DAHUA/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers/VideoDriver/include"/>
+					<Add directory="/home/ljh/文档/A_RM/master/Drivers"/>
 					<Add directory="/usr/include/eigen3"/>
 					<Add directory="/usr/local/include/opencv4"/>
 					<Add directory="/usr/include/c++/9"/>
@@ -101,86 +101,86 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 run/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/hero/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 run/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/ljh/文档/A_RM/master/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Armor/src/ArmorDetector.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Armor/src/ArmorDetector.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RGBConvert.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RGBConvert.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/RMDriver.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Drivers/DAHUA/src/RMDriver.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Drivers/DAHUA/src/StreamRetrieve.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Drivers/DAHUA/src/StreamRetrieve.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Drivers/RealSense/src/RealSenseDriver.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Drivers/RealSense/src/RealSenseDriver.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Drivers/V4L2KAS/src/V4L2KAS.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Drivers/V4L2KAS/src/V4L2KAS.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Drivers/VideoDriver/src/VideoDriver.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Drivers/VideoDriver/src/VideoDriver.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Filter/src/Filter.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Filter/src/Filter.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Other/src/mydefine.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Other/src/mydefine.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Other/src/preoptions.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Other/src/preoptions.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Other/src/systime.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Other/src/systime.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Pose/src/Kalman.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Pose/src/Kalman.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Pose/src/SolveAngle.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Pose/src/SolveAngle.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Serials/src/SerialPort.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Serials/src/SerialPort.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/Thread/src/MyThread.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/Thread/src/MyThread.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/main.cpp">
+		<Unit filename="/home/ljh/文档/A_RM/master/main.cpp">
 			<Option target="run"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/CMakeLists.txt">
+		<Unit filename="/home/ljh/文档/A_RM/master/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/local/lib/cmake/opencv4/OpenCVConfig-version.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/local/lib/cmake/opencv4/OpenCVConfig-version.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/local/lib/cmake/opencv4/OpenCVConfig.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/local/lib/cmake/opencv4/OpenCVConfig.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/local/lib/cmake/opencv4/OpenCVModules-release.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/local/lib/cmake/opencv4/OpenCVModules-release.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/local/lib/cmake/opencv4/OpenCVModules.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/local/lib/cmake/opencv4/OpenCVModules.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2Config.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2Config.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\realsense2\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2ConfigVersion.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2ConfigVersion.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\realsense2\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2Targets-release.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2Targets-release.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\realsense2\"/>
 		</Unit>
-		<Unit filename="/home/ljh/文档/A_RM/hero/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2Targets.cmake">
+		<Unit filename="/home/ljh/文档/A_RM/master/../../../../../usr/lib/x86_64-linux-gnu/cmake/realsense2/realsense2Targets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\realsense2\"/>
 		</Unit>
 	</Project>

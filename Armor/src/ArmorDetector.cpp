@@ -13,7 +13,7 @@ namespace rm
     * @details none
     */
 
-    Armor::Armor(const Lamp &L1, const Lamp &L2, double priority_)
+    Armor::Armor(Lamp L1, Lamp L2, double priority_)
     {
         errorAngle = fabs(L1.lightAngle - L2.lightAngle);
         armorWidth = fabs(static_cast<int>(L1.rect.center.x - L2.rect.center.x));
@@ -147,11 +147,14 @@ namespace rm
 
         /*open two threads to recogniztion number and finding target armor*/
 
-        std::thread detectArmorThread(&ArmorDetector::DetectArmor, this);
-        detectArmorThread.join();
+        DetectArmor();
+        GetArmorNumber();
 
-        std::thread getArmorNumberThread(&ArmorDetector::GetArmorNumber,this);
-        getArmorNumberThread.join();
+//        std::thread detectArmorThread(&ArmorDetector::DetectArmor, this);
+//        detectArmorThread.join();
+//
+//        std::thread getArmorNumberThread(&ArmorDetector::GetArmorNumber,this);
+//        getArmorNumberThread.join();
 
 //        DetectArmor(img);
 //

@@ -95,7 +95,6 @@ namespace rm
         static void InitSignals(void);
 
         /*Camera Driver Instances*/
-        RealSenseDriver intelCapture;
         RMDriver dahuaCapture;
         V4L2Driver v4l2Capture;
         VideoDriver videoCapture;
