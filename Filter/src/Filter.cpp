@@ -191,34 +191,34 @@ namespace rm {
      * @details none
      */
     bool Kalman::JudgeArmor(int &flag) {
-        dx = (p_tx_now - px[(flag + 19) % 20]) / 20;
+        dx = (p_tx_now - px[(flag + (FLAME-1)) % FLAME]) / FLAME;
         if (abs(dx) < abs(8 * Vmean)) {
-            if (flag == 20)
+            if (flag == FLAME)
                 flag = 0;
             px[flag] = p_tx_now;
         } else {
-            if (flag == 20) {
+            if (flag == FLAME) {
                 flag = 0;
             }
-            px[flag] = px[(flag + 19) % 20];
+            px[flag] = px[(flag + (FLAME-1)) % FLAME];
         }
         //ax = (v_tx_now - px[flag])/20;
         Vmean = Vmean * 0.8 + dx * 0.2;//todo update v
     }
 
     bool Kalman::JudgeArmor_v(int &flag) {
-        ax = (v_tx_now - vx[(flag + 19) % 20]) / 20;
+        ax = (v_tx_now - vx[(flag + (FLAME-1)) % FLAME]) / FLAME;
         if (abs(ax) < abs(2.9 * Amean)) {
             if (flag == 20)
                 flag = 0;
             vx[flag] = v_tx_now;
         } else {
-            if (flag == 20) {
+            if (flag == FLAME) {
                 flag = 0;
             }
-            vx[flag] = vx[(flag + 19) % 20];
+            vx[flag] = vx[(flag + (FLAME-1)) % FLAME];
         }
-        ax = (v_tx_now - vx[flag]) / 20;
+        ax = (v_tx_now - vx[flag]) / FLAME;
         Amean = Amean * 0.85 + ax * 0.15;//todo update a
     }
 
@@ -308,8 +308,8 @@ namespace rm {
             set_px = false;
             set_vx = false;
 
-            Vmean = 0.08;//how to init Vmean?
-            Amean = 0.08;
+            Vmean = 0.02;//how to init Vmean?
+            Amean = 0.04;
 
             fx = 0;
 
@@ -336,7 +336,7 @@ namespace rm {
 
         /**judge if px have been updated 20 times or not**/
         if (!set_px) {
-            if (px_flag == 19) {
+            if (px_flag == (FLAME-1)) {
                 set_px = true;
             }
             px[px_flag] = p_tx_now;
@@ -344,11 +344,11 @@ namespace rm {
         JudgeArmor(px_flag);
 
         /**predict velocity**/
-        v_tx_now = (px[(px_flag + 20) % 20] - px[(px_flag + 19) % 20]) / t;
+        v_tx_now = (px[(px_flag + FLAME) % FLAME] - px[(px_flag + (FLAME-1)) % FLAME]) / t;
         vx_flag++;
 
         if (!set_vx) {
-            if (vx_flag == 19) {
+            if (vx_flag == (FLAME-1)) {
                 set_vx = true;
             }
             vx[vx_flag] = v_tx_now;
@@ -359,11 +359,11 @@ namespace rm {
         v_ty_now = (targetPoint.y - p_ty_old) / t;
 
         float v_sum = 0;
-        for (int i = 0; i < 19; i++) {
+        for (int i = 0; i < (FLAME-1); i++) {
             v_sum = v_sum + vx[i];
         }
 
-        if (abs(v_tx_now) > 0.15 && (abs(v_sum) > 1.6)) {
+        if (abs(v_tx_now) > 0.03 && (abs(v_sum) > 0.4)) {
             v_tx_old = v_tx_now;
             v_ty_old = v_ty_now;
             if (v_sum >= 0)
@@ -397,6 +397,13 @@ namespace rm {
         return true;
     }
 
+    Point2f Kalman::GetShoot(Point2f forecast_position,float target_speed_x,float target_speed_y,float shoot_time){
+        Point2f shoot_point;
+        shoot_point.x = forecast_position.x + (target_speed_x)*(shoot_time);
+        shoot_point.y = forecast_position.y + (target_speed_y)*(shoot_time);
+        return shoot_point;
+    }    
+
 //todo 测量误差
     Point2f Kalman::SetKF(const Point2f& targetPoint, int clear) {
         Point2f position;
@@ -424,9 +431,16 @@ namespace rm {
         if(!UpdateFilter(targetPoint))
             return Point2f(0,0);
 
-        position.x = KF_forecast.x_(0) + v_tx_old * 100;//fx
+        // position.x = KF_forecast.x_(0) + v_tx_old * 100;//fx
+        // position.y = KF_forecast.x_(1) + v_ty_old * 50;//*ShootTime;
 
-        position.y = KF_forecast.x_(1) + v_ty_old * 50;//*ShootTime;
+
+        position.x = KF_forecast.x_(0);
+        position.y = KF_forecast.x_(1);
+        v_tx_old = KF_forecast.x_(2)/1000;
+        v_ty_old = KF_forecast.x_(3)/1000;
+
+        position = GetShoot(position,v_tx_old,v_ty_old,100);//shoot_time as 100
 
         p_predictx = position.x;
         p_predicty = position.y;
