@@ -1,18 +1,4 @@
-﻿/*********************************************************************************
-  *Copyright(C),2018-2020,华北理工大学Horizon战队All Rights Reserved
-  *FileName:  Filter.h
-  *Author:  解佳朋
-  *Version: 1.3.1.200312_RC
-  *Date:  2020.03.12
-  *Description: 卡尔曼滤波工具类
-  *Function List:
-     1.KF_two   构造函数包含有参构造和无参构造
-     2.Prediction   传入状态矩阵,进行预测部分计算
-     3.GetPrediction    包含有参和无参重载,无参代表直接使用类内状态向量和状态矩阵相乘,有参代表与传入状态矩阵相乘
-     4.set_x    状态向量初始化
-     5.update   状态更新
-**********************************************************************************/
-#ifndef FILTER_H
+﻿#ifndef FILTER_H
 #define FILTER_H
 
 #include<iostream>
@@ -21,6 +7,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/core.hpp>
+
+#define FLAME 20
 
 using namespace std;
 using namespace cv;
@@ -65,7 +53,7 @@ namespace rm {
 
         //一阶卡尔曼预测
         int q = 120;
-        int r = 1200;//5
+        int r = 2000;//5
 
     };
 
@@ -88,8 +76,10 @@ namespace rm {
         void FirstSetFilter(Point2f BestArmor);                            //首次击打相同目标
         bool UpdateFilter(const Point2f& BestArmor);                  //连续击打同一目标
         bool JudgeArmor(int &flag);
-
         bool JudgeArmor_v(int &flag);
+
+        Point2f GetShoot(Point2f forecast_position,float target_speed_x,float target_speed_y,float shoot_time);   //get shoot point position
+
 
         float sum_x;
         float sum_y;
@@ -116,7 +106,7 @@ namespace rm {
         float delta_y = 0;
 
         //todo prameter in judge
-        float px[20];
+        float px[FLAME];
         bool set_px;
         int px_flag;
         float Vmean;
@@ -124,7 +114,7 @@ namespace rm {
         int w0 = 0.4;
         int w1 = 0.6;
 
-        float vx[20];
+        float vx[FLAME];
         bool set_vx;
         int vx_flag;
         float Amean;

@@ -45,7 +45,7 @@ namespace RMTools
         int stand = 0;
         int spacing = 10;
         Scalar lc = Scalar(0,0,255);
-        Scalar wc = Scalar(0,0,0);
+        Scalar wc = Scalar(0,146,125);
         Mat left,copy;
     public:
 
@@ -109,7 +109,7 @@ namespace RMTools
             else
             {
                 copy.colRange(spacing,(count - 1)*spacing + 1).copyTo(left);
-                copy.setTo(255);
+                copy.setTo(0);
                 left.copyTo(copy.colRange(0,(count - 2)*spacing + 1));
                 line(copy,Point2d((count - 2)*spacing,lastValue),Point2d((count - 1)*spacing,*(value)),wc,1);
                 line(copy,Point2d((count - 2)*spacing,lastValue1),Point2d((count - 1)*spacing,*(value1)),Scalar(0,255,0),1);

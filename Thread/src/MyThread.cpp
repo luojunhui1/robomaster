@@ -28,6 +28,11 @@ namespace rm
     u_int8_t clearFilter = false;
 
     RealSenseDriver intelCapture;
+
+    int predictX,originalX;
+    Mat WaveBackground = Mat(480,640,CV_8UC3,Scalar(0,0,0));
+    auto *waveWindowPanel =new DisPlayWaveCLASS(WaveBackground, &originalX,&predictX);
+
 #if DEBUG == 1
     double time;
     int frequency;
@@ -259,7 +264,7 @@ namespace rm
 #endif
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
-                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center,clearFilter),
+                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center,false),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
                 }
@@ -301,7 +306,14 @@ namespace rm
     else
         putText(debugWindowCanvas,"R",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
+    predictX = kalman->p_predictx/5;
+    originalX = armorDetectorPtr->targetArmor.center.x/5;
+
+    printf("Original X:%d\t",originalX);
+    printf("prediect X:%d\n",predictX);
     imshow("DEBUG",debugWindowCanvas);
+
+    waveWindowPanel->DisplayWave2();
 #endif
 
                 if(!armorDetectorPtr->findState)

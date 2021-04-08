@@ -14,7 +14,7 @@ bool blueTarget = false;
 int FRAMEWIDTH;
 int FRAMEHEIGHT;
 
-CARNAME carName = HERO;
+CARNAME carName = VIDEO;
 int cameraIndex = 0;
 std::string videoPath = "/home/ljh/视频/Videos/Xavier_12_19.avi";
 
