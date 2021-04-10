@@ -13,6 +13,12 @@
 using namespace std;
 using namespace cv;
 
+extern pthread_t producePThreadHandler;
+extern pthread_t detectPThreadHandler;
+extern pthread_t energyPThreadHandler;
+extern pthread_t feedbackPThreadHandler;
+
+
 namespace rm
 {
     bool ImgProdCons::quitFlag = false;
@@ -28,12 +34,11 @@ namespace rm
     u_int8_t clearFilter = false;
 
     RealSenseDriver intelCapture;
-
+#if DEBUG == 1
     int predictX,originalX;
     Mat WaveBackground = Mat(480,640,CV_8UC3,Scalar(0,0,0));
     auto *waveWindowPanel =new DisPlayWaveCLASS(WaveBackground, &originalX,&predictX);
 
-#if DEBUG == 1
     double time;
     int frequency;
     Mat debugWindowCanvas = Mat(300,500,CV_8UC1,Scalar(0));
@@ -52,8 +57,39 @@ namespace rm
 
     void ImgProdCons::SignalHandler(int)
     {
-        perror("sigaction error:");
+        LOGE("Process Shut Down By SIGINT\n");
         ImgProdCons::quitFlag = true;
+
+//        LOGM("Produce Thread ID: %ld", producePThreadHandler);
+//        LOGM("Detect Thread ID: %ld",detectPThreadHandler);
+//        LOGM("Energy Thread ID: %ld", energyPThreadHandler);
+//        LOGM("Feedback Thread ID: %ld", feedbackPThreadHandler);
+//
+//        pthread_cancel(producePThreadHandler);
+//        pthread_cancel(detectPThreadHandler);
+//        pthread_cancel(energyPThreadHandler);
+//        pthread_cancel(feedbackPThreadHandler);
+
+        if(pthread_kill(producePThreadHandler,0) == ESRCH)
+        {
+            LOGW("Child Thread Produce Thread Close Failed\n");
+        }
+
+        if(pthread_kill(detectPThreadHandler,0) == ESRCH)
+        {
+            LOGW("Child Thread Detect Thread Close Failed\n");
+        }
+
+        if(pthread_kill(energyPThreadHandler,0) == ESRCH)
+        {
+            LOGW("Child Thread Energy Thread Close Failed\n");
+        }
+
+        if(pthread_kill(feedbackPThreadHandler,0) == ESRCH)
+        {
+            LOGW("Child Thread Feedback Thread Close Failed\n");
+        }
+
         exit(-1);
     }
 
@@ -61,6 +97,7 @@ namespace rm
     void ImgProdCons::InitSignals()
     {
         ImgProdCons::quitFlag = false;
+
         struct sigaction sigact{};
         sigact.sa_handler = SignalHandler;
         sigemptyset(&sigact.sa_mask);
@@ -76,7 +113,8 @@ namespace rm
             armorDetectorPtr(unique_ptr<ArmorDetector>(new ArmorDetector())),
             kalman(unique_ptr<Kalman>(new Kalman())),
             armorType(BIG_ARMOR),
-            driver()
+            driver(),
+            missCount(0)
     {
     }
 
@@ -112,12 +150,17 @@ namespace rm
         }
 
         Mat curImage;
-        driver->InitCam();
-        LOGM("Camera Initialized\n");
-        driver->SetCam();
-        LOGM("Camera Set\n");
-        driver->StartGrab();
-        LOGM("Camera Start to Grab\n");
+        if((driver->InitCam() && driver->SetCam() && driver->StartGrab()))
+        {
+            LOGM("Camera Initialized\n");
+            LOGM("Camera Set Down\n");
+            LOGM("Camera Start to Grab Frames\n");
+        }
+        else
+        {
+            driver->StopGrab();
+            exit(-1);
+        }
 
         do
         {
@@ -128,16 +171,20 @@ namespace rm
                 armorDetectorPtr->Init();
                 break;
             }
+            missCount++;
+            if(missCount > 5)
+            {
+                driver->StopGrab();
+                exit(-1);
+            }
         }while(true);
-
+        missCount = 0;
         LOGM("Initialization Completed\n");
     }
 
     void ImgProdCons::Produce()
     {
         static uint32_t seq = 0;
-
-        int missCount = 0;
 
         while(!ImgProdCons::quitFlag)
         {
@@ -156,13 +203,10 @@ namespace rm
             if (!driver->Grab(frame) || frame.rows != FRAMEHEIGHT || frame.cols != FRAMEWIDTH)
             {
                 missCount++;
-                if(missCount > 10)
+                if(missCount > 5)
                 {
-                    quitFlag = true;
                     driver->StopGrab();
-                    //readCon.notify_all();
-                    LOGM("Process Exited");
-                    exit(-1);
+                    raise(SIGINT);
                 }
                 continue;
             }
@@ -264,7 +308,7 @@ namespace rm
 #endif
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
-                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center,false),
+                    solverPtr->GetPoseV(Point2f(0, 0),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
                 }

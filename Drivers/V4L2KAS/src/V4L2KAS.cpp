@@ -197,7 +197,7 @@ namespace V4L2KAS
     }
     bool V4L2Driver::StartGrab()
     {
-
+        return true;
     }
 
     bool V4L2Driver::StopGrab()

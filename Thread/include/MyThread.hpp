@@ -9,6 +9,7 @@
 #include <shared_mutex>
 #include <condition_variable>
 #include <sys/timeb.h>
+#include <sys/syscall.h>
 
 #include "ArmorDetector.hpp"
 #include "SerialPort.hpp"
@@ -85,7 +86,9 @@ namespace rm
          * @Brief: derivation
          */
         void Receive();
-
+    public:
+            /* Camera */
+            Driver *driver;
     private:
         /*
         * To prevent camera from dying!
@@ -98,9 +101,6 @@ namespace rm
         RMDriver dahuaCapture;
         V4L2Driver v4l2Capture;
         VideoDriver videoCapture;
-
-        /* Camera */
-        Driver *driver;
 
         /* Serial */
         std::unique_ptr<Serial> serialPtr;
@@ -129,6 +129,8 @@ namespace rm
 
         struct ReceiveData receiveData;
         int armorType;
+
+        int missCount;
     };
 
 }
