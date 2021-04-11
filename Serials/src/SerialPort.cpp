@@ -105,7 +105,10 @@ bool Serial::WriteData() {
         return false;
     }
     //cout<<"Write Begin to USB!!!!!!!!!!!!!!!!!"<<endl;
+
+    tcflush(fd, TCOFLUSH);
     curr = write(fd, buff, VISION_LENGTH);
+
     //cout<<"Write Over to USB!!!!!!!!!!!!!!!!!"<<endl;
     if (curr < 0) {
         cout<<("Write Serial offline!")<<endl;
@@ -115,6 +118,7 @@ bool Serial::WriteData() {
         }
         return false;
     }
+
     return true;
 }
 
@@ -169,7 +173,7 @@ bool Serial::ReadData(struct ReceiveData &buffer_) {
         memcpy(&buffer_.yawSpeed,buffRead + 10,4);
         memcpy(&buffer_.pitchSpeed,buffRead + 14,4);
         memcpy(&buffer_.targetMode,buffRead + 18,1);
-        memcpy(&buffer_.targetMode,buffRead + 19,1);
+        memcpy(&buffer_.targetColor,buffRead + 19,1);
         memcpy(&buffer_.direction,buffRead + 20,1);
         return true;
     }

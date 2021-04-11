@@ -191,7 +191,7 @@ namespace rm
             unique_lock<mutex> lock(writeLock);
             writeCon.wait(lock,[]{ return !produceMission;});
 #if DEBUG == 1
-            debugWindowCanvas.zeros(Size(300,500),CV_8UC1);
+            debugWindowCanvas.colRange(0,499).setTo(0);
             line(debugWindowCanvas,Point(300,0),Point(300,299),Scalar(255),2,LINE_4);
             putText(debugWindowCanvas,"Produce  Thread",Point(310,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
@@ -216,6 +216,8 @@ namespace rm
 
             detectMission  = energyMission = feedbackMission = false;
             produceMission = true;
+
+            LOGM("Produce Thread Completed\n");
             readCon.notify_all();
         }
     }
@@ -242,7 +244,7 @@ namespace rm
                     {
                         armorDetectorPtr->tracker = TrackerKCF::create();
                         armorDetectorPtr->tracker->init(detectFrame, armorDetectorPtr->targetArmor.rect);
-                        curDetectMode = SEARCH_MODE;
+                        curDetectMode = TRACKING_MODE;
                     }
                     else
                     {
@@ -271,7 +273,7 @@ namespace rm
 
             detectMission = true;
 
-            writeCon.notify_all();
+            LOGM("Detect Thread Completed\n");
 
             feedbackCon.notify_all();
 
@@ -292,6 +294,7 @@ namespace rm
             }
 
             energyMission = true;
+            LOGM("Energy Thread Completed\n");
             feedbackCon.notify_all();
         }while(!ImgProdCons::quitFlag);
     }
@@ -307,7 +310,8 @@ namespace rm
 #endif
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
-                    solverPtr->GetPoseV(Point2f(0, 0),
+                    LOGM("Target Armor Founded\n");
+                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center, false),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
                 }
@@ -319,7 +323,7 @@ namespace rm
     putText(debugWindowCanvas,to_string(solverPtr->yaw).substr(0,5),Point(100,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
     putText(debugWindowCanvas,"Pitch: ",Point(10,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    putText(debugWindowCanvas,to_string(receiveData.pitchAngle).substr(0,5),Point(100,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+    putText(debugWindowCanvas,to_string(solverPtr->pitch).substr(0,5),Point(100,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
     putText(debugWindowCanvas,"Dist: ",Point(10,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
     if(carName != HERO)
@@ -375,6 +379,7 @@ namespace rm
                         //pyrDown(detectFrame.img,detectFrame.img);
                         pyrDown(detectFrame,detectFrame);
                     }
+
                     imshow("detect",detectFrame);
 
                     waitKey(30);
@@ -390,6 +395,8 @@ namespace rm
                 }
 
                 serialPtr->WriteData();
+                LOGM("Write Data\n");
+
             }
             else
             {
@@ -397,19 +404,25 @@ namespace rm
             }
 
             /*Receive Data*/
-            serialPtr->ReadData(receiveData);
+            if(serialPtr->ReadData(receiveData))
+            {
+                LOGM("Receive Data\n");
+                /*update states*/
+                /**if receive data failed, the most reasonable decision may be just keep the status as the last time**/
+                curControlState = receiveData.targetMode;
+                blueTarget = receiveData.targetColor;
+                clearFilter  = direction ^ receiveData.direction;
+                direction = receiveData.direction;
 
-            /*update states*/
-            /**if receive data failed, the most reasonable decision may be just keep the status as the last time**/
-            curControlState = receiveData.targetMode;
-            blueTarget = receiveData.targetColor;
-            clearFilter  = direction ^ receiveData.direction;
-            direction = receiveData.direction;
+            }
+
             /*update condition variables*/
             produceMission = false;
             feedbackMission = true;
 
             /*wake up threads blocked by writeCon*/
+
+            LOGM("Feedback Thread Completed\n");
             writeCon.notify_all();
         }while(!ImgProdCons::quitFlag);
     }

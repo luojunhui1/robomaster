@@ -26,12 +26,51 @@ void print_device_info(rs2_device* dev)
     check_error(e);
 }
 
+static std::string get_sensor_name(const rs2::sensor& sensor)
+{
+    // Sensors support additional information, such as a human readable name
+    if (sensor.supports(RS2_CAMERA_INFO_NAME))
+        return sensor.get_info(RS2_CAMERA_INFO_NAME);
+    else
+        return "Unknown Sensor";
+}
+
+static rs2::sensor get_a_sensor_from_a_device(const rs2::device& dev)
+{
+    // A rs2::device is a container of rs2::sensors that have some correlation between them.
+    // For example:
+    //    * A device where all sensors are on a single board
+    //    * A Robot with mounted sensors that share calibration information
+
+    // Given a device, we can query its sensors using:
+    std::vector<rs2::sensor> sensors = dev.query_sensors();
+
+    std::cout << "Device consists of " << sensors.size() << " sensors:\n" << std::endl;
+    int index = 0;
+    // We can now iterate the sensors and print their names
+    for (rs2::sensor sensor : sensors)
+    {
+        std::cout << "  " << index++ << " : " << get_sensor_name(sensor) << std::endl;
+    }
+
+    //uint32_t selected_sensor_index = get_user_selection("Select a sensor by index: ");
+    uint32_t selected_sensor_index = 1;
+    // The second way is using the subscript ("[]") operator:
+    if (selected_sensor_index >= sensors.size())
+    {
+        throw std::out_of_range("Selected sensor index is out of range");
+    }
+
+    return  sensors[selected_sensor_index];
+}
+
 bool RealSenseDriver::InitCam()
 {
     auto list = ctx.query_devices(); // Get a snapshot of currently connected devices
     if (list.size() == 0)
         perror("No device detected. Stopped!");
     device dev = list.front();
+    sensor = get_a_sensor_from_a_device(dev);
 
     config = new rs2::config();
     //Add desired streams to configuration
@@ -52,6 +91,18 @@ bool RealSenseDriver::StartGrab()
 
 bool RealSenseDriver::SetCam()
 {
+    rs2::option_range range = sensor.get_option_range(RS2_OPTION_EXPOSURE);
+    float default_value = range.def;
+    float maximum_supported_value = range.max;
+    float minimum_supported_value = range.min;
+    float difference_to_next_value = range.step;
+    std::cout << "  Min Value     : " << minimum_supported_value << std::endl;
+    std::cout << "  Max Value     : " << maximum_supported_value << std::endl;
+    std::cout << "  Default Value : " << default_value << std::endl;
+    std::cout << "  Step          : " << difference_to_next_value << std::endl;
+
+    sensor.set_option(RS2_OPTION_EXPOSURE,60);
+
     return true;
 }
 

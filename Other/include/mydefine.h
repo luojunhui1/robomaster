@@ -52,7 +52,7 @@
 #endif
 
 #ifndef USEROI
-#define  USEROI 1
+#define  USEROI 0
 #endif
 
 /*IMAGEHEIGHT AND IMAGEWIDTH just for initialize the camera, maybe not the real frame format*/
@@ -70,7 +70,7 @@
 #endif
 
 #ifndef DEBUG
-#define  DEBUG 0
+#define  DEBUG 1
 #endif
 
 #ifndef GPUMODE

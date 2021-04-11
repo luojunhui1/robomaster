@@ -60,6 +60,7 @@ private:
     context ctx;
     rs2::pipeline pipe;
     rs2::pipeline_profile profile;
+    rs2::sensor sensor;
 
     rs2::frame frame_color;
     rs2::frame frame_depth;

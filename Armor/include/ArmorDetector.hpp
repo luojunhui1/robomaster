@@ -66,16 +66,16 @@ namespace rm
      * the structure to describe the matched lamps
      */
     typedef struct MatchLight {
-        bool used = false;
+        float lampHeight;
         unsigned int matchIndex1 = -1;
         unsigned int matchIndex2 = -1;
         float matchFactor = 10000;
 
-        explicit MatchLight(bool used_ = false, unsigned int match1 = 0, unsigned int match2 = 0, float fractor = 1000) {
-            used = used_;
+        explicit MatchLight(unsigned int match1 = 0, unsigned int match2 = 0, float fractor = 1000, float lampHeight_ = 0) {
             matchIndex1 = match1;
             matchIndex2 = match2;
             matchFactor = fractor;
+            lampHeight = lampHeight_;
         }
     }MatchLight;
 
@@ -121,7 +121,7 @@ namespace rm
 
         Lamp(RotatedRect bar, float angle, float avgB) :lightAngle(angle),avgBrightness(avgB)
         {
-            cv::Size exLSize(int(bar.size.width), int(bar.size.height * 1.5));
+            cv::Size exLSize(int(bar.size.width), int(bar.size.height * 2));
             rect = cv::RotatedRect(bar.center, exLSize, bar.angle);
         }
 
@@ -165,7 +165,7 @@ namespace rm
 
         ~ArmorDetector() = default;
 
-        /*core functions*/
+        /**core functions**/
         void Init();
 
         bool ArmorDetectTask(Mat &img);
@@ -181,10 +181,14 @@ namespace rm
         vector<Lamp> LightDetection(Mat& img);
 
         void LoadSvmModel(const char *model_path, Size armorImgSize = Size(40, 40));
+
+        void SetSVMRectPoints(Point2f& lt, Point2f& rt, Point2f& lb, Point2f& rb);
+        void SetSVMRectPoints(Point2f&& lt, Rect& rectArea);
+
+
         int GetArmorNumber();
 
-        /*tool functions*/
-        static bool MakeRectSafe(cv::Rect &rect, const cv::Size &size);
+        /**tool functions**/
 
         Rect GetArmorRect() const;
 
@@ -192,7 +196,7 @@ namespace rm
 
         void saveMatchParam(FILE* fileP,int selectedIndex1,int selectedIndex2);
 
-        /*state member variables*/
+        /**state member variables**/
     public:
 
         /*the final armor selected to be attacked*/
@@ -212,7 +216,8 @@ namespace rm
 
         /*clone of image passed in*/
         Mat img;
-        /* variables would be used in functions*/
+
+        /** variables would be used in functions**/
     private:
 
         /*a gray image, the difference between rSubB and bSubR*/
@@ -233,7 +238,10 @@ namespace rm
         /*a binary image*/
         Mat thresholdMap;
 
-        /*the frequency information*/
+        /*last target armor*/
+        Armor lastTarget;
+
+        /**the frequency information**/
     private:
         /*the number of frames that program don't get a target armor constantly*/
         int lostCnt = 130;
@@ -256,7 +264,7 @@ namespace rm
         /*if the tracer found the target, return true, otherwise return false*/
         bool trackingTarget(Mat &src, Rect2d target);
 
-    /*armor number recogniztion*/
+        /*armor number recogniztion*/
     private:
         Ptr<SVM>svm;  //svm model svm模型
         Size svmArmorSize;
@@ -299,4 +307,6 @@ namespace rm
      * @return if the match factor of b is larger than a, return true, otherwise return false.
      */
     bool compMatchFactor(const MatchLight a, const MatchLight b);
+
+    bool MakeRectSafe(cv::Rect &rect, const cv::Size& size);
 }

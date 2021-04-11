@@ -38,7 +38,7 @@ else  #进程被杀害
 	echo "24796" | sudo -S sudo chmod +777 /dev/ttyUSB0 #12345678是我minipc上的密码
 	echo "24796" | sudo -S sudo chmod +777 /dev/ttyUSB1
 	cd /home/ljh/文档/A_RM/master/build/  #移动到你要编译运行的文件夹里面
-	echo "24796" | ./run -hero -red -box -l
+	echo "24796" | sudo ./run -hero -red -box -l
 	echo $PROC_NAME "has started!"
 	sleep $sec
 fi  

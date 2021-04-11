@@ -115,11 +115,12 @@ namespace rm
     void ArmorDetector::Init()
     {
         targetArmor.init();
+        lastTarget.init();
         roiRect = Rect(0, 0, FRAMEWIDTH, FRAMEHEIGHT);
         findState = false;
         detectCnt = 0;
         lostCnt = 120;
-        armorNumber = -1;
+        armorNumber = 0;
         LoadSvmModel(SVM_PARAM_PATH,Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE));
     }
 
@@ -133,11 +134,6 @@ namespace rm
     {
         this->img = img_.clone();
 #if USEROI == 1
-        srcPoints[0] = Point2f(0, 0);
-        srcPoints[1] = Point2f(roiRect.width, 0);
-        srcPoints[2] = Point2f(roiRect.width, roiRect.height);
-        srcPoints[3] = Point2f(0, roiRect.height);
-
         GetRoi(); //get roi
 #endif
 
@@ -179,6 +175,7 @@ namespace rm
     bool ArmorDetector::DetectArmor()
     {
         findState = false;
+        armorNumber = 0;
 
         vector<Lamp> lights;
 
@@ -230,6 +227,7 @@ namespace rm
 #if USEROI == 1
             roiRect = targetArmor.rect;
 #endif
+            lastTarget = targetArmor;
             return true;
         }
         else
@@ -324,7 +322,7 @@ namespace rm
 
                 /*the deviation angle of two lamps*/
                 deviationAngle = fabs(atan((lights[i].rect.center.y - lights[j].rect.center.y)
-                                                / (lights[i].rect.center.x - lights[j].rect.center.x))) * 180 / CV_PI;
+                                           / (lights[i].rect.center.x - lights[j].rect.center.x))) * 180 / CV_PI;
                 if(deviationAngle > param.maxDeviationAngle)continue;
 
                 /*the difference of the y coordinate of the two center points*/
@@ -338,7 +336,7 @@ namespace rm
                 Of course, we need to find a formula that is more reasonable*/
                 match_factor_ = contourLen1  + dAvgB + exp(dAngle + deviationAngle + MIN(fabs(ratio - 1.5), fabs(ratio - 3.5)));
 
-                matchLight = MatchLight (false, i, j, match_factor_);
+                matchLight = MatchLight (i, j, match_factor_, nW);
 
                 matchLights.emplace_back(matchLight);
             }
@@ -356,8 +354,50 @@ namespace rm
 
         sort(matchLights.begin(), matchLights.end(), compMatchFactor);
 
-        targetArmor = Armor(lights[matchLights[0].matchIndex1], lights[matchLights[0].matchIndex2],matchLights[0].matchFactor);
-   }
+        uint8_t mostPossibleLampsIndex1 = matchLights[0].matchIndex1, mostPossibleLampsIndex2 = matchLights[0].matchIndex2;
+        float curSmallestHeightError = 1000;
+        int matchPossibleArmorCount = 0;
+        int targetMatchIndex = 0;
+        Armor curArmor;
+
+        for(int i  = 0; i < matchLights.size(); i++)
+        {
+            if(matchLights[i].matchIndex1 == mostPossibleLampsIndex1
+               || matchLights[i].matchIndex2 == mostPossibleLampsIndex1
+               || matchLights[i].matchIndex1 == mostPossibleLampsIndex2
+               || matchLights[i].matchIndex2 == mostPossibleLampsIndex2)
+            {
+                curArmor = Armor(lights[matchLights[i].matchIndex1], lights[matchLights[i].matchIndex2],matchLights[i].matchFactor);
+                MakeRectSafe(curArmor.rect,roiRect.size());
+
+                SetSVMRectPoints(curArmor.pts[0],curArmor.pts[1],curArmor.pts[2],curArmor.pts[3]);
+                if(armorNumber != 0 && GetArmorNumber() == armorNumber)
+                {
+                    targetMatchIndex = i;
+                    break;
+                }
+                if(fabs(matchLights[i].lampHeight - lastTarget.armorHeight) < curSmallestHeightError)
+                {
+                    targetMatchIndex = i;
+                    curSmallestHeightError = fabs(matchLights[i].lampHeight - lastTarget.armorHeight);
+                }
+                matchPossibleArmorCount++;
+                if(matchPossibleArmorCount == 3)
+                    break;
+            }
+        }
+
+        targetArmor = Armor(lights[matchLights[targetMatchIndex].matchIndex1], lights[matchLights[targetMatchIndex].matchIndex2]\
+                            ,matchLights[targetMatchIndex].matchFactor);
+
+        MakeRectSafe(targetArmor.rect,roiRect.size());
+
+        if(armorNumber == 0)
+        {
+            SetSVMRectPoints(targetArmor.pts[0],targetArmor.pts[1],targetArmor.pts[2],targetArmor.pts[3]);
+            armorNumber = GetArmorNumber();
+        }
+    }
 
     /**
     * @brief pre-procession of an image captured
@@ -510,7 +550,7 @@ namespace rm
     * @return it will never be false
     * @details none
     */
-    inline bool ArmorDetector::MakeRectSafe(cv::Rect &rect, const cv::Size& size)
+    inline bool MakeRectSafe(cv::Rect &rect, const cv::Size& size)
     {
         if(rect.x >= size.width || rect.y >= size.height)rect = Rect(0,0,0,0);
         if (rect.x < 0)
@@ -561,21 +601,14 @@ namespace rm
 
         if (DetectArmor())
         {
-            if(showArmorBox)
-            {
-                rectangle(src,roiRect,Scalar(255,255,255),2);
-            }
-
             detectCnt++;
+            src = img.clone();
             return true;
         }
-        else
-        {
-            detectCnt = 0;
-            return false;
-        }
 
+        detectCnt = 0;
         src = img.clone();
+        return false;
     }
 
     /**
@@ -600,25 +633,41 @@ namespace rm
         dstPoints[2] = Point2f(armorImgSize.width, armorImgSize.height);
         dstPoints[3] = Point2f(0, armorImgSize.height);
     }
+
+    void ArmorDetector::SetSVMRectPoints(Point2f& lt, Point2f& rt, Point2f& lb, Point2f& rb)
+    {
+        srcPoints[0] = lt;
+        srcPoints[1] = rt;
+        srcPoints[2] = lb;
+        srcPoints[3] = rb;
+    }
+    void ArmorDetector::SetSVMRectPoints(Point2f&& lt, Rect& rectArea)
+    {
+        srcPoints[0] = lt + Point2f(rectArea.x, rectArea.y);
+        srcPoints[1] = srcPoints[0] + Point2f(rectArea.width, 0);
+        srcPoints[2] = srcPoints[0] + Point2f(rectArea.width, rectArea.height);
+        srcPoints[3] = srcPoints[0] + Point2f(0, rectArea.height);
+    }
+
     /**
      * @brief recognize the number of target armor, only works when USEROI == 1
      * @return if USEROI == 1 and recognizing number successfully, return the number of target armor, or return -1
      */
     int ArmorDetector::GetArmorNumber()
     {
-    #if USEROI == 1
-            warpPerspective_mat = getPerspectiveTransform(srcPoints, dstPoints);
-            warpPerspective(svmBinaryImage, warpPerspective_dst, warpPerspective_mat, Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE), INTER_NEAREST, BORDER_CONSTANT, Scalar(0)); //warpPerspective to get armorImage
+#if USEROI == 1
+        warpPerspective_mat = getPerspectiveTransform(srcPoints, dstPoints);
+        warpPerspective(svmBinaryImage, warpPerspective_dst, warpPerspective_mat, Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE), INTER_NEAREST, BORDER_CONSTANT, Scalar(0)); //warpPerspective to get armorImage
 
-            svmParamMatrix = warpPerspective_dst.reshape(1, 1);
-            svmParamMatrix.convertTo(svmParamMatrix, CV_32FC1);
+        svmParamMatrix = warpPerspective_dst.reshape(1, 1);
+        svmParamMatrix.convertTo(svmParamMatrix, CV_32FC1);
 
-            armorNumber = (int)svm->predict(svmParamMatrix);
+        int number = (int)svm->predict(svmParamMatrix);
 
-            return armorNumber;
-    #else
-            return -1;
-    #endif
+        return number;
+#else
+        return 0;
+#endif
     }
     /**
      * @brief this function shall to serve for building our own database, unfortunately the database built by this way is
