@@ -189,7 +189,6 @@ namespace rm
         while(!ImgProdCons::quitFlag)
         {
             unique_lock<mutex> lock(writeLock);
-
             writeCon.wait(lock,[]{ return !produceMission;});
 #if DEBUG == 1
             debugWindowCanvas.zeros(Size(300,500),CV_8UC1);
