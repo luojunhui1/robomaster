@@ -461,7 +461,8 @@ namespace rm
     **/
     vector<Lamp> ArmorDetector::LightDetection(Mat& img)
     {
-        Mat hsv_binary,lampImage;
+        Mat hsv_binary;
+        Mat_<int> lampImage;
         float angle_ = 0;
         Scalar_<double> avg,avgBrightness;
         float lampArea;

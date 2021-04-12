@@ -19,7 +19,7 @@ std::map<std::string, std::pair<std::string, void(*)(void)>> options = {
 		}
 	}},
 		{"-red",{
-		"enemy is blue.",[]()
+		"enemy is red.",[]()
 		{
             blueTarget = false;
 			LOGM("Choose red armor enemy.");

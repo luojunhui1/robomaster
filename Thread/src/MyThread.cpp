@@ -390,6 +390,7 @@ namespace rm
                 else
                 {
                     dynamic_cast<RealSenseDriver*>(driver)->measure(armorDetectorPtr->targetArmor.rect);
+
                     serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch,1000*static_cast<RealSenseDriver*>(driver)->dist2Armor, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 }
