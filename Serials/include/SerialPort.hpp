@@ -12,6 +12,8 @@
 #include <cstring>
 #include <cstdio>
 
+#include "log.h"
+
 #define PC2STM32 "/dev/ttyUSB0"//串口位置
 
 

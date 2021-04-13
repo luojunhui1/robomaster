@@ -1365,6 +1365,8 @@ CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2/video/tracking.hpp
 CMakeFiles/run.dir/Pose/src/SolveAngle.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
 
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Other/include/log.h
+CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Other/include/systime.h
 CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/include/SerialPort.hpp
 CMakeFiles/run.dir/Serials/src/SerialPort.cpp.o: ../Serials/src/SerialPort.cpp
 

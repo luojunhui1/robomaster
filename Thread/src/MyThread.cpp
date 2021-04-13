@@ -159,6 +159,7 @@ namespace rm
         else
         {
             driver->StopGrab();
+            LOGW("Camera Resource Released\n");
             exit(-1);
         }
 
@@ -189,9 +190,10 @@ namespace rm
         while(!ImgProdCons::quitFlag)
         {
             unique_lock<mutex> lock(writeLock);
+
             writeCon.wait(lock,[]{ return !produceMission;});
 #if DEBUG == 1
-            debugWindowCanvas.colRange(0,499).setTo(0);
+            debugWindowCanvas.zeros(Size(300,500),CV_8UC1);
             line(debugWindowCanvas,Point(300,0),Point(300,299),Scalar(255),2,LINE_4);
             putText(debugWindowCanvas,"Produce  Thread",Point(310,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
@@ -213,11 +215,11 @@ namespace rm
             missCount = 0;
 
             detectFrame = frame.clone();
-
+#if DEBUG_MSG_ == 1
+            LOGM("Produce Thread Completed\n");
+#endif
             detectMission  = energyMission = feedbackMission = false;
             produceMission = true;
-
-            LOGM("Produce Thread Completed\n");
             readCon.notify_all();
         }
     }
@@ -244,7 +246,8 @@ namespace rm
                     {
                         armorDetectorPtr->tracker = TrackerKCF::create();
                         armorDetectorPtr->tracker->init(detectFrame, armorDetectorPtr->targetArmor.rect);
-                        curDetectMode = TRACKING_MODE;
+                        if(armorDetectorPtr->armorNumber > 0 && armorDetectorPtr->armorNumber < 6)
+                            curDetectMode = SEARCH_MODE;
                     }
                     else
                     {
@@ -252,7 +255,7 @@ namespace rm
                     }
                     //如果成功找到，将roi区域视为tracking区域,下一次进入tracking模式
                 }
-                break;
+                    break;
                 case TRACKING_MODE:
                 {
 #if DEBUG == 1
@@ -268,13 +271,13 @@ namespace rm
                         curDetectMode = SEARCH_MODE;
                     }
                 }
-                break;
+                    break;
             }
 
             detectMission = true;
-
+#if DEBUG_MSG_ == 1
             LOGM("Detect Thread Completed\n");
-
+#endif
             feedbackCon.notify_all();
 
         } while (!ImgProdCons::quitFlag);
@@ -294,7 +297,6 @@ namespace rm
             }
 
             energyMission = true;
-            LOGM("Energy Thread Completed\n");
             feedbackCon.notify_all();
         }while(!ImgProdCons::quitFlag);
     }
@@ -310,13 +312,14 @@ namespace rm
 #endif
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState) {
-                    LOGM("Target Armor Founded\n");
-                    solverPtr->GetPoseV(kalman->SetKF(armorDetectorPtr->targetArmor.center, false),
+                    LOGW("Target Armor Founded!\n");
+                    solverPtr->GetPoseV(Point2f(0, 0),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
+
                 }
 #if DEBUG == 1
-    frequency = getTickFrequency()/((double)getTickCount() - time);
+                frequency = getTickFrequency()/((double)getTickCount() - time);
 
     debugWindowCanvas.colRange(0,299).setTo(0);
     putText(debugWindowCanvas,"Yaw: ",Point(10,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
@@ -358,9 +361,10 @@ namespace rm
 
     printf("Original X:%d\t",originalX);
     printf("prediect X:%d\n",predictX);
+    //pyrDown(debugWindowCanvas,debugWindowCanvas);
     imshow("DEBUG",debugWindowCanvas);
 
-    waveWindowPanel->DisplayWave2();
+    //waveWindowPanel->DisplayWave2();
 #endif
 
                 if(!armorDetectorPtr->findState)
@@ -368,6 +372,8 @@ namespace rm
                     solverPtr->yaw /= 2;
                     solverPtr->pitch /= 2;
                     kalman->SetKF(Point(0,0),true);
+                    if(solverPtr->yaw > 1 && solverPtr->pitch > 0.5)
+                        armorDetectorPtr->findState = true;
                 }
 
                 if(showOrigin)
@@ -376,28 +382,27 @@ namespace rm
 
                     if(FRAMEHEIGHT > 1000)
                     {
-                        //pyrDown(detectFrame.img,detectFrame.img);
+                        pyrDown(detectFrame,detectFrame);
                         pyrDown(detectFrame,detectFrame);
                     }
-
                     imshow("detect",detectFrame);
 
                     waitKey(30);
                 }
                 if(carName != HERO)
                     serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
-                                armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
+                                    armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 else
                 {
                     dynamic_cast<RealSenseDriver*>(driver)->measure(armorDetectorPtr->targetArmor.rect);
-
                     serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch,1000*static_cast<RealSenseDriver*>(driver)->dist2Armor, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 }
 
                 serialPtr->WriteData();
+#if DEBUG_MSG_ == 1
                 LOGM("Write Data\n");
-
+#endif
             }
             else
             {
@@ -405,25 +410,26 @@ namespace rm
             }
 
             /*Receive Data*/
-            if(serialPtr->ReadData(receiveData))
-            {
-                LOGM("Receive Data\n");
-                /*update states*/
-                /**if receive data failed, the most reasonable decision may be just keep the status as the last time**/
-                curControlState = receiveData.targetMode;
-                blueTarget = receiveData.targetColor;
-                clearFilter  = direction ^ receiveData.direction;
-                direction = receiveData.direction;
-
-            }
-
+            serialPtr->ReadData(receiveData);
+#if DEBUG_MSG_ == 1
+            LOGM("Receive Data\n");
+#endif
+            /*update states*/
+            /**if receive data failed, the most reasonable decision may be just keep the status as the last time**/
+            curControlState = receiveData.targetMode;
+            blueTarget = (receiveData.targetColor)?(0):(1);
+#if DEBUG_MSG_ == 1
+            LOGM("BlueTarget: %d\n",(int)blueTarget);
+#endif
+            clearFilter  = direction ^ receiveData.direction;
+            direction = receiveData.direction;
             /*update condition variables*/
             produceMission = false;
             feedbackMission = true;
-
-            /*wake up threads blocked by writeCon*/
-
+#if DEBUG_MSG_ == 1
             LOGM("Feedback Thread Completed\n");
+#endif
+/*wake up threads blocked by writeCon*/
             writeCon.notify_all();
         }while(!ImgProdCons::quitFlag);
     }

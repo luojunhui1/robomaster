@@ -25,14 +25,17 @@ string get_uart_dev_name() {
 Serial::Serial(int nSpeed, char nEvent, int nBits, int nStop) :
         nSpeed(nSpeed), nEvent(nEvent), nBits(nBits), nStop(nStop) {
     if (wait_uart) {
-        cout<<("Wait for serial be ready!")<<endl;
+        LOGA("Wait for serial be ready!");
+        //cout<<("Wait for serial be ready!")<<endl;
         InitPort(nSpeed, nEvent, nBits, nStop);
-        cout<<("Port set successfully!")<<endl;
+        LOGA("Port set successfully!");
+        //cout<<("Port set successfully!")<<endl;
     } else {
         if (InitPort(nSpeed, nEvent, nBits, nStop)) {
-            cout<<("Port set successfully!")<<endl;
+            LOGA("Port set successfully!");
         } else {
-            cout<<("Port set fail!")<<endl;
+            LOGE("Port set fail!");
+            //cout<<("Port set fail!")<<endl;
         }
     }
 }
@@ -60,7 +63,8 @@ bool Serial::InitPort(int nSpeed_, char nEvent_, int nBits_, int nStop_) {
         return false;
     }
     if ((fd = open(name.data(), O_RDWR|O_APPEND|O_SYNC)) < 0) {
-        cout<<"fd failed!"<<endl;
+        LOGE("fd failed!");
+        //cout<<"fd failed!"<<endl;
         return false;
     }
     return set_opt(fd, nSpeed_,nEvent_, nBits_, nStop_) >= 0;
@@ -111,7 +115,8 @@ bool Serial::WriteData() {
 
     //cout<<"Write Over to USB!!!!!!!!!!!!!!!!!"<<endl;
     if (curr < 0) {
-        cout<<("Write Serial offline!")<<endl;
+        LOGW("Write Serial offline!");
+        //cout<<("Write Serial offline!")<<endl;
         close(fd);
         if (wait_uart) {
             InitPort(nSpeed, nEvent, nBits, nStop);
@@ -151,7 +156,8 @@ bool Serial::ReadData(struct ReceiveData &buffer_) {
         }
         catch(exception e)
         {
-            cout << e.what() << endl;
+            LOGE("Data Read Error!");
+            //cout << e.what() << endl;
             return false;
         }
 
@@ -258,7 +264,7 @@ int Serial::set_opt(int fd, int nSpeed, char nEvent, int nBits, int nStop) {
         newtio.c_cflag |= CSTOPB;
     }
     newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
- 
+    newtio.c_oflag &= ~OPOST;
     newtio.c_cc[VTIME] = 1;
     newtio.c_cc[VMIN] = 1;
     tcflush(fd, TCIFLUSH);

@@ -55,10 +55,10 @@ namespace rm
         float maxRatio = 20;
         float minRatio = 0.6;
 
-        float minLightArea = 20;
+        float minLightArea = 100;
         float maxLightArea = 2500;
         float maxLightAngle = 60;
-        float minLightW2H = 0.2;
+        float minLightW2H = 0.5;
         float maxLightW2H = 40;
     };
 
