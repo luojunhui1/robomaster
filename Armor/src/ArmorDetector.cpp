@@ -144,8 +144,9 @@ namespace rm
         /*open two threads to recogniztion number and finding target armor*/
 
         DetectArmor();
+#if NUM_RECOGNIZE == 1
         GetArmorNumber();
-
+#endif
 //        std::thread detectArmorThread(&ArmorDetector::DetectArmor, this);
 //        detectArmorThread.join();
 //
@@ -193,7 +194,7 @@ namespace rm
                 light.rect.points(rect_point);
                 for (int j = 0; j < 4; j++) {
                     //imgRoi is not a bug here, because imgRoi share the same memory with img
-                    line(imgRoi, rect_point[j], rect_point[(j + 1) % 4], Scalar(0, 255, 255), 2);
+                    line(img, rect_point[j] + Point2f(roiRect.x, roiRect.y), rect_point[(j + 1) % 4] + Point2f(roiRect.x, roiRect.y), Scalar(0, 255, 255), 2);
                 }
             }
         }
@@ -354,6 +355,7 @@ namespace rm
 
         sort(matchLights.begin(), matchLights.end(), compMatchFactor);
 
+#if NUM_RECOGNIZE == 1
         uint8_t mostPossibleLampsIndex1 = matchLights[0].matchIndex1, mostPossibleLampsIndex2 = matchLights[0].matchIndex2;
         float curSmallestHeightError = 1000;
         int matchPossibleArmorCount = 0;
@@ -389,14 +391,18 @@ namespace rm
 
         targetArmor = Armor(lights[matchLights[targetMatchIndex].matchIndex1], lights[matchLights[targetMatchIndex].matchIndex2]\
                             ,matchLights[targetMatchIndex].matchFactor);
-
+#else
+        targetArmor = Armor(lights[matchLights[0].matchIndex1], lights[matchLights[0].matchIndex2]\
+                            ,matchLights[0].matchFactor);
+#endif
         MakeRectSafe(targetArmor.rect,roiRect.size());
-
+#if NUM_RECOGNIZE == 1
         if(armorNumber == 0)
         {
             SetSVMRectPoints(targetArmor.pts[0],targetArmor.pts[1],targetArmor.pts[2],targetArmor.pts[3]);
             armorNumber = GetArmorNumber();
         }
+#endif
     }
 
     /**
@@ -504,7 +510,7 @@ namespace rm
 
                 avg = Scalar_<double>(avgBrightness);
 
-                if((blueTarget && avg[0] < 0) || (!blueTarget && avg[0] > 0))
+                if((blueTarget && avg[0] < 30) || (!blueTarget && avg[0] > 30))
                 {
                     Lamp buildLampInfo(possibleLamp, angle_, avgBrightness[0]);
                     lampVector.emplace_back(buildLampInfo);

@@ -215,7 +215,7 @@ namespace rm
             missCount = 0;
 
             detectFrame = frame.clone();
-#if DEBUG_MSG_ == 1
+#if DEBUG_MSG == 1
             LOGM("Produce Thread Completed\n");
 #endif
             detectMission  = energyMission = feedbackMission = false;
@@ -275,7 +275,7 @@ namespace rm
             }
 
             detectMission = true;
-#if DEBUG_MSG_ == 1
+#if DEBUG_MSG == 1
             LOGM("Detect Thread Completed\n");
 #endif
             feedbackCon.notify_all();
@@ -386,9 +386,13 @@ namespace rm
                         pyrDown(detectFrame,detectFrame);
                     }
                     imshow("detect",detectFrame);
+                }
 
+                if(DEBUG || showOrigin)
+                {
                     waitKey(30);
                 }
+
                 if(carName != HERO)
                     serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
@@ -400,7 +404,7 @@ namespace rm
                 }
 
                 serialPtr->WriteData();
-#if DEBUG_MSG_ == 1
+#if DEBUG_MSG == 1
                 LOGM("Write Data\n");
 #endif
             }
@@ -411,14 +415,14 @@ namespace rm
 
             /*Receive Data*/
             serialPtr->ReadData(receiveData);
-#if DEBUG_MSG_ == 1
+#if DEBUG_MSG == 1
             LOGM("Receive Data\n");
 #endif
             /*update states*/
             /**if receive data failed, the most reasonable decision may be just keep the status as the last time**/
             curControlState = receiveData.targetMode;
             blueTarget = (receiveData.targetColor)?(0):(1);
-#if DEBUG_MSG_ == 1
+#if DEBUG_MSG == 1
             LOGM("BlueTarget: %d\n",(int)blueTarget);
 #endif
             clearFilter  = direction ^ receiveData.direction;
@@ -426,7 +430,7 @@ namespace rm
             /*update condition variables*/
             produceMission = false;
             feedbackMission = true;
-#if DEBUG_MSG_ == 1
+#if DEBUG_MSG == 1
             LOGM("Feedback Thread Completed\n");
 #endif
 /*wake up threads blocked by writeCon*/

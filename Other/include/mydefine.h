@@ -55,6 +55,10 @@
 #define  USEROI 1
 #endif
 
+#ifndef NUM_RECOGNIZE
+#define  NUM_RECOGNIZE 1
+#endif
+
 /*IMAGEHEIGHT AND IMAGEWIDTH just for initialize the camera, maybe not the real frame format*/
 #ifndef IMAGEWIDTH
 #define  IMAGEWIDTH 640
@@ -73,8 +77,8 @@
 #define  DEBUG 0
 #endif
 
-#ifndef DEBUG_MSG_
-#define  DEBUG_MSG_ 0
+#ifndef DEBUG_MSG
+#define  DEBUG_MSG 0
 #endif
 
 #ifndef GPUMODE
