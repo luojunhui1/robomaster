@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opencv_storage>
+  <Camera_Matrix_INFANTRY_1 type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      796.51770000000 0.0000000000000 0.0000000000000
+      0.0000000000000 775.58890000000 0.0000000000000
+      297.79810000000 263.38700000000 1.0000000000000
+    </data>
+  </Camera_Matrix_INFANTRY_1>
+  <Distortion_Coefficients_INFANTRY_1 type_id="opencv-matrix">
+    <rows>4</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>0.1430 -0.1148 0.000 0.0000
+    </data>
+  </Distortion_Coefficients_INFANTRY_1>
+
+  <Camera_Matrix_INFANTRY_2 type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      798.39050000000 0.0000000000000 0.0000000000000
+      0.0000000000000 777.06190000000 0.0000000000000
+      297.64390000000 262.64390000000 1.0000000000000
+    </data>
+  </Camera_Matrix_INFANTRY_2>
+  <Distortion_Coefficients_INFANTRY_2 type_id="opencv-matrix">
+    <rows>4</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>0.0649 1.1748 0.000 0.0000 -6.0309
+    </data>
+  </Distortion_Coefficients_INFANTRY_2>
+
+  <Camera_Matrix_INFANTRY_NONE_1 type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      884.74770000000 0.0000000000000 0.0000000000000
+      0.0000000000000 878.69820000000 0.0000000000000
+      206.12010000000 424.07070000000 1.0000000000000
+    </data>
+  </Camera_Matrix_INFANTRY_NONE_1>
+  <Distortion_Coefficients_INFANTRY_NONE_1 type_id="opencv-matrix">
+    <rows>4</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>-0.2936 0.1093 0.000 0.0000
+    </data>
+  </Distortion_Coefficients_INFANTRY_NONE_1>
+
+  <Camera_Matrix_INFANTRY_NONE_2 type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      887.00580000000 0.0000000000000 0.0000000000000
+      0.0000000000000 881.08830000000 0.0000000000000
+      206.87420000000 424.48080000000 1.0000000000000
+    </data>
+  </Camera_Matrix_INFANTRY_NONE_2>
+  <Distortion_Coefficients_INFANTRY_NONE_2 type_id="opencv-matrix">
+    <rows>4</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>-0.3265 0.3444 0.000 0.0000 -0.5143
+    </data>
+  </Distortion_Coefficients_INFANTRY_NONE_2>
+
+  <Camera_Matrix_DAHUA_1 type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      1622.0000000000 0.0000000000000 0.0000000000000
+      0.0000000000000 1654.8000000000 0.0000000000000
+      734.59510000000 586.50120000000 1.0000000000000
+    </data>
+  </Camera_Matrix_DAHUA_1>
+  <Distortion_Coefficients_DAHUA_1 type_id="opencv-matrix">
+    <rows>4</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>-0.1493 0.2799 0.000 0.0000
+    </data>
+  </Distortion_Coefficients_DAHUA_1>
+
+  <Camera_Matrix_DAHUA_2 type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      1621.2000000000 0.0000000000000 0.0000000000000
+      0.0000000000000 1653.2000000000 0.0000000000000
+      733.07920000000 588.45820000000 1.0000000000000
+    </data>
+  </Camera_Matrix_DAHUA_2>
+  <Distortion_Coefficients5_DAHUA_2 type_id="opencv-matrix">
+    <rows>5</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>-0.1111 -0.1567 0.0000 0.0000 1.3324
+    </data>
+  </Distortion_Coefficients5_DAHUA_2>
+
+  <Camera_Matrix_Realsense type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>d</dt>
+    <data>
+      604.589599609375 0.0000000000000 0.0000000000000
+      0.0000000000000 603.44315234375 0.0000000000000
+      316.714904785156 232.319900512695 1.0000000000000
+    </data>
+  </Camera_Matrix_Realsense>
+
+  <Distortion_Coefficients4_Realsense type_id="opencv-matrix">
+    <rows>4</rows>
+    <cols>1</cols>
+    <dt>d</dt>
+    <data>0 0 0 0
+    </data>
+  </Distortion_Coefficients4_Realsense>
+</opencv_storage>
