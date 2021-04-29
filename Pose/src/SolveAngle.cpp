@@ -168,13 +168,13 @@ void SolveAngle::Generate3DPoints(bool mode)
     //because the armor is  incline,so the height of the armor should be smaller than reality.
 	if (mode)
 	{
-        targetHeight3D = 57;
+        targetHeight3D = 125;
         targetWidth3D = 135;
 
 	}
 	else
 	{
-        targetHeight3D = 50;
+        targetHeight3D = 125;
         targetWidth3D = 230;
 
 	}

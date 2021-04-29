@@ -30,20 +30,18 @@ extern pthread_t feedbackPThreadHandler;
 
 namespace rm
 {
-    bool ImgProdCons::quitFlag = false;
+    bool ImgProdCons::quitFlag = false;// quit flag, all threads would jump out from loop when quitFlag is true
 
-    bool produceMission = false;
-    bool detectMission = false;
-    bool energyMission = false;
-    bool feedbackMission = false;
+    bool produceMission = false;//when produce mission completed, produceMission is true, when feedback mission completed, produceMission is false
+    bool detectMission = false;//when detect mission completed, detectMission is true, when produce mission completed, detectMission is false
+    bool energyMission = false;//when energy mission completed, energyMission is true, when produce mission completed, energyMission is false
+    bool feedbackMission = false;//when feedback mission completed, feedbackMission is true, when produce mission completed, feedbackMission is false
 
     int8_t curControlState = AUTO_SHOOT_STATE; //current control mode
     uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
 
-    int direction = 1;
-
-    RealSenseDriver intelCapture;
-    float coordinateBias;
+    RealSenseDriver intelCapture;// Intel D435 Camera Driver, when it is declared in class ImgProdCons, there are a segment fault when program runs
+    float coordinateBias;// the bias between armor center point and image center
 
     bool pauseFlag = false;
 #if DEBUG == 1
@@ -55,6 +53,9 @@ namespace rm
     int frequency;
     Mat debugWindowCanvas = Mat(300,500,CV_8UC1,Scalar(0));
 #endif
+
+    float yawTran = 0;
+    float pitchTran = 0;
 
     static void sleep_ms(unsigned int secs)
     {
@@ -245,7 +246,7 @@ namespace rm
                         videowriter.write(detectFrame);
             #endif
 
-                        detectMission  = energyMission = feedbackMission = false;
+            detectMission  = energyMission = feedbackMission = false;
             produceMission = true;
             readCon.notify_all();
         }
@@ -394,11 +395,11 @@ namespace rm
     else
         putText(debugWindowCanvas,"R",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-    predictX = kalman->p_predictx/5;
-    originalX = armorDetectorPtr->targetArmor.center.x/5;
-
-    printf("Original X:%d\t",originalX);
-    printf("prediect X:%d\n",predictX);
+//    predictX = kalman->p_predictx/5;
+//    originalX = armorDetectorPtr->targetArmor.center.x/5;
+//
+//    printf("Original X:%d\t",originalX);
+//    printf("prediect X:%d\n",predictX);
     //pyrDown(debugWindowCanvas,debugWindowCanvas);
     imshow("DEBUG",debugWindowCanvas);
 
@@ -425,7 +426,7 @@ namespace rm
 
                 if(showOrigin)
                 {
-                    circle(detectFrame,Point(kalman->p_predictx,kalman->p_predicty),5,Scalar(255,255,255),-1);
+                    circle(detectFrame,Point(FRAMEWIDTH/2, FRAMEHEIGHT/2),5,Scalar(255,255,255),-1);
 
                     if(FRAMEHEIGHT > 1000)
                     {
@@ -450,19 +451,33 @@ namespace rm
 
                 /**Control Auxiliary**/
                 {
-                    coordinateBias = (armorDetectorPtr->targetArmor.center.x - FRAMEWIDTH/2);
+                    coordinateBias = 0.75*abs((armorDetectorPtr->targetArmor.center.x/FRAMEWIDTH/2) - 1);
 
                     /** use feedbackDelta to adjust the speed for holder to follow the armor**/
-                    feedbackDelta = 1.3 * coordinateBias/FRAMEWIDTH + 1;
+                    feedbackDelta = 1.2 + coordinateBias;
+                }
+
+                if(!armorDetectorPtr->findState)
+                {
+                    yawTran /= 1.2;
+                    pitchTran /= 1.2;
+                    kalman->SetKF(Point(0,0),true);
+                    if(fabs(yawTran) > 0.1 && fabs(pitchTran) > 0.1)
+                        armorDetectorPtr->findState = true;
+                }
+                else
+                {
+                    yawTran = solverPtr->yaw - 21.6;
+                    pitchTran = (solverPtr->pitch + 17);
                 }
 
                 if(carName != HERO)
-                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 else
                 {
                     dynamic_cast<RealSenseDriver*>(driver)->measure(armorDetectorPtr->targetArmor.rect);
-                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*solverPtr->yaw,receiveData.pitchAngle + feedbackDelta*solverPtr->pitch,1000*static_cast<RealSenseDriver*>(driver)->dist2Armor, solverPtr->shoot,
+                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + feedbackDelta*pitchTran,1000*static_cast<RealSenseDriver*>(driver)->dist2Armor, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 }
 
@@ -479,7 +494,7 @@ namespace rm
                 /*do energy things*/
             }
 
-            /**Receive data from low-end machine to update parameters(the direction to sentry's movement, the color of
+            /**Receive data from low-end machine to update parameters(the color of
              * robot, the task mode, etc)**/
             if(serialPtr->ReadData(receiveData))
             {
@@ -496,11 +511,6 @@ namespace rm
 #if DEBUG_MSG == 1
                 LOGM("BlueTarget: %d\n",(int)blueTarget);
 #endif
-
-                /**the suddenly change of robot's moving direction may cause distress to the kalman prediction,  when the moving direction
-                 * changed at last frame, the initialization of some variables that are constantly updated based on historical data may be
-                 * necessary**/
-                direction = (receiveData.direction)?(1):(-1);
             }
 
             /**update condition variables**/

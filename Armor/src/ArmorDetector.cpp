@@ -688,6 +688,8 @@ namespace rm
         warpPerspective_mat = getPerspectiveTransform(srcPoints, dstPoints);
         warpPerspective(svmBinaryImage, warpPerspective_dst, warpPerspective_mat, Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE), INTER_NEAREST, BORDER_CONSTANT, Scalar(0)); //warpPerspective to get armorImage
 
+        imshow("warpPerspective_dst",warpPerspective_dst);
+
         svmParamMatrix = warpPerspective_dst.reshape(1, 1);
         svmParamMatrix.convertTo(svmParamMatrix, CV_32FC1);
 

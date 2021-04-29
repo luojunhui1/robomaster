@@ -94,7 +94,7 @@
 #endif
 
 #ifndef SVM_PARAM_PATH
-#define  SVM_PARAM_PATH "../Armor/resource/svm.xml"
+#define  SVM_PARAM_PATH "../Armor/resource/svm3.xml"
 #endif
 
 #ifndef SVM_IMAGE_SIZE
