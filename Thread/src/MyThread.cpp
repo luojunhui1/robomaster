@@ -19,12 +19,12 @@ extern pthread_t energyPThreadHandler;
 extern pthread_t feedbackPThreadHandler;
 
 #if SAVE_VIDEO == 1
-    extern int video_save_count;
+extern int video_save_count;
     VideoWriter videowriter;
 #endif
 
 #if SAVE_LOG == 1
-    std::ofstream logWrite("../Log/log.txt",ios::out);
+std::ofstream logWrite("../Log/log.txt",ios::out);
 
 #endif
 
@@ -56,6 +56,43 @@ namespace rm
 
     float yawTran = 0;
     float pitchTran = 0;
+
+
+/**
+ * 求平均值
+ */
+    double average1(double *x, int len)
+    {
+        double sum = 0;
+        for (int i = 0; i < len; i++) // 求和
+            sum += x[i];
+        return sum/len; // 得到平均值
+    }
+
+/**
+ * 求方差
+ */
+    double variance(double *x, int len)
+    {
+        double sum = 0;
+        double average = average1(x, len);
+        for (int i = 0; i < len; i++) // 求和
+            sum += pow(x[i] - average, 2);
+        return sum/len; // 得到平均值
+    }
+/**
+ * 求标准差
+ */
+    double stdDeviation(double *x, int len)
+    {
+        double variance1 = variance(x, len);
+        return sqrt(variance1); // 得到标准差
+    }
+
+#define YAW_LIST_LEN 15
+    double yawList[YAW_LIST_LEN] = {0};
+    double stdDeviation1 = false;
+    int yawListCount = 0;
 
     static void sleep_ms(unsigned int secs)
     {
@@ -127,7 +164,7 @@ namespace rm
             missCount(0)
     {
 #if SAVE_LOG == 1
-    logWrite<<"Find    "<<"TARGET X    "<<"TARGET Y    "<<"TARGET HEIGHT    "<<"TARGET WIDTH    "<<"YAW    "<<"PITCH    "\
+        logWrite<<"Find    "<<"TARGET X    "<<"TARGET Y    "<<"TARGET HEIGHT    "<<"TARGET WIDTH    "<<"YAW    "<<"PITCH    "\
     <<"SHOOT    "<<endl;
 #endif
     }
@@ -238,13 +275,13 @@ namespace rm
 
             detectFrame = frame.clone();
 
-            #if DEBUG_MSG == 1
-                        LOGM("Produce Thread Completed\n");
-            #endif
+#if DEBUG_MSG == 1
+            LOGM("Produce Thread Completed\n");
+#endif
 
-            #if SAVE_VIDEO == 1
-                        videowriter.write(detectFrame);
-            #endif
+#if SAVE_VIDEO == 1
+            videowriter.write(detectFrame);
+#endif
 
             detectMission  = energyMission = feedbackMission = false;
             produceMission = true;
@@ -356,58 +393,61 @@ namespace rm
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
 
+                }else
+                {
+                    coordinateBias = 0;
                 }
 #if DEBUG == 1
-    frequency = getTickFrequency()/((double)getTickCount() - time);
+                frequency = getTickFrequency()/((double)getTickCount() - time);
 
-    debugWindowCanvas.colRange(0,299).setTo(0);
-    putText(debugWindowCanvas,"Yaw: ",Point(10,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    putText(debugWindowCanvas,to_string(solverPtr->yaw).substr(0,5),Point(100,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                debugWindowCanvas.colRange(0,299).setTo(0);
+                putText(debugWindowCanvas,"Yaw: ",Point(10,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,to_string(yawTran).substr(0,5),Point(100,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-    putText(debugWindowCanvas,"Pitch: ",Point(10,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    putText(debugWindowCanvas,to_string(solverPtr->pitch).substr(0,5),Point(100,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,"Pitch: ",Point(10,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,to_string(pitchTran).substr(0,5),Point(100,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-    putText(debugWindowCanvas,"Dist: ",Point(10,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    if(carName != HERO)
-        putText(debugWindowCanvas,to_string(solverPtr->dist).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    else
-        putText(debugWindowCanvas,to_string(dynamic_cast<RealSenseDriver*>(driver)->dist2Armor).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    putText(debugWindowCanvas,"Shoot: ",Point(10,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    if(solverPtr->shoot)
-        circle(debugWindowCanvas,Point(100,115),8,Scalar(255),-1);
+                putText(debugWindowCanvas,"Dist: ",Point(10,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                if(carName != HERO)
+                    putText(debugWindowCanvas,to_string(solverPtr->dist).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                else
+                    putText(debugWindowCanvas,to_string(dynamic_cast<RealSenseDriver*>(driver)->dist2Armor).substr(0,5),Point(100,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,"Shoot: ",Point(10,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                if(solverPtr->shoot)
+                    circle(debugWindowCanvas,Point(100,115),8,Scalar(255),-1);
 
-    putText(debugWindowCanvas,"Num: ",Point(10,150),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    putText(debugWindowCanvas,to_string(armorDetectorPtr->armorNumber),Point(100,150),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,"Num: ",Point(10,150),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,to_string(armorDetectorPtr->armorNumber),Point(100,150),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-    putText(debugWindowCanvas,"Fre: ",Point(10,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    putText(debugWindowCanvas,to_string(frequency),Point(100,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,"Fre: ",Point(10,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                putText(debugWindowCanvas,to_string(frequency),Point(100,180),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-    if(armorDetectorPtr->findState)
-        rectangle(debugWindowCanvas,Rect(10,225,50,50),Scalar(255),-1);
+                if(armorDetectorPtr->findState)
+                    rectangle(debugWindowCanvas,Rect(10,225,50,50),Scalar(255),-1);
 
-    if(armorDetectorPtr->IsSmall())
-        putText(debugWindowCanvas,"S",Point(110,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    else
-        putText(debugWindowCanvas,"B",Point(110,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                if(armorDetectorPtr->IsSmall())
+                    putText(debugWindowCanvas,"S",Point(110,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                else
+                    putText(debugWindowCanvas,"B",Point(110,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-    if(curControlState)
-        putText(debugWindowCanvas,"B",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-    else
-        putText(debugWindowCanvas,"R",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                if(curControlState)
+                    putText(debugWindowCanvas,"B",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+                else
+                    putText(debugWindowCanvas,"R",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
 //    predictX = kalman->p_predictx/5;
 //    originalX = armorDetectorPtr->targetArmor.center.x/5;
 //
 //    printf("Original X:%d\t",originalX);
 //    printf("prediect X:%d\n",predictX);
-    //pyrDown(debugWindowCanvas,debugWindowCanvas);
-    imshow("DEBUG",debugWindowCanvas);
+                //pyrDown(debugWindowCanvas,debugWindowCanvas);
+                imshow("DEBUG",debugWindowCanvas);
 
-    //waveWindowPanel->DisplayWave2();
+                //waveWindowPanel->DisplayWave2();
 #endif
 
 #if SAVE_LOG == 1
-    logWrite<<armorDetectorPtr->findState<<"   "<<armorDetectorPtr->targetArmor.rect.x<<"    "<<armorDetectorPtr->targetArmor.rect.y\
+                logWrite<<armorDetectorPtr->findState<<"   "<<armorDetectorPtr->targetArmor.rect.x<<"    "<<armorDetectorPtr->targetArmor.rect.y\
     <<"    "<<armorDetectorPtr->targetArmor.rect.height<<"    "<<armorDetectorPtr->targetArmor.rect.width<<"    "\
     <<solverPtr->yaw<<"    "<<solverPtr->pitch<<"    "<<solverPtr->shoot<<endl;
 #endif
@@ -415,14 +455,6 @@ namespace rm
                 /**when the armor-detector has not detected target armor successfully, that may be caused by the suddenly movement
                  * of robots(myself and the opposite target  robot), but the target armor is still in the view scoop, we still need
                  * to instruct the movement of the holder instead of releasing it to the cruise mode**/
-                if(!armorDetectorPtr->findState)
-                {
-                    solverPtr->yaw /= 2.0;
-                    solverPtr->pitch /= 2.0;
-                    kalman->SetKF(Point(0,0),true);
-                    if(solverPtr->yaw > 0 && solverPtr->pitch > 0)
-                        armorDetectorPtr->findState = true;
-                }
 
                 if(showOrigin)
                 {
@@ -430,7 +462,7 @@ namespace rm
 
                     if(FRAMEHEIGHT > 1000)
                     {
-                       // pyrDown(detectFrame,detectFrame);
+                        pyrDown(detectFrame,detectFrame);
                         pyrDown(detectFrame,detectFrame);
                     }
                     imshow("detect",detectFrame);
@@ -440,21 +472,23 @@ namespace rm
                 if(DEBUG || showOrigin)
                 {
                     if(!pauseFlag && waitKey(30) == 'p'){pauseFlag = true;}
-                    else if(pauseFlag)
+
+                    if(pauseFlag)
                     {
-                        if(waitKey() == 'p')
-                        {
-                            pauseFlag = false;
-                        }
+                        while(waitKey() != 'p'){}
+                        pauseFlag = false;
                     }
                 }
 
                 /**Control Auxiliary**/
                 {
-                    coordinateBias = 0.75*abs((armorDetectorPtr->targetArmor.center.x/FRAMEWIDTH/2) - 1);
-
                     /** use feedbackDelta to adjust the speed for holder to follow the armor**/
-                    feedbackDelta = 1.2 + coordinateBias;
+                    coordinateBias = abs((armorDetectorPtr->targetArmor.center.x/(FRAMEWIDTH/2)) - 1);
+                    stdDeviation1 = stdDeviation(yawList, YAW_LIST_LEN);
+                    if(stdDeviation1 < 1)
+                        feedbackDelta = 2.0 + 1.5*coordinateBias;
+                    else
+                        feedbackDelta = 0.5 + 0.5*coordinateBias;
                 }
 
                 if(!armorDetectorPtr->findState)
@@ -467,9 +501,13 @@ namespace rm
                 }
                 else
                 {
-                    yawTran = solverPtr->yaw - 21.6;
-                    pitchTran = (solverPtr->pitch + 17);
+                    yawTran = solverPtr->yaw - 22;
+                    pitchTran = solverPtr->pitch + 17.5;
                 }
+
+                yawList[yawListCount++] = yawTran;
+                yawListCount = yawListCount%YAW_LIST_LEN;
+                //cout<<"stdDeviation: "<<stdDeviation1<<endl;
 
                 if(carName != HERO)
                     serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
