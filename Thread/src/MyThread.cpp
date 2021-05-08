@@ -44,6 +44,7 @@ namespace rm
     float coordinateBias;// the bias between armor center point and image center
 
     bool pauseFlag = false;
+
 #if DEBUG == 1
     int predictX,originalX;
     Mat WaveBackground = Mat(480,640,CV_8UC3,Scalar(0,0,0));
@@ -57,41 +58,9 @@ namespace rm
     float yawTran = 0;
     float pitchTran = 0;
 
-
-/**
- * 求平均值
- */
-    double average1(double *x, int len)
-    {
-        double sum = 0;
-        for (int i = 0; i < len; i++) // 求和
-            sum += x[i];
-        return sum/len; // 得到平均值
-    }
-
-/**
- * 求方差
- */
-    double variance(double *x, int len)
-    {
-        double sum = 0;
-        double average = average1(x, len);
-        for (int i = 0; i < len; i++) // 求和
-            sum += pow(x[i] - average, 2);
-        return sum/len; // 得到平均值
-    }
-/**
- * 求标准差
- */
-    double stdDeviation(double *x, int len)
-    {
-        double variance1 = variance(x, len);
-        return sqrt(variance1); // 得到标准差
-    }
-
-#define YAW_LIST_LEN 15
+    #define YAW_LIST_LEN 15
     double yawList[YAW_LIST_LEN] = {0};
-    double stdDeviation1 = false;
+    double yawDeviation = 0;
     int yawListCount = 0;
 
     static void sleep_ms(unsigned int secs)
@@ -129,7 +98,7 @@ namespace rm
 
         if(pthread_kill(energyPThreadHandler,0) == ESRCH)
         {
-            LOGW("Child Thread Energy Thread Close Failed\n");
+            LOGW("Child Thread EnergyDetector Thread Close Failed\n");
         }
 
         if(pthread_kill(feedbackPThreadHandler,0) == ESRCH)
@@ -159,6 +128,7 @@ namespace rm
             solverPtr(unique_ptr<SolveAngle>(new SolveAngle())),
             armorDetectorPtr(unique_ptr<ArmorDetector>(new ArmorDetector())),
             kalman(unique_ptr<Kalman>(new Kalman())),
+            energyPtr(unique_ptr<EnergyDetector>(new EnergyDetector())),
             armorType(BIG_ARMOR),
             driver(),
             missCount(0)
@@ -232,7 +202,6 @@ namespace rm
         }while(true);
         missCount = 0;
 
-
 #if SAVE_VIDEO == 1
         string video_save_path = "../Log/video_sichuan_SWMU_" + std::to_string(video_save_count) + ".avi";
         videowriter = VideoWriter(video_save_path,cv::VideoWriter::fourcc('X', 'V', 'I', 'D'),60,Size(FRAMEWIDTH,FRAMEHEIGHT));
@@ -274,6 +243,7 @@ namespace rm
             missCount = 0;
 
             detectFrame = frame.clone();
+            energyFrame = frame.clone();
 
 #if DEBUG_MSG == 1
             LOGM("Produce Thread Completed\n");
@@ -318,15 +288,13 @@ namespace rm
                     {
                         curDetectMode = SEARCH_MODE;
                     }
-                    //如果成功找到，将roi区域视为tracking区域,下一次进入tracking模式
                 }
-                    break;
+                break;
                 case TRACKING_MODE:
                 {
 #if DEBUG == 1
                     circle(debugWindowCanvas,Point(480,255),8,Scalar(255),-1);
 #endif
-                    //这里一开始就是trakcking，若追踪到目标，继续，未追踪到，进入searching,进入tracking函数时要判断分类器是否可用
                     if (armorDetectorPtr->trackingTarget(detectFrame, armorDetectorPtr->targetArmor.rect))
                     {
                         curDetectMode = TRACKING_MODE;
@@ -336,7 +304,7 @@ namespace rm
                         curDetectMode = SEARCH_MODE;
                     }
                 }
-                    break;
+                break;
                 default:
                     /**do some thing about serial to correct the transmission task**/
                     break;
@@ -359,11 +327,12 @@ namespace rm
             unique_lock<mutex> lock(energyLock);
             readCon.wait(lock,[]{ return !energyMission&&produceMission;});
 #if DEBUG == 1
-            putText(debugWindowCanvas,"Energy   Thread",Point(310,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
+            putText(debugWindowCanvas,"EnergyDetector   Thread",Point(310,90),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 #endif
             if(curControlState == BIG_ENERGY_STATE || curControlState == SMALL_ENERGY_STATE)
             {
                 /*do energy detection*/
+                energyPtr->EnergyTask(energyFrame, curControlState == BIG_ENERGY_STATE);
             }
 
             energyMission = true;
@@ -383,7 +352,8 @@ namespace rm
 #endif
 
             if(curControlState == AUTO_SHOOT_STATE) {
-                if (armorDetectorPtr->findState) {
+                if (armorDetectorPtr->findState)
+                {
 
 #if DEBUG_MSG == 1
                     LOGW("Target Armor Founded!\n");
@@ -393,7 +363,8 @@ namespace rm
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
 
-                }else
+                }
+                else
                 {
                     coordinateBias = 0;
                 }
@@ -435,15 +406,16 @@ namespace rm
                 else
                     putText(debugWindowCanvas,"R",Point(210,255),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 
-//    predictX = kalman->p_predictx/5;
-//    originalX = armorDetectorPtr->targetArmor.center.x/5;
-//
-//    printf("Original X:%d\t",originalX);
-//    printf("prediect X:%d\n",predictX);
-                //pyrDown(debugWindowCanvas,debugWindowCanvas);
+                predictX = kalman->p_predictx/5;
+                originalX = armorDetectorPtr->targetArmor.center.x/5;
+
+//                printf("Original X:%d\t",originalX);
+//                printf("prediect X:%d\n",predictX);
+//                pyrDown(debugWindowCanvas,debugWindowCanvas);
+
                 imshow("DEBUG",debugWindowCanvas);
 
-                //waveWindowPanel->DisplayWave2();
+//                waveWindowPanel->DisplayWave2();
 #endif
 
 #if SAVE_LOG == 1
@@ -452,9 +424,11 @@ namespace rm
     <<solverPtr->yaw<<"    "<<solverPtr->pitch<<"    "<<solverPtr->shoot<<endl;
 #endif
 
-                /**when the armor-detector has not detected target armor successfully, that may be caused by the suddenly movement
-                 * of robots(myself and the opposite target  robot), but the target armor is still in the view scoop, we still need
-                 * to instruct the movement of the holder instead of releasing it to the cruise mode**/
+                /*******************************************************************************************************
+                 * when the armor-detector has not detected target armor successfully, that may be caused by the suddenly
+                 * movement of robots(myself and the opposite target  robot), but the target armor is still in the view
+                 * scoop, we still need to instruct the movement of the holder instead of releasing it to the cruise mode
+                 * ****************************************************************************************************/
 
                 if(showOrigin)
                 {
@@ -463,13 +437,12 @@ namespace rm
                     if(FRAMEHEIGHT > 1000)
                     {
                         pyrDown(detectFrame,detectFrame);
-                        pyrDown(detectFrame,detectFrame);
                     }
                     imshow("detect",detectFrame);
                 }
 
                 /**press key 'p' to pause or continue task**/
-                if(DEBUG || showOrigin)
+                if(DEBUG || showOrigin || showEnergy)
                 {
                     if(!pauseFlag && waitKey(30) == 'p'){pauseFlag = true;}
 
@@ -480,12 +453,27 @@ namespace rm
                     }
                 }
 
-                /**Control Auxiliary**/
+                /****************************************Control Auxiliary**********************************************
+                 1. Adjust the target Angle of the holder according to the distance D from the center of the mounting deck
+                 to the center of the image. When D is large, set the target Angle of the holder to be larger; when D is
+                 small, set the target Angle of the holder to be smaller, so as to indirectly control the rotation speed
+                 of the holder.
+
+                2. Through the retreat algorithm, when the assembly deck is not found, the current offset Angle is set to
+                 1/M of the previous frame offset Angle, which can prevent the jitter of the holder caused by intermittent
+                 unrecognition to a certain extent.
+
+                 3. Judge whether the holder dither on the YAW axis by the dispersion of the deflection Angle of the holder's
+                 YAW axis. If so, reduce the target Angle of the holder and indirectly slow down the rotation speed of the
+                 holder.
+                 *******************************************************************************************************/
+
                 {
                     /** use feedbackDelta to adjust the speed for holder to follow the armor**/
                     coordinateBias = abs((armorDetectorPtr->targetArmor.center.x/(FRAMEWIDTH/2)) - 1);
-                    stdDeviation1 = stdDeviation(yawList, YAW_LIST_LEN);
-                    if(stdDeviation1 < 1)
+                    yawDeviation = stdDeviation(yawList, YAW_LIST_LEN);
+
+                    if(yawDeviation < 1)
                         feedbackDelta = 2.0 + 1.5*coordinateBias;
                     else
                         feedbackDelta = 0.5 + 0.5*coordinateBias;
@@ -495,7 +483,10 @@ namespace rm
                 {
                     yawTran /= 1.2;
                     pitchTran /= 1.2;
+
+                    /** reset kalman filter **/
                     kalman->SetKF(Point(0,0),true);
+
                     if(fabs(yawTran) > 0.1 && fabs(pitchTran) > 0.1)
                         armorDetectorPtr->findState = true;
                 }
@@ -505,45 +496,50 @@ namespace rm
                     pitchTran = solverPtr->pitch + 17.5;
                 }
 
+                /** update yaw list and yawListCount **/
                 yawList[yawListCount++] = yawTran;
                 yawListCount = yawListCount%YAW_LIST_LEN;
-                //cout<<"stdDeviation: "<<stdDeviation1<<endl;
 
+                /** package data and prepare for sending data to lower-machine **/
                 if(carName != HERO)
                     serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 else
                 {
                     dynamic_cast<RealSenseDriver*>(driver)->measure(armorDetectorPtr->targetArmor.rect);
-                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + feedbackDelta*pitchTran,1000*static_cast<RealSenseDriver*>(driver)->dist2Armor, solverPtr->shoot,
+                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + pitchTran,1000*static_cast<RealSenseDriver*>(driver)->dist2Armor, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 }
-
-                /**send data from host to low-end machine to instruct holder's movement**/
-                serialPtr->WriteData();
 
 #if DEBUG_MSG == 1
                 LOGM("Write Data\n");
 #endif
-
             }
             else
             {
                 /*do energy things*/
+                solverPtr->GetPoseV(Point2f(0, 0),
+                                    energyPtr->pts,
+                                    15, armorDetectorPtr->IsSmall());
+//                serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
+//                                armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
             }
 
-            /**Receive data from low-end machine to update parameters(the color of
-             * robot, the task mode, etc)**/
+            /** send data from host to low-end machine to instruct holder's movement **/
+            serialPtr->WriteData();
+
+            /**Receive data from low-end machine to update parameters(the color of robot, the task mode, etc)**/
             if(serialPtr->ReadData(receiveData))
             {
 #if DEBUG_MSG == 1
                 LOGM("Receive Data\n");
 #endif
-                /**Update task mode, if receiving data failed, the most reasonable decision may be just keep the status as the last time**/
+                /**Update task mode, if receiving data failed, the most reasonable decision may be just keep the status
+                 * as the last time**/
                 curControlState = receiveData.targetMode;
 
-                /**because the logic in armor detection task need the color of enemy, so we need to negate to color variable received,
-                 * receiveData.targetColor means the color of OUR robot, but not the enemy's**/
+                /**because the logic in armor detection task need the color of enemy, so we need to negate to color variable
+                 * received, receiveData.targetColor means the color of OUR robot, but not the enemy's**/
                 blueTarget = (receiveData.targetColor) == 0;
 
 #if DEBUG_MSG == 1

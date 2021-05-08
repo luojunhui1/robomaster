@@ -418,7 +418,7 @@ namespace rm
     /**
     * @brief pre-procession of an image captured
     * @param [img] the ROI image that clipped by the GetRIO function
-    * @param [type] choose to preprocess the current image or the lastest two images, when the type is true, parameter
+    * @param [type] choose to Preprocess the current image or the lastest two images, when the type is true, parameter
     * img must be the origin image but not the roi image
     * @return none
     * @details if average value in a region of the colorMap is larger than 0, then we can inference that in this region
@@ -688,7 +688,10 @@ namespace rm
         warpPerspective_mat = getPerspectiveTransform(srcPoints, dstPoints);
         warpPerspective(svmBinaryImage, warpPerspective_dst, warpPerspective_mat, Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE), INTER_NEAREST, BORDER_CONSTANT, Scalar(0)); //warpPerspective to get armorImage
 
-        imshow("warpPerspective_dst",warpPerspective_dst);
+        warpPerspective_dst = warpPerspective_dst.colRange(8,32).clone();
+        resize(warpPerspective_dst,warpPerspective_dst,Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE));
+
+        //imshow("warpPerspective_dst",warpPerspective_dst);
 
         svmParamMatrix = warpPerspective_dst.reshape(1, 1);
         svmParamMatrix.convertTo(svmParamMatrix, CV_32FC1);

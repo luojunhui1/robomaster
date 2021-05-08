@@ -17,12 +17,16 @@
 #include "preoptions.h"
 #include "mydefine.h"
 #include "Filter.h"
+#include "EnergyDetector.h"
 
 #include "RealSenseDriver.h"
 #include "Media/RMDriver.h"
 #include "V4L2KAS.h"
 #include "VideoDriver.hpp"
 
+#include "RMTools.hpp"
+
+using namespace RMTools;
 using namespace std;
 using namespace V4L2KAS;
 
@@ -111,10 +115,14 @@ namespace rm
         /* Armor detector */
         std::unique_ptr<ArmorDetector> armorDetectorPtr;
 
+        /*EnergyDetector buffer detector*/
+        std::unique_ptr<EnergyDetector> energyPtr;
+
         std::unique_ptr<Kalman> kalman;
 
         Mat frame;
         Mat detectFrame;
+        Mat energyFrame;
 
         mutex detectLock;
         mutex writeLock;

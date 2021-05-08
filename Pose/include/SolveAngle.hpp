@@ -6,11 +6,8 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <iostream>
 
-#include "RMTools.hpp"
-
 using namespace std;
 using namespace cv;
-using namespace RMTools;
 
 class SolveAngle
 {
@@ -44,5 +41,4 @@ private:
 
 	int value;
     Mat waveBG = Mat(480,640,CV_8UC3,Scalar(0,0,0));
-    DisPlayWaveCLASS *wave = new DisPlayWaveCLASS(waveBG, &value,"YAW-Wave",100,Scalar(200,100,0),Scalar(0,255,0));
 };

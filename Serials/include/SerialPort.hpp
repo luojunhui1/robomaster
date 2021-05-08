@@ -4,6 +4,7 @@
 
 #ifndef TRANFORM_T_SERIAL_H
 #define TRANFORM_T_SERIAL_H
+
 #include <iostream>
 #include <unistd.h>     // UNIX Standard Definitions
 #include <fcntl.h>      // File Control Definitions

@@ -56,7 +56,7 @@
 #endif
 
 #ifndef NUM_RECOGNIZE
-#define  NUM_RECOGNIZE 1
+#define  NUM_RECOGNIZE 0
 #endif
 
 /*IMAGEHEIGHT AND IMAGEWIDTH just for initialize the camera, maybe not the real frame format*/
