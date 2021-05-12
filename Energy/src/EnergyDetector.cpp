@@ -710,3 +710,23 @@ Point EnergyDetector::toCartesian(polarLocal pol){
     trans.y = circle_center_point.y + delta_y;
     return trans;
 }
+
+void EnergyDetector::getPts(RotatedRect armor){
+    Point2f rectPoints[4];//定义矩形的4个顶点
+    armor.points(rectPoints); //计算矩形的4个顶点
+    //judge long side
+    if(sqrt(pow((rectPoints[0].x-rectPoints[1].x),2)+pow((rectPoints[0].y-rectPoints[1].y),2))
+        >sqrt(pow((rectPoints[2].x-rectPoints[1].x),2)+pow((rectPoints[2].y-rectPoints[1].y),2))){
+        //pts[0]-pts[1] is long side
+        pts[0] = rectPoints[0];
+        pts[1] = rectPoints[1];
+        pts[2] = rectPoints[2];
+        pts[3] = rectPoints[3];
+    }else{
+        //pts[1]-pts[2] is long side
+        pts[0] = rectPoints[1];
+        pts[1] = rectPoints[2];
+        pts[2] = rectPoints[3];
+        pts[3] = rectPoints[0];
+    }
+}

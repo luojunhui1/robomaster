@@ -69,6 +69,7 @@ private:
     Point rotate(cv::Point target_point);
     float calPreAngle(float start_time,float end_time);
     void getPredictPoint(Mat src);
+    void getPts(RotatedRect armor);
 
     std::vector<cv::RotatedRect> target_armors;//可能的目标装甲板
     std::vector<cv::RotatedRect> armors;//图像中所有可能装甲板

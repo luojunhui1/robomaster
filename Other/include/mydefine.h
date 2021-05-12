@@ -56,7 +56,7 @@
 #endif
 
 #ifndef NUM_RECOGNIZE
-#define  NUM_RECOGNIZE 0
+#define  NUM_RECOGNIZE 1
 #endif
 
 /*IMAGEHEIGHT AND IMAGEWIDTH just for initialize the camera, maybe not the real frame format*/
@@ -94,7 +94,7 @@
 #endif
 
 #ifndef SVM_PARAM_PATH
-#define  SVM_PARAM_PATH "../Armor/resource/svm3.xml"
+#define  SVM_PARAM_PATH "../Armor/resource/svm.xml"
 #endif
 
 #ifndef SVM_IMAGE_SIZE

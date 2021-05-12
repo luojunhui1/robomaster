@@ -441,18 +441,6 @@ namespace rm
                     imshow("detect",detectFrame);
                 }
 
-                /**press key 'p' to pause or continue task**/
-                if(DEBUG || showOrigin || showEnergy)
-                {
-                    if(!pauseFlag && waitKey(30) == 'p'){pauseFlag = true;}
-
-                    if(pauseFlag)
-                    {
-                        while(waitKey() != 'p'){}
-                        pauseFlag = false;
-                    }
-                }
-
                 /****************************************Control Auxiliary**********************************************
                  1. Adjust the target Angle of the holder according to the distance D from the center of the mounting deck
                  to the center of the image. When D is large, set the target Angle of the holder to be larger; when D is
@@ -520,9 +508,22 @@ namespace rm
                 /*do energy things*/
                 solverPtr->GetPoseV(Point2f(0, 0),
                                     energyPtr->pts,
-                                    15, armorDetectorPtr->IsSmall());
-//                serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
-//                                armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
+                                    15, false);
+
+                serialPtr->pack(receiveData.yawAngle + solverPtr->yaw,receiveData.pitchAngle + solverPtr->pitch, solverPtr->dist, solverPtr->shoot,
+                                true, AUTO_SHOOT_STATE,0);
+            }
+
+            /**press key 'p' to pause or continue task**/
+            if(DEBUG || showOrigin || showEnergy)
+            {
+                if(!pauseFlag && waitKey(30) == 'p'){pauseFlag = true;}
+
+                if(pauseFlag)
+                {
+                    while(waitKey() != 'p'){}
+                    pauseFlag = false;
+                }
             }
 
             /** send data from host to low-end machine to instruct holder's movement **/

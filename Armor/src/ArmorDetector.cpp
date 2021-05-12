@@ -441,12 +441,20 @@ namespace rm
 //        bSubR = Mat(channels[0] - channels[2]);
 //        rSubB = Mat(channels[2] - channels[0]);
 
+//        Canny(bright,svmBinaryImage,0, 150);
+//
+//        imshow("Canny", svmBinaryImage);
+
+        threshold(bright, svmBinaryImage, 20, 255, CV_MINMAX);
+        //svmBinaryImage = bright.clone();
+
         GaussianBlur(bright,bright,Size(5,5),3);
         threshold(bright, thresholdMap, 130, 255, CV_MINMAX);
 
         colorMap = Mat_<int>(rSubB) - Mat_<int>(bSubR);
 
-        threshold(bright, svmBinaryImage, 50, 255, CV_MINMAX);
+        //threshold(bright, svmBinaryImage, 50, 255, CV_MINMAX);
+        //Canny(bright,svmBinaryImage,20, 255);
     }
 
     void ArmorDetectorGPU::PreprocessGPU(cuda::GpuMat& img)
@@ -688,15 +696,18 @@ namespace rm
         warpPerspective_mat = getPerspectiveTransform(srcPoints, dstPoints);
         warpPerspective(svmBinaryImage, warpPerspective_dst, warpPerspective_mat, Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE), INTER_NEAREST, BORDER_CONSTANT, Scalar(0)); //warpPerspective to get armorImage
 
-        warpPerspective_dst = warpPerspective_dst.colRange(8,32).clone();
+        warpPerspective_dst = warpPerspective_dst.colRange(6,34).clone();
         resize(warpPerspective_dst,warpPerspective_dst,Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE));
 
-        //imshow("warpPerspective_dst",warpPerspective_dst);
+        pyrDown(warpPerspective_dst,warpPerspective_dst);
+       // Canny(warpPerspective_dst,warpPerspective_dst, 0, 200);
+
+        imshow("warpPerspective_dst",warpPerspective_dst);
 
         svmParamMatrix = warpPerspective_dst.reshape(1, 1);
         svmParamMatrix.convertTo(svmParamMatrix, CV_32FC1);
 
-        int number = (int)svm->predict(svmParamMatrix);
+        int number = (int)(svm->predict(svmParamMatrix) + 0.5 );
 
         return number;
 #else
