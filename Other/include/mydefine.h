@@ -86,7 +86,7 @@
 #endif
 
 #ifndef SAVE_LOG
-#define  SAVE_LOG 0
+#define  SAVE_LOG 1
 #endif
 
 #ifndef GPUMODE

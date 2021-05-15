@@ -156,7 +156,7 @@ bool Serial::ReadData(struct ReceiveData &buffer_) {
         }
         catch(exception e)
         {
-            LOGE("Data Read Error!");
+            //LOGE("Data Read Error!");
             //cout << e.what() << endl;
             return false;
         }

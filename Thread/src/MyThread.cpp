@@ -50,29 +50,23 @@ namespace rm
     Mat WaveBackground = Mat(480,640,CV_8UC3,Scalar(0,0,0));
     auto *waveWindowPanel =new DisPlayWaveCLASS(WaveBackground, &originalX,&predictX);
 
-    double time;
-    int frequency;
+
+
     Mat debugWindowCanvas = Mat(300,500,CV_8UC1,Scalar(0));
+#endif
+
+#if DEBUG == 1 || SAVE_LOG == 1
+    double timeFlag, taskTime;
+    double frequency;
 #endif
 
     float yawTran = 0;
     float pitchTran = 0;
 
-    #define YAW_LIST_LEN 15
+#define YAW_LIST_LEN 15
     double yawList[YAW_LIST_LEN] = {0};
     double yawDeviation = 0;
     int yawListCount = 0;
-
-    static void sleep_ms(unsigned int secs)
-    {
-        struct timeval tval;
-
-        tval.tv_sec=secs/1000;
-
-        tval.tv_usec=(secs*1000)%1000000;
-
-        select(0,NULL,NULL,NULL,&tval);
-    }
 
     void ImgProdCons::SignalHandler(int)
     {
@@ -133,10 +127,10 @@ namespace rm
             driver(),
             missCount(0)
     {
-#if SAVE_LOG == 1
-        logWrite<<"Find    "<<"TARGET X    "<<"TARGET Y    "<<"TARGET HEIGHT    "<<"TARGET WIDTH    "<<"YAW    "<<"PITCH    "\
-    <<"SHOOT    "<<endl;
-#endif
+//#if SAVE_LOG == 1
+//        logWrite<<"Find    "<<"TARGET X    "<<"TARGET Y    "<<"TARGET HEIGHT    "<<"TARGET WIDTH    "<<"YAW    "<<"PITCH    "\
+//    <<"SHOOT    "<<endl;
+//#endif
     }
 
     void ImgProdCons::Init()
@@ -226,7 +220,10 @@ namespace rm
 
             putText(debugWindowCanvas,"SEARCH   MODE",Point(310,230),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
             putText(debugWindowCanvas,"TRACKING MODE",Point(310,260),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
-            time = (double)getTickCount();
+#endif
+
+#if SAVE_LOG == 1 || DEBUG == 1
+            timeFlag = (double)getTickCount();
 #endif
 
             if (!driver->Grab(frame) || frame.rows != FRAMEHEIGHT || frame.cols != FRAMEWIDTH)
@@ -253,6 +250,10 @@ namespace rm
             videowriter.write(detectFrame);
 #endif
 
+#if SAVE_LOG == 1
+            logWrite<<"Produce Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
+#endif
+
             detectMission  = energyMission = feedbackMission = false;
             produceMission = true;
             readCon.notify_all();
@@ -270,6 +271,11 @@ namespace rm
             putText(debugWindowCanvas,"Detect   Thread",Point(310,60),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
             line(debugWindowCanvas,Point(000,200),Point(499,200),Scalar(255),2,LINE_4);
 #endif
+
+#if SAVE_LOG == 1
+            taskTime = (double)getTickCount();
+#endif
+
             switch (curDetectMode)
             {
                 case SEARCH_MODE:
@@ -279,8 +285,8 @@ namespace rm
 #endif
                     if (armorDetectorPtr->ArmorDetectTask(detectFrame))
                     {
-                        armorDetectorPtr->tracker = TrackerKCF::create();
-                        armorDetectorPtr->tracker->init(detectFrame, armorDetectorPtr->targetArmor.rect);
+                        //armorDetectorPtr->tracker = TrackerKCF::create();
+                        //armorDetectorPtr->tracker->init(detectFrame, armorDetectorPtr->targetArmor.rect);
                         if(armorDetectorPtr->armorNumber > 0 && armorDetectorPtr->armorNumber < 6)
                             curDetectMode = SEARCH_MODE;
                     }
@@ -316,6 +322,10 @@ namespace rm
             LOGM("Detect Thread Completed\n");
 #endif
 
+#if SAVE_LOG == 1
+            logWrite<<"Detect Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
+#endif
+
             feedbackCon.notify_all();
 
         } while (!ImgProdCons::quitFlag);
@@ -342,7 +352,6 @@ namespace rm
 
     void ImgProdCons::Feedback()
     {
-        int count_test = 0;
         do {
             unique_lock<mutex> lock(feedbackLock);
             feedbackCon.wait(lock,[]{ return !feedbackMission&&detectMission&&energyMission;});
@@ -350,7 +359,9 @@ namespace rm
 #if DEBUG == 1
             putText(debugWindowCanvas,"FeedBack Thread",Point(310,120),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
 #endif
-
+#if SAVE_LOG == 1
+            taskTime = (double)getTickCount();
+#endif
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState)
                 {
@@ -369,7 +380,7 @@ namespace rm
                     coordinateBias = 0;
                 }
 #if DEBUG == 1
-                frequency = getTickFrequency()/((double)getTickCount() - time);
+                frequency = getTickFrequency()/((double)getTickCount() - timeFlag);
 
                 debugWindowCanvas.colRange(0,299).setTo(0);
                 putText(debugWindowCanvas,"Yaw: ",Point(10,30),FONT_HERSHEY_SIMPLEX,0.5,Scalar(255),1);
@@ -418,11 +429,11 @@ namespace rm
 //                waveWindowPanel->DisplayWave2();
 #endif
 
-#if SAVE_LOG == 1
-                logWrite<<armorDetectorPtr->findState<<"   "<<armorDetectorPtr->targetArmor.rect.x<<"    "<<armorDetectorPtr->targetArmor.rect.y\
-    <<"    "<<armorDetectorPtr->targetArmor.rect.height<<"    "<<armorDetectorPtr->targetArmor.rect.width<<"    "\
-    <<solverPtr->yaw<<"    "<<solverPtr->pitch<<"    "<<solverPtr->shoot<<endl;
-#endif
+//#if SAVE_LOG == 1
+//                logWrite<<armorDetectorPtr->findState<<"   "<<armorDetectorPtr->targetArmor.rect.x<<"    "<<armorDetectorPtr->targetArmor.rect.y\
+//    <<"    "<<armorDetectorPtr->targetArmor.rect.height<<"    "<<armorDetectorPtr->targetArmor.rect.width<<"    "\
+//    <<solverPtr->yaw<<"    "<<solverPtr->pitch<<"    "<<solverPtr->shoot<<endl;
+//#endif
 
                 /*******************************************************************************************************
                  * when the armor-detector has not detected target armor successfully, that may be caused by the suddenly
@@ -436,6 +447,7 @@ namespace rm
 
                     if(FRAMEHEIGHT > 1000)
                     {
+                        pyrDown(detectFrame,detectFrame);
                         pyrDown(detectFrame,detectFrame);
                     }
                     imshow("detect",detectFrame);
@@ -458,14 +470,12 @@ namespace rm
 
                 {
                     /** use feedbackDelta to adjust the speed for holder to follow the armor**/
-                    coordinateBias = abs((armorDetectorPtr->targetArmor.center.x/(FRAMEWIDTH/2)) - 1);
+                    //coordinateBias = fabs((armorDetectorPtr->targetArmor.center.x/(FRAMEWIDTH/2)) - 1);
                     yawDeviation = stdDeviation(yawList, YAW_LIST_LEN);
-
-                    if(yawDeviation < 1)
-                        feedbackDelta = 2.0 + 1.5*coordinateBias;
-                    else
-                        feedbackDelta = 0.5 + 0.5*coordinateBias;
-                }
+                    float cur = fabs((armorDetectorPtr->targetArmor.center.x - FRAMEWIDTH/2)/64) + 1;
+                    feedbackDelta = 1 + log(cur);
+                    //cout<<"cur : "<<cur<<"    "<<"delta : "<<feedbackDelta<<endl;
+                }s
 
                 if(!armorDetectorPtr->findState)
                 {
@@ -488,9 +498,11 @@ namespace rm
                 yawList[yawListCount++] = yawTran;
                 yawListCount = yawListCount%YAW_LIST_LEN;
 
+                kalman->SetKF(Point2f(yawTran, pitchTran) , false);
+
                 /** package data and prepare for sending data to lower-machine **/
                 if(carName != HERO)
-                    serialPtr->pack(receiveData.yawAngle + feedbackDelta*yawTran,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
+                    serialPtr->pack(receiveData.yawAngle + kalman->p_predictx,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 else
                 {
@@ -554,6 +566,11 @@ namespace rm
 
 #if DEBUG_MSG == 1
             LOGM("Feedback Thread Completed\n");
+#endif
+
+#if SAVE_LOG == 1
+            logWrite<<"Feedback Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
+            logWrite<<"Total Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
 #endif
 
             /**wake up threads blocked by writeCon**/

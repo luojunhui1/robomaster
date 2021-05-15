@@ -430,7 +430,7 @@ namespace rm {
             return Point2f(0,0);
         }
 
-        cout<<"Come in Update Filter"<<endl;
+        //cout<<"Come in Update Filter"<<endl;
         if(!UpdateFilter(targetPoint))
         {
             cout<<"Come in Update Filter"<<endl;
@@ -440,11 +440,11 @@ namespace rm {
         // position.x = KF_forecast.x_(0) + v_tx_old * 100;//fx
         // position.y = KF_forecast.x_(1) + v_ty_old * 50;//*ShootTime;
 
-        cout<<"Come in KF Forecast"<<endl;
+        //cout<<"Come in KF Forecast"<<endl;
         position.x = KF_forecast.x_(0);
         position.y = KF_forecast.x_(1);
 
-        cout<<"Old Update"<<endl;
+        //cout<<"Old Update"<<endl;
         v_tx_old = KF_forecast.x_(2)/1000;
         v_ty_old = KF_forecast.x_(3)/1000;
 
