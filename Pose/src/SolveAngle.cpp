@@ -4,7 +4,7 @@
 
 #define SHOOTFORMULAX(X) (60 - (abs(X - FRAMEWIDTH/2)))
 #define SHOOTFORMULAY(Y) (40 - (abs(Y - FRAMEHEIGHT/2)))
-#define SHOOTFORMULA(X,Y) (3600 - ((Y - FRAMEHEIGHT/2)*(Y - FRAMEHEIGHT/2) + (X - FRAMEWIDTH/2)*(X - FRAMEWIDTH/2)))
+#define SHOOTFORMULA(X,Y) (4500 - ((Y - FRAMEHEIGHT/2)*(Y - FRAMEHEIGHT/2) + (X - FRAMEWIDTH/2)*(X - FRAMEWIDTH/2)))
 
 using namespace cv;
 

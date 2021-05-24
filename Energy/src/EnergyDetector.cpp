@@ -104,8 +104,8 @@ void EnergyDetector::initEnergyPartParam() {
 
     _flow.twin_point_max = 20;
 
-    _flow.Center_R_Control_area_max = 200;//中心R标筛选相关参数
-    _flow.Center_R_Control_area_min = 60;
+    _flow.Center_R_Control_area_max = 80;//中心R标筛选相关参数
+    _flow.Center_R_Control_area_min = 30;
     _flow.Center_R_Control_length_max = 20;
     _flow.Center_R_Control_length_min = 6;
     _flow.Center_R_Control_width_max = 20;
@@ -146,23 +146,35 @@ void EnergyDetector::clearAll() {
  * @return null
  * @remark 能量机关任务执行接口
  */
- void EnergyDetector::EnergyTask(Mat& src, bool mode) {
+void EnergyDetector::EnergyTask(Mat& src, bool mode) {
     clearAll();
 
     Mat binary;
     BIG_MODE = mode;
 
+    // cout<<"ENERGY"<<endl;
     Mat img = src.clone();
     binary = preprocess(img);
-    if(showEnergy)
-        imshow("preprocess",binary);
+//    if(showEnergy)
+//        imshow("preprocess",binary);
 
-    detectArmor(binary,src);
-    detectFlowStripFan(binary,src);
-    detectR(binary,src);
-    getTargetPoint(binary, src);
+    detectArmor(binary);
+    detectFlowStripFan(binary);
+    //detectR(binary,src);
+    if(target_armor_centers.size()==3){
+        calR();
+        target_armor_centers.clear();
+    }
+    getTargetPoint(binary);
+
 
     getPredictPoint(src);
+
+    getPts(target_armor);
+
+#if DEBUG_MSG == 1
+    LOGM("GET TARGET!\n");
+#endif
 }
 /**
  * @brief EnergyDetector::preprocess
@@ -170,19 +182,31 @@ void EnergyDetector::clearAll() {
  * @return Mat& binary
  * @remark 图像预处理，完成二值化 todo 结合颜色分情况二值化
  */
-Mat EnergyDetector::preprocess(Mat &src) {
-    Mat dil = src.clone();
 
+Mat EnergyDetector::preprocess(Mat &src) {
     Mat dst,binary;
     cvtColor(src, dst, COLOR_BGR2GRAY);
-    if (blueTarget)
-    {
-        threshold(dst, binary, _flow.BLUE_GRAY_THRESH, 255, THRESH_BINARY);
+//    if (blueTarget)
+//    {
+//        threshold(dst, binary, _flow.BLUE_GRAY_THRESH, 255, THRESH_BINARY);
+//    }
+//    else
+//    {
+//        threshold(dst, binary, _flow.RED_GRAY_THRESH, 255, THRESH_BINARY);
+//    }
+    Mat single;
+    vector<Mat> channels;
+    split(src,channels);
+    if(blueTarget){
+        single = channels.at(0);
+    }else{
+        single = channels.at(2);
     }
-    else
-    {
-        threshold(dst, binary, _flow.RED_GRAY_THRESH, 255, THRESH_BINARY);
-    }
+
+    //cvtColor(single,bright,COLOR_BGR2GRAY);
+    threshold(single, binary, 130, 255, 32);
+
+    //imshow("bin",binary);
 
     return binary;
 }
@@ -192,24 +216,22 @@ Mat EnergyDetector::preprocess(Mat &src) {
  * @return null
  * @remark 检测所有可能的装甲
  */
-void EnergyDetector::detectArmor(Mat &src, Mat &show) {
+void EnergyDetector::detectArmor(Mat &src) {
     //armor dilate
     Mat armor_dilate = src.clone();
     Mat element_dilate_1 = Mat(5,5,CV_8UC1,255);
     element_dilate_1 = getStructuringElement(MORPH_RECT, Size(5, 5));
     dilate(armor_dilate, armor_dilate, element_dilate_1);
 
-    if(showEnergy)
-        imshow("dilate",armor_dilate);
-
     //寻找所有装甲
     std::vector<vector<Point> > armor_contours;
     std::vector<vector<Point> > armor_contours_external;//用总轮廓减去外轮廓，只保留内轮廓，除去流动条的影响。
     findContours(armor_dilate, armor_contours, RETR_LIST, CHAIN_APPROX_NONE);
     findContours(armor_dilate, armor_contours_external, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-    for (auto & i : armor_contours_external)//去除外轮廓
+
+    for (int i = 0; i < armor_contours_external.size(); i++)//去除外轮廓
     {
-        int external_contour_size = i.size();
+        int external_contour_size = armor_contours_external[i].size();
         for (int j = 0; j < armor_contours.size(); j++) {
             int all_size = armor_contours[j].size();
             if (external_contour_size == all_size) {
@@ -220,22 +242,12 @@ void EnergyDetector::detectArmor(Mat &src, Mat &show) {
         }
     }
     //drawContours(show,armor_contours,-1,Scalar(60, 0, 255));
-    for (const auto& armor_contour : armor_contours) {
+    for (auto &armor_contour : armor_contours) {
         if (!isValidArmorContour(armor_contour)) {
             continue;
         }
         armors.emplace_back(cv::minAreaRect(armor_contour));//回传所有装甲板到armors容器中
         armor_centers.emplace_back(cv::minAreaRect(armor_contour).center);//回传所有装甲板center到armor_center容器中
-    }
-
-    if(showEnergy){
-        for (const auto& armor : armors) {
-            Point2f vertices[4];      //定义矩形的4个顶点
-            armor.points(vertices);   //计算矩形的4个顶点
-            //rectangle(image2show,vertices[0],vertices[3],Scalar(255,0,0),2);
-            for (int i = 0; i < 4; i++)
-                line(show, vertices[i], vertices[(i + 1) % 4], Scalar(128, 0, 255), 3);
-        }
     }
 }
 
@@ -245,7 +257,7 @@ void EnergyDetector::detectArmor(Mat &src, Mat &show) {
  * @return null
  * @remark 检测所有可能的流动条所在的装甲板
  */
- void EnergyDetector::detectFlowStripFan(Mat &src, Mat &show) {
+void EnergyDetector::detectFlowStripFan(Mat &src) {
     //flow_strip_fan dilate
     Mat flow_fan_dilate = src.clone();
     //Mat element_dilate_1 = Mat(5,5,CV_8UC1,255);
@@ -285,16 +297,6 @@ void EnergyDetector::detectArmor(Mat &src, Mat &show) {
         LOGM("flow strip fan success!\n");
     }
 #endif
-
-    if(showEnergy){
-        for (auto flow_strip_fan : flow_strip_fans) {
-            Point2f vertices[4];      //定义矩形的4个顶点
-            flow_strip_fan.points(vertices);   //计算矩形的4个顶点
-            //rectangle(image2show,vertices[0],vertices[3],Scalar(255,0,0),2);
-            for (int i = 0; i < 4; i++)
-                line(show, vertices[i], vertices[(i + 1) % 4], Scalar(152, 251, 152), 3);
-        }
-    }
 }
 /**
  * @brief EnergyDetector::detectR
@@ -305,7 +307,7 @@ void EnergyDetector::detectArmor(Mat &src, Mat &show) {
 void EnergyDetector::detectR(Mat &src, Mat &show) {
     //R dilate
     Mat R_dilate = src.clone();
-    Mat gray_element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+    Mat gray_element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(10, 10));
     Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     Mat hsv;
     Mat mask;
@@ -316,7 +318,7 @@ void EnergyDetector::detectR(Mat &src, Mat &show) {
     R_dilate = R_dilate - mask;
     dilate(R_dilate, R_dilate, gray_element);
     erode(R_dilate, R_dilate, element);
-    imshow("R_dilate",R_dilate);
+//    imshow("R_dilate",R_dilate);
     //todo find R center
     vector<vector<Point> > center_R_contours;
     findContours(R_dilate, center_R_contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
@@ -369,23 +371,34 @@ void EnergyDetector::detectR(Mat &src, Mat &show) {
     else
         centerR = pre_centerR;
 
-    if (showEnergy) {
-        Point2f r[4];
-        centerR.points(r);
-        for (int i = 0; i < 4; i++) {
-            line(show, r[i], r[(i + 1) % 4], Scalar(0, 255, 255), 2);
-        }
-    }
-
     circle_center_point = centerR.center;
 }
+
+void EnergyDetector::calR() {
+    Point2f one = target_armor_centers[0];
+    Point2f two = target_armor_centers[1];
+    Point2f three = target_armor_centers[2];
+    float a1 = 2*(two.x-one.x);
+    float b1 = 2*(two.y-one.y);
+    float c1 = pow(two.x,2)+pow(two.y,2)-pow(one.x,2)-pow(one.y,2);
+    float a2 = 2*(three.x-two.x);
+    float b2 = 2*(three.y-two.y);
+    float c2 = pow(three.x,2)+pow(three.y,2)-pow(two.x,2)-pow(two.y,2);
+
+    circle_center_point.x = ((c1*b2)-(c2*b1))/((a1*b2)-(a2*b1));
+    circle_center_point.y = ((a1*c2)-(a2*c1))/((a1*b2)-(a2*b1));
+
+}
+
+
+
 /**
  * @brief EnergyDetector::getTargetPoint
  * @param Mat& src
  * @return null
  * @remark 根据armor与flowStripFan情况判断给出唯一目标装甲板target_armor以及其中心点target_point
  */
- void EnergyDetector::getTargetPoint(Mat &src, Mat &show) {
+void EnergyDetector::getTargetPoint(Mat &src) {
     //todo find armor in best_fan 目标armor
     for (auto &candidate_flow_strip_fan : flow_strip_fans) {
         //为target_armors打分
@@ -429,13 +442,11 @@ void EnergyDetector::detectR(Mat &src, Mat &show) {
         target_armor = lst_target_armor;
     }
     target_point = target_armor.center;
+    if(target_armor_centers.size()>0 &&target_armor_centers.size()<3&& pointDistance(target_point,target_armor_centers[target_armor_centers.size()-1])>60) {
+        target_armor_centers.push_back(target_point);
+        //cout<<"add"<<endl;
+    }else if(target_armor_centers.size()==0) target_armor_centers.push_back(target_point);
 
-    if(showEnergy){
-    Point2f vertices[4];//定义矩形的4个顶点
-    target_armor.points(vertices); //计算矩形的4个顶点
-    for (int i = 0; i < 4; i++)
-        line(show, vertices[i], vertices[(i + 1) % 4], Scalar(255, 128, 255), 2);
-    }
 }
 
 
@@ -462,19 +473,22 @@ void EnergyDetector::getPredictPoint(Mat src) {
         if (target_angle_1second.size() < FPS) {
             target_angle_1second.push_back(target_polar_angle);
             predict_rad_norm = SHOOT_TIME*small_rate;// default
+          //  cout<<"0"<<endl<<"-----------"<<endl;
         } else {
             target_angle_1second.erase(target_angle_1second.begin());
             target_angle_1second.push_back(target_polar_angle);
 
             //判断是否是新的待打击armor todo 跳一下的情况
             if (((int) abs(target_polar_angle - target_angle_1second[FPS-2] - 360) % 180) >= MAX_ANGLE) {
+               // cout<<"1"<<endl<<"-----------"<<endl;
                 //new_armor
                 //前若干帧还在跳 不能用？
                 tiao_armor_f++;
                 t1_real = getTickCount();
-                t1 = (t1_real - t0_real)*0.000000001 + t0;    //ms->s
+                t1 = (t1_real - t0_real)/getTickFrequency() + t0;    //ms->s
                 predict_rad_norm = calPreAngle(t1, t1 + shoot_Debug);    //用预测速度替代测量速度
             } else {
+               // cout<<"2"<<endl<<"-----------"<<endl;
                 //第一个
                 start_flag = true;
                 //稳定的new armor
@@ -484,12 +498,15 @@ void EnergyDetector::getPredictPoint(Mat src) {
                 float v0_rate_2 = (int) abs(target_angle_1second[FPS] - target_angle_1second[FPS / 2] - 360) % 180;
                 v0_rate = (int) abs(target_polar_angle - target_angle_1second[0] - 360) % 180;
                 v0_rate = v0_rate * PI / 180;
-                if ((v0_rate < 0.52) || (v0_rate > 2.09)) {
+                if (((v0_rate < 0.52) || (v0_rate > 2.09))) {     //((v0_rate < 0.52) || (v0_rate > 2.09))
+                    //cout<<"3"<<endl<<"-----------"<<endl;
                     t1_real = getTickCount();
-                    t1 = (t1_real - t0_real)*0.000000001 + t0;     //ms->s
+
+                    t1 = (t1_real - t0_real)/getTickFrequency() + t0;     //ms->s
                     predict_rad_norm = calPreAngle(t1, t1 + shoot_Debug);    //用预测速度替代测量速度
                 }
                 else{
+                   // cout<<"4"<<endl<<"-----------"<<endl;
                     float wt = asin(((v0_rate) - 1.305) / 0.785);       //wt--rad/s ,[-1,1]
                     if (wt > 0) {
                         if (v0_rate_1 > v0_rate_2)
@@ -512,18 +529,21 @@ void EnergyDetector::getPredictPoint(Mat src) {
     else if (energy_rotation_direction == -1) predict_rad = -predict_rad_norm;
     predict_point = rotate(target_point);
 
+    //cout<<"rate:"<<v0_rate<<endl;
+    //cout<<"angel:"<<predict_rad_norm<<endl;
+    //cout<<"fq:"<<getTickFrequency()<<endl;
     //predict_P = predict_point;
-    if(showEnergy)
-    {
-        circle(src,predict_point,2,Scalar(139,139,0),2);
-        circle(src,target_point,2,Scalar(0,139,139),2);
-
-        string ra = to_string(v0_rate);//转速---rad/s
-        putText(src,ra,Point(100,100),FONT_HERSHEY_PLAIN,2,Scalar(139,138,8));
-
-        string rad = to_string(predict_rad_norm);//提前角
-        putText(src,rad,Point(100,200),FONT_HERSHEY_PLAIN,2,Scalar(139,138,8));
-    }
+//    if(showEnergy)
+//    {
+//        circle(src,predict_point,2,Scalar(139,139,0),2);
+//        circle(src,target_point,2,Scalar(0,139,139),2);
+//
+//        string ra = to_string(v0_rate);//转速---rad/s
+//        putText(src,ra,Point(100,100),FONT_HERSHEY_PLAIN,2,Scalar(139,138,8));
+//
+//        string rad = to_string(predict_rad_norm);//提前角
+//        putText(src,rad,Point(100,200),FONT_HERSHEY_PLAIN,2,Scalar(139,138,8));
+//    }
 
 }
 
@@ -574,7 +594,7 @@ float EnergyDetector::calPreAngle(float start_time, float end_time) {
  * @return Point trans_point
  * @remark 计算预测的击打点坐标 todo 后续用toCartesian 替代
  */
-Point EnergyDetector::rotate(cv::Point target_point) {
+Point EnergyDetector::rotate(cv::Point target_point) const {
     int x1, x2, y1, y2;
     Point trans_point;
     //    为了减小强制转换的误差
@@ -613,7 +633,7 @@ bool EnergyDetector::isValidCenterRContour(const vector<cv::Point>& center_R_con
  * @return bool
  * @remark 判断找到的装甲Armor尺寸是否合格
  */
-bool EnergyDetector::isValidArmorContour(const vector<cv::Point>& armor_contour) {
+bool EnergyDetector::isValidArmorContour(const vector<cv::Point>& armor_contour) const {
     double cur_contour_area = contourArea(armor_contour);
     if (cur_contour_area > _flow.armor_contour_area_max ||
         cur_contour_area < _flow.armor_contour_area_min) {
@@ -642,7 +662,7 @@ bool EnergyDetector::isValidArmorContour(const vector<cv::Point>& armor_contour)
  * @return bool
  * @remark 判断找到的含有流动条的扇叶尺寸是否合格
  */
-bool EnergyDetector::isValidFlowStripFanContour(cv::Mat& src, const vector<cv::Point>& flow_strip_fan_contour) {
+bool EnergyDetector::isValidFlowStripFanContour(cv::Mat& src, const vector<cv::Point>& flow_strip_fan_contour) const {
     double cur_contour_area = contourArea(flow_strip_fan_contour);
     if (cur_contour_area > _flow.flow_strip_fan_contour_area_max ||
         cur_contour_area < _flow.flow_strip_fan_contour_area_min) {
@@ -716,7 +736,7 @@ void EnergyDetector::getPts(RotatedRect armor){
     armor.points(rectPoints); //计算矩形的4个顶点
     //judge long side
     if(sqrt(pow((rectPoints[0].x-rectPoints[1].x),2)+pow((rectPoints[0].y-rectPoints[1].y),2))
-        >sqrt(pow((rectPoints[2].x-rectPoints[1].x),2)+pow((rectPoints[2].y-rectPoints[1].y),2))){
+       >sqrt(pow((rectPoints[2].x-rectPoints[1].x),2)+pow((rectPoints[2].y-rectPoints[1].y),2))){
         //pts[0]-pts[1] is long side
         pts[0] = rectPoints[0];
         pts[1] = rectPoints[1];
@@ -729,4 +749,11 @@ void EnergyDetector::getPts(RotatedRect armor){
         pts[2] = rectPoints[3];
         pts[3] = rectPoints[0];
     }
+}
+
+Point EnergyDetector::getPredict(){
+    return predict_point;
+}
+Point EnergyDetector::getOffset(){
+    return predict_point-target_point;
 }

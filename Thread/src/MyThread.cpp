@@ -37,11 +37,15 @@ namespace rm
     bool energyMission = false;//when energy mission completed, energyMission is true, when produce mission completed, energyMission is false
     bool feedbackMission = false;//when feedback mission completed, feedbackMission is true, when produce mission completed, feedbackMission is false
 
-    int8_t curControlState = AUTO_SHOOT_STATE; //current control mode
+    int8_t curControlState = BIG_ENERGY_STATE; //current control mode
     uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
 
+    int direction = 0;
+    bool directionChangeFlag = false;
+    float yawOffset = 0;
+    float avg_yaw;
+
     RealSenseDriver intelCapture;// Intel D435 Camera Driver, when it is declared in class ImgProdCons, there are a segment fault when program runs
-    float coordinateBias;// the bias between armor center point and image center
 
     bool pauseFlag = false;
 
@@ -63,10 +67,17 @@ namespace rm
     float yawTran = 0;
     float pitchTran = 0;
 
-#define YAW_LIST_LEN 15
+#define YAW_LIST_LEN 20
     double yawList[YAW_LIST_LEN] = {0};
     double yawDeviation = 0;
     int yawListCount = 0;
+
+    /***record distance for debug**/
+    int dis_count = 0;
+    float dis_sum = 0;
+
+
+    int lost_target_count = 0;
 
     void ImgProdCons::SignalHandler(int)
     {
@@ -251,7 +262,7 @@ namespace rm
 #endif
 
 #if SAVE_LOG == 1
-            logWrite<<"Produce Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
+            //logWrite<<"Produce Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
 #endif
 
             detectMission  = energyMission = feedbackMission = false;
@@ -285,8 +296,6 @@ namespace rm
 #endif
                     if (armorDetectorPtr->ArmorDetectTask(detectFrame))
                     {
-                        //armorDetectorPtr->tracker = TrackerKCF::create();
-                        //armorDetectorPtr->tracker->init(detectFrame, armorDetectorPtr->targetArmor.rect);
                         if(armorDetectorPtr->armorNumber > 0 && armorDetectorPtr->armorNumber < 6)
                             curDetectMode = SEARCH_MODE;
                     }
@@ -295,7 +304,7 @@ namespace rm
                         curDetectMode = SEARCH_MODE;
                     }
                 }
-                break;
+                    break;
                 case TRACKING_MODE:
                 {
 #if DEBUG == 1
@@ -310,7 +319,7 @@ namespace rm
                         curDetectMode = SEARCH_MODE;
                     }
                 }
-                break;
+                    break;
                 default:
                     /**do some thing about serial to correct the transmission task**/
                     break;
@@ -323,7 +332,7 @@ namespace rm
 #endif
 
 #if SAVE_LOG == 1
-            logWrite<<"Detect Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
+            // logWrite<<"Detect Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
 #endif
 
             feedbackCon.notify_all();
@@ -365,6 +374,7 @@ namespace rm
             if(curControlState == AUTO_SHOOT_STATE) {
                 if (armorDetectorPtr->findState)
                 {
+                    //cout<<armorDetectorPtr->targetArmor.center.x<<" "<<armorDetectorPtr->targetArmor.center.y<<endl;
 
 #if DEBUG_MSG == 1
                     LOGW("Target Armor Founded!\n");
@@ -373,11 +383,11 @@ namespace rm
                     solverPtr->GetPoseV(Point2f(0, 0),
                                         armorDetectorPtr->targetArmor.pts,
                                         15, armorDetectorPtr->IsSmall());
+                    /**record distance for debug**/
+                    dis_count++;
+                    dis_sum += solverPtr->dist;
 
-                }
-                else
-                {
-                    coordinateBias = 0;
+                    // LOGM("DIS AVG : %f\n", dis_sum/dis_count);
                 }
 #if DEBUG == 1
                 frequency = getTickFrequency()/((double)getTickCount() - timeFlag);
@@ -468,17 +478,9 @@ namespace rm
                  holder.
                  *******************************************************************************************************/
 
-                {
-                    /** use feedbackDelta to adjust the speed for holder to follow the armor**/
-                    //coordinateBias = fabs((armorDetectorPtr->targetArmor.center.x/(FRAMEWIDTH/2)) - 1);
-                    yawDeviation = stdDeviation(yawList, YAW_LIST_LEN);
-                    float cur = fabs((armorDetectorPtr->targetArmor.center.x - FRAMEWIDTH/2)/64) + 1;
-                    feedbackDelta = 1 + log(cur);
-                    //cout<<"cur : "<<cur<<"    "<<"delta : "<<feedbackDelta<<endl;
-                }s
-
                 if(!armorDetectorPtr->findState)
                 {
+                    //LOGE("lost_target_count : %d\n", ++lost_target_count);
                     yawTran /= 1.2;
                     pitchTran /= 1.2;
 
@@ -490,19 +492,47 @@ namespace rm
                 }
                 else
                 {
-                    yawTran = solverPtr->yaw - 22;
-                    pitchTran = solverPtr->pitch + 17.5;
+                    lost_target_count = 0;
+                    yawTran = solverPtr->yaw - 23;
+                    pitchTran = solverPtr->pitch + 16.5;
                 }
 
                 /** update yaw list and yawListCount **/
                 yawList[yawListCount++] = yawTran;
                 yawListCount = yawListCount%YAW_LIST_LEN;
 
-                kalman->SetKF(Point2f(yawTran, pitchTran) , false);
+                {
+                    /** use feedbackDelta to adjust the speed for holder to follow the armor**/
+
+                    yawDeviation = stdDeviation(yawList, YAW_LIST_LEN);
+                    avg_yaw = average(yawList, YAW_LIST_LEN);
+
+                    if(direction == 0)
+                    {
+                        if( yawDeviation < 0.7 && avg_yaw > 0.2)
+                            yawOffset = -2;
+                        else if(yawDeviation < 0.7 && avg_yaw < -0.2)
+                            yawOffset = 2;
+                        else
+                            yawOffset = 0;
+                    }
+                    else if(direction == 1 || (yawDeviation < 0.7 && avg_yaw > 0.2))
+                    {
+                        yawOffset = -2;
+                    }else if(direction == 2 || (yawDeviation < 0.7 && avg_yaw < -0.2))
+                    {
+                        yawOffset = 2;
+                    }
+                }
+
+                if(armorDetectorPtr->findState&&((yawTran < 1 && pitchTran < 1) || yawDeviation < 1))
+                    solverPtr->shoot = true;
+                else
+                    solverPtr->shoot = false;
 
                 /** package data and prepare for sending data to lower-machine **/
                 if(carName != HERO)
-                    serialPtr->pack(receiveData.yawAngle + kalman->p_predictx,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
+                    serialPtr->pack(receiveData.yawAngle + yawTran + yawOffset,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 else
                 {
@@ -511,6 +541,7 @@ namespace rm
                                     armorDetectorPtr->findState, AUTO_SHOOT_STATE,0);
                 }
 
+                feedbackDelta = 1;
 #if DEBUG_MSG == 1
                 LOGM("Write Data\n");
 #endif
@@ -518,6 +549,16 @@ namespace rm
             else
             {
                 /*do energy things*/
+                if(showEnergy)
+                {
+                    circle(energyFrame,energyPtr->predict_point,5,Scalar(128,128,0),-1);
+                    circle(energyFrame,energyPtr->circle_center_point,5,Scalar(0,128,128),-1);
+                    for(auto pts:energyPtr->target_armor_centers){
+                        circle(energyFrame,pts,5,Scalar(128,0,0),-1);
+                    }
+                    imshow("energy",energyFrame);
+                }
+
                 solverPtr->GetPoseV(Point2f(0, 0),
                                     energyPtr->pts,
                                     15, false);
@@ -555,12 +596,15 @@ namespace rm
                  * received, receiveData.targetColor means the color of OUR robot, but not the enemy's**/
                 blueTarget = (receiveData.targetColor) == 0;
 
+                direction = +static_cast<int>(receiveData.direction);
+
 #if DEBUG_MSG == 1
                 LOGM("BlueTarget: %d\n",(int)blueTarget);
 #endif
             }
 
             /**update condition variables**/
+
             produceMission = false;
             feedbackMission = true;
 
@@ -569,8 +613,9 @@ namespace rm
 #endif
 
 #if SAVE_LOG == 1
-            logWrite<<"Feedback Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
-            logWrite<<"Total Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
+            //logWrite<<"Feedback Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
+            //logWrite<<"Total Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
+            logWrite<<yawTran<<" ,"<<direction<<" ,"<<lost_target_count<<", "<<directionChangeFlag<<endl;
 #endif
 
             /**wake up threads blocked by writeCon**/

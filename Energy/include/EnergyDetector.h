@@ -32,8 +32,13 @@ public:
     ~EnergyDetector();//析构函数
 
     void EnergyTask(Mat& src, bool mode);//接口
-
+    Point getPredict();
+    Point getOffset();
     vector<Point2f> pts;
+    cv::Point target_point;//目标装甲板中心坐标
+    cv::Point predict_point;//预测的击打点坐标
+    cv::Point circle_center_point;//风车圆心坐标
+    std::vector<cv::Point2f> target_armor_centers;//get R
 
 private:
     polarLocal polar_t;
@@ -47,6 +52,8 @@ private:
     bool inter_flag = false;//是否contour有交集
     bool start_flag = false;//是否开始预测
 
+
+
     WindmillParamFlow _flow;
     McuData mcu_data;
 
@@ -54,19 +61,20 @@ private:
     void initEnergy();//能量机关初始化
     void initEnergyPartParam();//能量机关参数初始化
     Mat preprocess(Mat& src);
-    void detectArmor(Mat &src,Mat &show);
-    void detectFlowStripFan(Mat &src, Mat &show);
+    void detectArmor(Mat &src);
+    void detectFlowStripFan(Mat &src);
     void detectR(Mat &src, Mat &show);
-    void getTargetPoint(Mat &src, Mat &show);
+    void calR();
+    void getTargetPoint(Mat &src);
 
-    bool isValidArmorContour(const vector<cv::Point>& armor_contour);//装甲板矩形尺寸要求
+    bool isValidArmorContour(const vector<cv::Point>& armor_contour) const;//装甲板矩形尺寸要求
     bool isValidCenterRContour(const vector<cv::Point>& center_R_contour);//风车中心选区尺寸要求
-    bool isValidFlowStripFanContour(cv::Mat& src, const vector<cv::Point>& flow_strip_fan_contour);//流动条扇叶矩形尺寸要求
+    bool isValidFlowStripFanContour(cv::Mat& src, const vector<cv::Point>& flow_strip_fan_contour) const;//流动条扇叶矩形尺寸要求
 
     double pointDistance(cv::Point point_1, cv::Point point_2);//计算两点距离
     polarLocal toPolar(Point cart);
     Point toCartesian(polarLocal pol);
-    Point rotate(cv::Point target_point);
+    Point rotate(cv::Point target_point) const;
     float calPreAngle(float start_time,float end_time);
     void getPredictPoint(Mat src);
     void getPts(RotatedRect armor);
@@ -77,14 +85,14 @@ private:
     std::vector<cv::RotatedRect> centerRs;//可能的中心
     std::vector<cv::Point2f> armor_centers;//用来做最小二乘拟合
 
+
+
     cv::RotatedRect centerR;//风车中心字母R
     cv::RotatedRect pre_centerR;//风车中心字母R
     cv::RotatedRect target_armor;//目标装甲板
     cv::RotatedRect lst_target_armor;//目标装甲板
-    cv::Point circle_center_point;//风车圆心坐标
 
-    cv::Point target_point;//目标装甲板中心坐标
-    cv::Point predict_point;//预测的击打点坐标
+
 
     int energy_rotation_direction;//风车旋转方向
     int clockwise_rotation_init_cnt;//装甲板顺时针旋转次数

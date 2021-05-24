@@ -24,7 +24,7 @@
 #include "V4L2KAS.h"
 #include "VideoDriver.hpp"
 
-#include "RMTools.hpp"
+#include "utility.hpp"
 
 using namespace RMTools;
 using namespace std;

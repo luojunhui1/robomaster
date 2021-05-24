@@ -181,7 +181,7 @@ namespace rm
 
         vector<Lamp> LightDetection(Mat& img);
 
-        void LoadSvmModel(const char *model_path, Size armorImgSize = Size(40, 40));
+        void LoadSvmModel(const char *model_path, const Size& armorImgSize = Size(40, 40));
 
         void SetSVMRectPoints(Point2f& lt, Point2f& rt, Point2f& lb, Point2f& rb);
         void SetSVMRectPoints(Point2f&& lt, Rect& rectArea);
@@ -195,7 +195,7 @@ namespace rm
 
         bool IsSmall() const;
 
-        void saveMatchParam(FILE* fileP,int selectedIndex1,int selectedIndex2);
+        static void saveMatchParam(FILE* fileP,int selectedIndex1,int selectedIndex2);
 
         /**state member variables**/
     public:

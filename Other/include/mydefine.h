@@ -74,7 +74,7 @@
 #endif
 
 #ifndef DEBUG
-#define  DEBUG 1
+#define  DEBUG 0
 #endif
 
 #ifndef DEBUG_MSG
@@ -86,7 +86,7 @@
 #endif
 
 #ifndef SAVE_LOG
-#define  SAVE_LOG 1
+#define  SAVE_LOG 0
 #endif
 
 #ifndef GPUMODE

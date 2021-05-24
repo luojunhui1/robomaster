@@ -142,21 +142,9 @@ namespace rm
 
         Preprocess(imgRoi);
 
-        /*open two threads to recogniztion number and finding target armor*/
+        /*open two threads to recognition number and finding target armor*/
 
         DetectArmor();
-//#if NUM_RECOGNIZE == 1
-//        GetArmorNumber();
-//#endif
-//        std::thread detectArmorThread(&ArmorDetector::DetectArmor, this);
-//        detectArmorThread.join();
-//
-//        std::thread getArmorNumberThread(&ArmorDetector::GetArmorNumber,this);
-//        getArmorNumberThread.join();
-
-//        DetectArmor(img);
-//
-//        GetArmorNumber();
 
         img_ = img.clone();
 
@@ -383,7 +371,9 @@ namespace rm
                 MakeRectSafe(curArmor.rect,roiRect.size());
 
                 SetSVMRectPoints(curArmor.pts[0],curArmor.pts[1],curArmor.pts[2],curArmor.pts[3]);
-                if(armorNumber != 0 && GetArmorNumber() == armorNumber)
+
+                armorNumber = GetArmorNumber();
+                if(armorNumber != 0 && (armorNumber == 1) || (armorNumber == 3) || (armorNumber == 4))
                 {
                     targetMatchIndex = i;
                     break;
@@ -394,7 +384,7 @@ namespace rm
                     curSmallestHeightError = fabs(matchLights[i].lampHeight - lastTarget.armorHeight);
                 }
                 matchPossibleArmorCount++;
-                if(matchPossibleArmorCount == 3)
+                if(matchPossibleArmorCount == 5)
                     break;
             }
         }
@@ -438,23 +428,14 @@ namespace rm
         //Attention!!!if the calculate result is small than 0, because the mat format is CV_UC3, it will be set as 0.
         cv::subtract(channels[0],channels[2],bSubR);
         cv::subtract(channels[2],channels[1],rSubB);
-//        bSubR = Mat(channels[0] - channels[2]);
-//        rSubB = Mat(channels[2] - channels[0]);
 
-//        Canny(bright,svmBinaryImage,0, 150);
-//
-//        imshow("Canny", svmBinaryImage);
 
         threshold(bright, svmBinaryImage, 20, 255, CV_MINMAX);
-        //svmBinaryImage = bright.clone();
 
         GaussianBlur(bright,bright,Size(5,5),3);
         threshold(bright, thresholdMap, 130, 255, CV_MINMAX);
 
         colorMap = Mat_<int>(rSubB) - Mat_<int>(bSubR);
-
-        //threshold(bright, svmBinaryImage, 50, 255, CV_MINMAX);
-        //Canny(bright,svmBinaryImage,20, 255);
     }
 
     void ArmorDetectorGPU::PreprocessGPU(cuda::GpuMat& img)
@@ -654,7 +635,7 @@ namespace rm
      * @param armorImgSize size of armor
      * @return none
      */
-    void ArmorDetector::LoadSvmModel(const char *model_path, Size armorImgSize)
+    void ArmorDetector::LoadSvmModel(const char *model_path, const Size& armorImgSize)
     {
         svm = StatModel::load<SVM>(model_path);
         if(svm.empty())
@@ -702,7 +683,7 @@ namespace rm
         pyrDown(warpPerspective_dst,warpPerspective_dst);
        // Canny(warpPerspective_dst,warpPerspective_dst, 0, 200);
 
-        imshow("warpPerspective_dst",warpPerspective_dst);
+       // imshow("warpPerspective_dst",warpPerspective_dst);
 
         svmParamMatrix = warpPerspective_dst.reshape(1, 1);
         svmParamMatrix.convertTo(svmParamMatrix, CV_32FC1);

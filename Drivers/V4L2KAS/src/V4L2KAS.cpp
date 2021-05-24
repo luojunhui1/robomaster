@@ -90,6 +90,7 @@ namespace V4L2KAS
             printf("Unable to get format\n");
             return false;
         }
+
         {
             printf("fmt.type:\t\t%d\n",fmt.type);
             printf("pix.pixelformat:\t%c%c%c%c\n",fmt.fmt.pix.pixelformat & 0xFF, (fmt.fmt.pix.pixelformat >> 8) & 0xFF,(fmt.fmt.pix.pixelformat >> 16) & 0xFF, (fmt.fmt.pix.pixelformat >> 24) & 0xFF);
@@ -195,6 +196,7 @@ namespace V4L2KAS
 
         return true;
     }
+
     bool V4L2Driver::StartGrab()
     {
         return true;

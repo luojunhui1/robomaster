@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define DEPTH_FORMAT          RS2_FORMAT_Z16    // rs2_format identifies how binary data is encoded within a frame//
 #define COLOR_FORMAT          RS2_FORMAT_BGR8    // rs2_format identifies how binary data is encoded within a frame//
-#define FPS             60                // Defines the rate of frames per second                                //
+#define FPS             30                // Defines the rate of frames per second                                //
 #define STREAM_INDEX    0           // Defines the stream index, used for multiple streams of the same type //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
