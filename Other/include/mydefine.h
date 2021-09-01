@@ -23,12 +23,12 @@
 #define  BIG_ENERGY_STATE 2
 #endif
 
-#ifndef SEARCH_MODE
-#define   SEARCH_MODE 3
+#ifndef MODEL_MODE
+#define   MODEL_MODE 3
 #endif
 
-#ifndef TRACKING_MODE
-#define  TRACKING_MODE 4
+#ifndef TRADITION_MODE
+#define  TRADITION_MODE 4
 #endif
 
 #ifndef BIG_ARMOR
@@ -74,7 +74,7 @@
 #endif
 
 #ifndef DEBUG
-#define  DEBUG 0
+#define  DEBUG 1
 #endif
 
 #ifndef DEBUG_MSG
@@ -86,7 +86,7 @@
 #endif
 
 #ifndef SAVE_LOG
-#define  SAVE_LOG 0
+#define  SAVE_LOG 1
 #endif
 
 #ifndef GPUMODE

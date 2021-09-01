@@ -25,6 +25,7 @@
 #include <opencv2/cudafilters.hpp>
 #include <opencv2/cudaoptflow.hpp>
 #include <opencv2/ml.hpp>
+#include <opencv2/dnn.hpp>
 
 #include <iostream>
 #include <cmath>
@@ -39,6 +40,7 @@
 using namespace std;
 using namespace cv;
 using namespace ml;
+using namespace cv::dnn;
 
 namespace rm
 {
@@ -142,7 +144,7 @@ namespace rm
         }
 
         Armor(Lamp L1, Lamp L2, double priority_);
-
+        explicit Armor(Rect &rect);
         void init();
 
         float errorAngle;
@@ -153,7 +155,7 @@ namespace rm
         float armorHeight;
         int armorType;
         double priority;
-        float avgRSubBVal;
+        float avgRSubBVal{};
     };
 
     /**
@@ -218,6 +220,9 @@ namespace rm
         /*clone of image passed in*/
         Mat img;
 
+        /*loss cnt*/
+        int lossCnt;
+
         /** variables would be used in functions**/
     private:
 
@@ -253,7 +258,6 @@ namespace rm
         /*the counter for successfully detection of target armor*/
         int armorFoundCounter = 0;
 
-
         /**parameters used for lamps recognizing and lamps matching**/
     private:
 
@@ -278,32 +282,28 @@ namespace rm
         Mat warpPerspective_mat; //warpPerspective transform matrix 透射变换的变换矩阵
         Point2f srcPoints[4];   //warpPerspective srcPoints		透射变换的原图上的目标点 tl->tr->br->bl  左上 右上 右下 左下
         Point2f dstPoints[4];	//warpPerspective dstPoints     透射变换的目标图中的点   tl->tr->br->bl  左上 右上 右下 左下
-    };
 
-    class ArmorDetectorGPU
-    {
-        bool ArmorDetectTaskGPU(Mat &img);
-
-        bool DetectArmorGPU(Mat &img);
-
-        void PreprocessGPU(cuda::GpuMat& img);
-
+    //deep learning
     private:
-        cuda::Stream stream;
-        cuda::GpuMat gpuImg,gpuRoiImg,gpuRoiImgFloat;
-        vector<cuda::GpuMat> gpuRoiImgVector;
+        String cfgPath;
+        String weightPath;
+        Net net;
+        std::vector<String> outNames;
+        std::vector<Mat> outs;
 
-        cuda::GpuMat gpuGray,gpuBlur,gpuBright;
-        cuda::GpuMat gpuBSubR;
-        cuda::GpuMat gpuRSubB;
-        cuda::GpuMat gpuColorMap;
+        Mat inputBlob;
+        double confidence;
+        Point classIdPoint;
+        vector<Rect> boxes;
+        vector<int> classIds;
+        vector<float> confidences;
+        vector<int> indices;
 
-        cuda::GpuMat gpuEdge;
-
-        Ptr<cuda::Filter> gauss = cuda::createGaussianFilter(CV_32F, -1, Size(5, 5), 3);
-        cv::Ptr<cv::cuda::CannyEdgeDetector> canny_edg = cv::cuda::createCannyEdgeDetector(100.0, 200.0, 3, false);
+        bool find_not_engineer;
+        int dis2LastCenter;
+    public:
+        bool ModelDetectTask(Mat &frame);
     };
-
 
     /**
      * @param a an instance of a pair of matched lamps

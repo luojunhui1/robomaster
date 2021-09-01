@@ -51,10 +51,14 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+#network parameters
+*.weights
+*.cfg
+
 #directories
 .git
 cmake-build-debug
 .idea
 build
-
+Armor/resource
 

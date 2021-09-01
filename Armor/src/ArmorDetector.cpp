@@ -83,6 +83,27 @@ namespace rm
         }
     }
 
+    Armor::Armor(Rect &rect)
+    {
+        errorAngle = 0;
+        center = rect.tl() + Point(rect.width/2, rect.height/2);
+        this->rect = rect;
+
+        pts.resize(4);
+
+        pts[0] = rect.tl();
+        pts[1] = rect.tl() + Point(rect.width, 0);
+        pts[2] = rect.tl() + Point(rect.width, rect.height);
+        pts[3] = rect.tl() + Point(0, rect.height);
+
+        armorWidth = rect.width;
+        armorHeight = rect.height;
+
+        armorType =  (armorWidth / armorHeight > 2) ? (BIG_ARMOR) : (SMALL_ARMOR);
+
+        priority = 0;
+
+    }
     /**
     * @brief ArmorDetector constructor
     * @param none
@@ -123,6 +144,22 @@ namespace rm
         lostCnt = 120;
         armorNumber = 0;
         LoadSvmModel(SVM_PARAM_PATH,Size(SVM_IMAGE_SIZE,SVM_IMAGE_SIZE));
+        lossCnt = 0;
+
+        cfgPath = "../Armor/resource/conf.cfg";
+        weightPath = "../Armor/resource/528.weights";
+
+        net =Net(DetectionModel(cfgPath, weightPath));
+        net.setPreferableBackend(DNN_BACKEND_CUDA);
+        net.setPreferableTarget(DNN_TARGET_CUDA);
+        outNames = net.getUnconnectedOutLayersNames();
+
+        for (int i = 0; i < outNames.size(); i++)
+        {
+            printf("output layer name : %s\n", outNames[i].c_str());
+        }
+
+        find_not_engineer = false;
     }
 
     /**
@@ -149,11 +186,6 @@ namespace rm
         img_ = img.clone();
 
         return findState;
-    }
-
-    bool ArmorDetectorGPU::ArmorDetectTaskGPU(Mat &img)
-    {
-        return DetectArmorGPU(img);
     }
 
     /**
@@ -236,11 +268,6 @@ namespace rm
 
             return false;
         }
-    }
-
-    bool ArmorDetectorGPU::DetectArmorGPU(Mat &img)
-    {
-
     }
 
     /**
@@ -436,29 +463,6 @@ namespace rm
         threshold(bright, thresholdMap, 130, 255, CV_MINMAX);
 
         colorMap = Mat_<int>(rSubB) - Mat_<int>(bSubR);
-    }
-
-    void ArmorDetectorGPU::PreprocessGPU(cuda::GpuMat& img)
-    {
-        img.convertTo(gpuRoiImgFloat,CV_32F,stream);
-
-        cuda::split(gpuRoiImgFloat,gpuRoiImgVector,stream);
-
-        cuda::cvtColor(gpuRoiImgFloat,gpuGray,CV_BGR2GRAY,0,stream);
-
-        cuda::subtract(gpuRoiImgVector[0],gpuRoiImgVector[2],gpuBSubR,noArray(),-1,stream);
-
-        cuda::subtract(gpuRoiImgVector[2],gpuRoiImgVector[0],gpuRSubB,noArray(),-1,stream);
-
-        cuda::add(gpuBSubR,gpuRSubB,gpuColorMap,noArray(),-1,stream);
-
-        gauss->apply(gpuGray,gpuBlur);
-
-        cuda::threshold(gpuBlur,gpuBright,180,255,THRESH_BINARY,stream);
-
-        gpuBright.convertTo(gpuEdge,CV_8UC1,stream);
-
-        canny_edg->detect(gpuEdge, gpuEdge,stream);
     }
 
     /**
@@ -720,5 +724,107 @@ namespace rm
     bool compMatchFactor(const MatchLight a, const MatchLight b)
     {
         return a.matchFactor < b.matchFactor;
+    }
+
+    bool ArmorDetector::ModelDetectTask(Mat &frame)
+    {
+        inputBlob = blobFromImage(frame, 1 / 255.F, Size(320, 320), Scalar(), true, false);//输入图像设置，input为32的整数倍，不同尺寸速度不同精度不同
+
+        net.setInput(inputBlob);
+
+        net.forward(outs, outNames);
+
+        boxes.clear();
+        classIds.clear();
+        confidences.clear();
+
+        for (auto & out : outs)
+        {
+            // detected objects and C is a number of classes + 4 where the first 4
+            float* data = (float*)out.data;
+            for (int j = 0; j < out.rows; ++j, data += out.cols)
+            {
+                Mat scores = out.row(j).colRange(5, out.cols);
+                minMaxLoc(scores, nullptr, &confidence, 0, &classIdPoint);
+                if (confidence > 0.5)
+                {
+                    int centerX = (int)(data[0] * frame.cols);
+                    int centerY = (int)(data[1] * frame.rows);
+                    int width = (int)(data[2] * frame.cols);
+                    int height = (int)(data[3] * frame.rows);
+                    int left = centerX - width / 2;
+                    int top = centerY - height / 2;
+
+                    classIds.push_back(classIdPoint.x);
+                    confidences.push_back((float)confidence);
+                    boxes.push_back(Rect(left, top, width, height));
+                }
+            }
+        }
+
+        //---------------------------非极大抑制---------------------------
+        NMSBoxes(boxes, confidences, 0.5, 0.5, indices);
+
+        int index;
+        findState = false;
+
+        dis2LastCenter = 1<<30;
+
+        for (index = 0; index < indices.size(); ++index)
+        {
+            if((classIds[indices[index]] < 7 && blueTarget) || (classIds[indices[index]] > 7 && !blueTarget))
+                continue;
+
+            if(!find_not_engineer && indices[index] != 1 && indices[index] != 8)
+            {
+                targetArmor = Armor(boxes[indices[index]]);
+                findState = true;
+                break;
+            }
+            else if(find_not_engineer)
+            {
+                Point curr = (boxes[indices[index]].tl() + boxes[indices[index]].br())/2 - lastTarget.center;
+                if(dis2LastCenter > curr.x*curr.x + curr.y*curr.y)
+                {
+                    targetArmor = Armor(boxes[indices[index]]);
+                    findState = true;
+                    find_not_engineer = classIds[indices[index]] == 1 || classIds[indices[index]] == 8;
+                }
+            }
+        }
+
+        if (findState)
+        {
+            detectCnt++;
+            lostCnt = 0;
+
+            MakeRectSafe(targetArmor.rect, img.size());
+
+            if (showArmorBox)
+            {
+                //rectangle(frame,roiRect,Scalar(255,255,255),2);
+
+                for (int j = 0; j < 4; j++) {
+                    line(frame, targetArmor.pts[j], targetArmor.pts[(j + 1) % 4], Scalar(0, 255, 255), 2);
+                }
+
+                circle(frame,targetArmor.center,10,Scalar(0,255,255),-1);
+            }
+
+            /**update roi rect, last armor, average of lamps' R channel subtract B channel value**/
+#if USEROI == 1
+            roiRect = targetArmor.rect;
+#endif
+
+            lastTarget = targetArmor;
+
+            return true;
+        }
+        else
+        {
+            detectCnt = 0;
+            lostCnt++;
+            return false;
+        }
     }
 }

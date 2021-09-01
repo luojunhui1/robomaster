@@ -37,8 +37,8 @@ namespace rm
     bool energyMission = false;//when energy mission completed, energyMission is true, when produce mission completed, energyMission is false
     bool feedbackMission = false;//when feedback mission completed, feedbackMission is true, when produce mission completed, feedbackMission is false
 
-    int8_t curControlState = BIG_ENERGY_STATE; //current control mode
-    uint8_t curDetectMode = SEARCH_MODE; //tracking or searching
+    int8_t curControlState = AUTO_SHOOT_STATE; //current control mode
+    uint8_t curDetectMode = TRADITION_MODE; //tracking or searching
 
     int direction = 0;
     bool directionChangeFlag = false;
@@ -75,9 +75,6 @@ namespace rm
     /***record distance for debug**/
     int dis_count = 0;
     float dis_sum = 0;
-
-
-    int lost_target_count = 0;
 
     void ImgProdCons::SignalHandler(int)
     {
@@ -138,10 +135,10 @@ namespace rm
             driver(),
             missCount(0)
     {
-//#if SAVE_LOG == 1
-//        logWrite<<"Find    "<<"TARGET X    "<<"TARGET Y    "<<"TARGET HEIGHT    "<<"TARGET WIDTH    "<<"YAW    "<<"PITCH    "\
-//    <<"SHOOT    "<<endl;
-//#endif
+            //#if SAVE_LOG == 1
+            //        logWrite<<"Find    "<<"TARGET X    "<<"TARGET Y    "<<"TARGET HEIGHT    "<<"TARGET WIDTH    "<<"YAW    "<<"PITCH    "\
+            //    <<"SHOOT    "<<endl;
+            //#endif
     }
 
     void ImgProdCons::Init()
@@ -240,6 +237,7 @@ namespace rm
             if (!driver->Grab(frame) || frame.rows != FRAMEHEIGHT || frame.cols != FRAMEWIDTH)
             {
                 missCount++;
+                LOGW("FRAME GRAB FAILED!\n");
                 if(missCount > 5)
                 {
                     driver->StopGrab();
@@ -262,7 +260,7 @@ namespace rm
 #endif
 
 #if SAVE_LOG == 1
-            //logWrite<<"Produce Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
+            logWrite<<"[Produce Time Consume] : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
 #endif
 
             detectMission  = energyMission = feedbackMission = false;
@@ -289,34 +287,34 @@ namespace rm
 
             switch (curDetectMode)
             {
-                case SEARCH_MODE:
+                case MODEL_MODE:
                 {
 #if DEBUG == 1
                     circle(debugWindowCanvas,Point(480,225),8,Scalar(255),-1);
 #endif
-                    if (armorDetectorPtr->ArmorDetectTask(detectFrame))
+                    if (armorDetectorPtr->ModelDetectTask(detectFrame))
                     {
-                        if(armorDetectorPtr->armorNumber > 0 && armorDetectorPtr->armorNumber < 6)
-                            curDetectMode = SEARCH_MODE;
+                            curDetectMode = MODEL_MODE;
                     }
                     else
                     {
-                        curDetectMode = SEARCH_MODE;
+                        curDetectMode = MODEL_MODE;
                     }
                 }
                     break;
-                case TRACKING_MODE:
+                case TRADITION_MODE:
                 {
 #if DEBUG == 1
                     circle(debugWindowCanvas,Point(480,255),8,Scalar(255),-1);
 #endif
-                    if (armorDetectorPtr->trackingTarget(detectFrame, armorDetectorPtr->targetArmor.rect))
+                    if (armorDetectorPtr->ArmorDetectTask(detectFrame))
                     {
-                        curDetectMode = TRACKING_MODE;
+                        curDetectMode = TRADITION_MODE;
                     }
                     else
                     {
-                        curDetectMode = SEARCH_MODE;
+                        if(++armorDetectorPtr->lossCnt >= 2)
+                            curDetectMode = TRADITION_MODE;
                     }
                 }
                     break;
@@ -332,7 +330,7 @@ namespace rm
 #endif
 
 #if SAVE_LOG == 1
-            // logWrite<<"Detect Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
+             logWrite<<"[Detect Time Consume] : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
 #endif
 
             feedbackCon.notify_all();
@@ -457,8 +455,8 @@ namespace rm
 
                     if(FRAMEHEIGHT > 1000)
                     {
-                        pyrDown(detectFrame,detectFrame);
-                        pyrDown(detectFrame,detectFrame);
+                        //pyrDown(detectFrame,detectFrame);
+                        //pyrDown(detectFrame,detectFrame);
                     }
                     imshow("detect",detectFrame);
                 }
@@ -485,16 +483,15 @@ namespace rm
                     pitchTran /= 1.2;
 
                     /** reset kalman filter **/
-                    kalman->SetKF(Point(0,0),true);
+                    //kalman->SetKF(Point(0,0),true);
 
                     if(fabs(yawTran) > 0.1 && fabs(pitchTran) > 0.1)
                         armorDetectorPtr->findState = true;
                 }
                 else
                 {
-                    lost_target_count = 0;
                     yawTran = solverPtr->yaw - 23;
-                    pitchTran = solverPtr->pitch + 16.5;
+                    pitchTran = solverPtr->pitch + 16.5 + solverPtr->dist/7500;
                 }
 
                 /** update yaw list and yawListCount **/
@@ -510,26 +507,30 @@ namespace rm
                     if(direction == 0)
                     {
                         if( yawDeviation < 0.7 && avg_yaw > 0.2)
-                            yawOffset = -2;
+                            yawOffset = -1.5;
                         else if(yawDeviation < 0.7 && avg_yaw < -0.2)
-                            yawOffset = 2;
+                            yawOffset = 1.5;
                         else
                             yawOffset = 0;
                     }
                     else if(direction == 1 || (yawDeviation < 0.7 && avg_yaw > 0.2))
                     {
-                        yawOffset = -2;
+                        yawOffset = -1.5;
                     }else if(direction == 2 || (yawDeviation < 0.7 && avg_yaw < -0.2))
                     {
-                        yawOffset = 2;
+                        yawOffset = 1.5;
                     }
                 }
 
-                if(armorDetectorPtr->findState&&((yawTran < 1 && pitchTran < 1) || yawDeviation < 1))
+                if(armorDetectorPtr->findState&&((fabs(yawTran) <=  5) || yawDeviation < 1.5))
                     solverPtr->shoot = true;
                 else
                     solverPtr->shoot = false;
-
+#if SAVE_LOG == 1
+                logWrite<<"[Shoot Command] : "<<solverPtr->shoot<<endl;
+#endif
+                //cout<<solverPtr->shoot<<endl;
+                //cout<<armorDetectorPtr->findState<<" "<<yawTran<<" "<<pitchTran<<" "<<yawDeviation<<endl;
                 /** package data and prepare for sending data to lower-machine **/
                 if(carName != HERO)
                     serialPtr->pack(receiveData.yawAngle + yawTran + yawOffset,receiveData.pitchAngle + pitchTran, solverPtr->dist, solverPtr->shoot,
@@ -580,7 +581,16 @@ namespace rm
             }
 
             /** send data from host to low-end machine to instruct holder's movement **/
-            serialPtr->WriteData();
+            if(serialPtr->WriteData())
+            {
+#if SAVE_LOG == 1
+                logWrite<<"[Write Data to USB2TTL SUCCEED]"<<endl;
+#endif
+            }
+            else
+            {
+                logWrite<<"[Write Data to USB2TTL FAILED]"<<endl;
+            }
 
             /**Receive data from low-end machine to update parameters(the color of robot, the task mode, etc)**/
             if(serialPtr->ReadData(receiveData))
@@ -598,11 +608,29 @@ namespace rm
 
                 direction = +static_cast<int>(receiveData.direction);
 
+#if SAVE_LOG == 1
+                logWrite<<"[Feedback Time Consume] : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
+                logWrite<<"[Total Time Consume] : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
+                //logWrite<<"[Direction] :" <<receiveData.direction<<endl;
+                //logWrite<<"[Target Color] : "<<blueTarget<<endl;
+                logWrite<<"[Current Yaw Angle] : "<<receiveData.yawAngle<<endl;
+                logWrite<<"[Current Pitch Angle] : "<<receiveData.pitchAngle<<endl;
+#endif
+
 #if DEBUG_MSG == 1
                 LOGM("BlueTarget: %d\n",(int)blueTarget);
 #endif
             }
+            else
+            {
+#if SAVE_LOG == 1
+                logWrite<<"[Receive Data from USB2TTL FAILED]"<<endl;
+#endif
+            }
 
+#if SAVE_LOG == 1
+            logWrite<<"============================Process Finished============================"<<endl;
+#endif
             /**update condition variables**/
 
             produceMission = false;
@@ -610,12 +638,6 @@ namespace rm
 
 #if DEBUG_MSG == 1
             LOGM("Feedback Thread Completed\n");
-#endif
-
-#if SAVE_LOG == 1
-            //logWrite<<"Feedback Time Consume : "<<((double)getTickCount() - taskTime)/getTickFrequency()<<endl;
-            //logWrite<<"Total Time Consume : "<<((double)getTickCount() - timeFlag)/getTickFrequency()<<endl;
-            logWrite<<yawTran<<" ,"<<direction<<" ,"<<lost_target_count<<", "<<directionChangeFlag<<endl;
 #endif
 
             /**wake up threads blocked by writeCon**/

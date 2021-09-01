@@ -115,7 +115,7 @@ bool Serial::WriteData() {
 
     //cout<<"Write Over to USB!!!!!!!!!!!!!!!!!"<<endl;
     if (curr < 0) {
-        LOGW("Write Serial offline!");
+        //LOGW("Write Serial offline!");
         //cout<<("Write Serial offline!")<<endl;
         close(fd);
         if (wait_uart) {
